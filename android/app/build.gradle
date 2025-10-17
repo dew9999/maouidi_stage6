@@ -30,7 +30,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.mycompany.maouidi"
-    // FIX: Updated compileSdkVersion to 35
+    // THIS IS THE FIX
     compileSdkVersion 35
 
     compileOptions {
@@ -55,7 +55,7 @@ android {
     defaultConfig {
         applicationId "com.mycompany.maouidi"
         minSdkVersion flutter.minSdkVersion
-        // FIX: Updated targetSdkVersion to 35
+        // THIS IS THE FIX
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
