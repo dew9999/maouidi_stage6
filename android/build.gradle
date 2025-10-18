@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.7.3' // FIX: Updated Android Gradle Plugin
+        classpath 'com.android.tools.build:gradle:8.12.3' // FIX: Updated Android Gradle Plugin
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -17,23 +17,6 @@ allprojects {
         mavenCentral()
     }
 
-    // START: Add this new code inside the allprojects block
-    afterEvaluate { project ->
-        if (project.name == 'sqflite_android') {
-            project.tasks.whenTaskAdded { task ->
-                if (task.name.contains("JavaWithJavac")) {
-                    println "---"
-                    println "--- DEBUG INFO FOR sqflite_android ---"
-                    println "--- Task: ${task.name}"
-                    println "--- Compile SDK Version: ${project.android.compileSdkVersion}"
-                    println "--- Source Compatibility: ${task.sourceCompatibility}"
-                    println "--- Target Compatibility: ${task.targetCompatibility}"
-                    println "---"
-                }
-            }
-        }
-    }
-    // END: Add this new code
 }
 
 rootProject.buildDir = '../build'
