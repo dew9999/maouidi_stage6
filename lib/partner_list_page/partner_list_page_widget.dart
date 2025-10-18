@@ -240,7 +240,7 @@ class _PartnerListPageWidgetState extends State<PartnerListPageWidget> {
                 : _partners.isEmpty
                     ? Center(
                         child: Padding(
-                        padding: EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Text(
                             FFLocalizations.of(context).getText('nopartners'),
                             textAlign: TextAlign.center),

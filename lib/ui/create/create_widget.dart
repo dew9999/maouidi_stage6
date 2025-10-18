@@ -519,7 +519,7 @@ class _CreateWidgetState extends State<CreateWidget>
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         SnackBar(
-                                          content: Text(
+                                          content: const Text(
                                               'Could not create account. Please try again.'),
                                           backgroundColor:
                                               FlutterFlowTheme.of(context)

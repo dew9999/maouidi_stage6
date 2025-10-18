@@ -330,7 +330,7 @@ class _ProfileBodyState extends State<_ProfileBody> {
                 style: theme.headlineSmall.copyWith(color: Colors.white),
                 decoration: InputDecoration.collapsed(
                     hintText: FFLocalizations.of(context).getText('fullname'),
-                    hintStyle: TextStyle(color: Colors.white54)),
+                    hintStyle: const TextStyle(color: Colors.white54)),
               )
             : Text(
                 _fullNameController.text,

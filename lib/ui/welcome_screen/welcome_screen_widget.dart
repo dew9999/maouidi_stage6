@@ -212,10 +212,10 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget>
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 60.0,
                         backgroundColor: Colors.transparent,
-                        backgroundImage: const NetworkImage(
+                        backgroundImage: NetworkImage(
                           'https://jtoeizfokgydtsqdciuu.supabase.co/storage/v1/object/public/logo/1000.png',
                         ),
                       ).animateOnPageLoad(

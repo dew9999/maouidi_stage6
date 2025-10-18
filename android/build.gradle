@@ -16,21 +16,29 @@ allprojects {
         google()
         mavenCentral()
     }
-}
 
-rootProject.buildDir = '../build'
-
-subprojects {
+    // START: Add this new code inside the allprojects block
     afterEvaluate { project ->
-        if (project.hasProperty("kotlin")) {
-            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-                kotlinOptions {
-                    jvmTarget = "1.8"
+        if (project.name == 'sqflite_android') {
+            project.tasks.whenTaskAdded { task ->
+                if (task.name.contains("JavaWithJavac")) {
+                    println "---"
+                    println "--- DEBUG INFO FOR sqflite_android ---"
+                    println "--- Task: ${task.name}"
+                    println "--- Compile SDK Version: ${project.android.compileSdkVersion}"
+                    println "--- Source Compatibility: ${task.sourceCompatibility}"
+                    println "--- Target Compatibility: ${task.targetCompatibility}"
+                    println "---"
                 }
             }
         }
     }
+    // END: Add this new code
 }
+
+rootProject.buildDir = '../build'
+
+
 
 subprojects {
     afterEvaluate { project ->
