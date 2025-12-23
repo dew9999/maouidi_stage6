@@ -1,0 +1,61 @@
+﻿  error - The getter 'uid' isn't defined for the type 'User' - lib\auth\supabase_auth\auth_util.dart:12:43 - undefined_getter
+  error - The getter 'displayName' isn't defined for the type 'User' - lib\auth\supabase_auth\auth_util.dart:13:51 - undefined_getter
+  error - The getter 'photoUrl' isn't defined for the type 'User' - lib\auth\supabase_auth\auth_util.dart:14:45 - undefined_getter
+  error - The getter 'phoneNumber' isn't defined for the type 'User' - lib\auth\supabase_auth\auth_util.dart:15:47 - undefined_getter
+  error - The getter 'emailVerified' isn't defined for the type 'User' - lib\auth\supabase_auth\auth_util.dart:16:51 - undefined_getter
+  error - A value of type 'MaouidiSupabaseUser?' can't be assigned to a variable of type 'User?' - lib\auth\supabase_auth\auth_util.dart:30:19 - invalid_assignment
+  error - The returned type 'User?' isn't returnable from a 'BaseAuthUser?' function, as required by the closure's context - lib\auth\supabase_auth\auth_util.dart:31:12 - return_of_invalid_type_from_closure
+  error - A value of type 'User?' can't be returned from the function 'currentUser' because it has a return type of 'BaseAuthUser?' - lib\auth\supabase_auth\supabase_auth_manager.dart:51:7 - return_of_invalid_type
+  error - A value of type 'MaouidiSupabaseUser' can't be assigned to a variable of type 'User?' - lib\auth\supabase_auth\supabase_auth_manager.dart:57:45 - invalid_assignment
+  error - A value of type 'MaouidiSupabaseUser' can't be assigned to a variable of type 'User?' - lib\auth\supabase_auth\supabase_auth_manager.dart:133:11 - invalid_assignment
+  error - A value of type 'User?' can't be returned from the method 'signInWithEmail' because it has a return type of 'Future<BaseAuthUser?>' - lib\auth\supabase_auth\supabase_auth_manager.dart:134:14 - return_of_invalid_type
+   info - The import of '/flutter_flow/nav/serialization_util.dart' is unnecessary because all of the used elements are also provided by the import of '/flutter_flow/flutter_flow_util.dart' - lib\backend\schema\structs\working_hours_struct.dart:7:8 - unnecessary_import
+warning - The matched value type 'Type' can never match the required type 'int' - lib\backend\supabase\database\row.dart:71:10 - pattern_never_matches_value_type
+warning - The matched value type 'Type' can never match the required type 'double' - lib\backend\supabase\database\row.dart:73:10 - pattern_never_matches_value_type
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\booking_page\booking_page_widget.dart:656:5 - unawaited_futures
+   info - Unnecessary use of getter and setter to wrap a field - lib\flutter_flow\flutter_flow_model.dart:45:10 - unnecessary_getters_setters
+   info - Don't invoke 'print' in production code - lib\flutter_flow\flutter_flow_util.dart:187:5 - avoid_print
+warning - The member 'setState' can only be used within instance members of subclasses of 'State' - lib\flutter_flow\flutter_flow_util.dart:261:7 - invalid_use_of_protected_member
+   info - Don't invoke 'print' in production code - lib\flutter_flow\nav\serialization_util.dart:90:5 - avoid_print
+   info - The constant name 'String' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:148:3 - constant_identifier_names
+   info - The constant name 'DateTime' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:150:3 - constant_identifier_names
+   info - The constant name 'DateTimeRange' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:151:3 - constant_identifier_names
+   info - The constant name 'LatLng' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:152:3 - constant_identifier_names
+   info - The constant name 'Color' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:153:3 - constant_identifier_names
+   info - The constant name 'FFPlace' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:154:3 - constant_identifier_names
+   info - The constant name 'FFUploadedFile' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:155:3 - constant_identifier_names
+   info - The constant name 'JSON' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:156:3 - constant_identifier_names
+   info - The constant name 'DataStruct' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:157:3 - constant_identifier_names
+   info - The constant name 'SupabaseRow' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:158:3 - constant_identifier_names
+   info - Don't invoke 'print' in production code - lib\flutter_flow\nav\serialization_util.dart:237:5 - avoid_print
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\main.dart:39:29 - unawaited_futures
+   info - Invalid use of a private type in a public API - lib\main.dart:51:10 - library_private_types_in_public_api
+   info - The variable name '_showBookForPatientDialog_QueueBased' isn't a lowerCamelCase identifier - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:128:8 - non_constant_identifier_names
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:1361:17 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:1371:19 - unawaited_futures
+   info - The variable name '_ClinicDoctorsList' isn't a lowerCamelCase identifier - lib\partner_profile_page\partner_profile_page_widget.dart:626:10 - non_constant_identifier_names
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\services\notification_service.dart:12:29 - unawaited_futures
+  error - The method 'override' can't be unconditionally invoked because the receiver can be 'null' - lib\ui\login\login_widget.dart:357:42 - unchecked_use_of_nullable_value
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\ui\welcome_screen\welcome_screen_widget.dart:279:37 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\ui\welcome_screen\welcome_screen_widget.dart:314:37 - unawaited_futures
+
+flutter : 40 issues 
+found. (ran in 4.5s)
+At line:1 char:1
++ flutter analyze 
+--no-preamble 2>&1 | 
+Out-File -FilePath 
+"errors_12.tx ...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (40 issu   
+ es found. (ran i    
+n 4.5s):String)     
+[], RemoteExcept    
+ion
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 

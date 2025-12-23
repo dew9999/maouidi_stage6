@@ -45,7 +45,7 @@ class NowServingCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Now Serving',
-                style: theme.labelLarge.copyWith(color: Colors.white70)),
+                style: theme.labelLarge.copyWith(color: Colors.white70),),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -53,20 +53,20 @@ class NowServingCard extends StatelessWidget {
                   radius: 28,
                   backgroundColor: Colors.white,
                   child: Text('$appointmentNumber',
-                      style: theme.displaySmall.copyWith(color: theme.primary)),
+                      style: theme.displaySmall.copyWith(color: theme.primary),),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
                     displayName,
                     style: theme.headlineMedium.copyWith(
-                        color: Colors.white, fontWeight: FontWeight.bold),
+                        color: Colors.white, fontWeight: FontWeight.bold,),
                   ),
                 ),
               ],
             ),
             HomecareDetailsView(
-                appointmentData: appointmentData, lightTheme: true),
+                appointmentData: appointmentData, lightTheme: true,),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -75,12 +75,12 @@ class NowServingCard extends StatelessWidget {
                     onPressed: () async {
                       try {
                         await client.from('appointments').update(
-                            {'status': 'NoShow'}).eq('id', appointmentId);
+                            {'status': 'NoShow'},).eq('id', appointmentId);
                         onAction();
                       } catch (e) {
                         if (context.mounted) {
                           showErrorSnackbar(
-                              context, 'Action failed: ${e.toString()}');
+                              context, 'Action failed: ${e.toString()}',);
                         }
                       }
                     },
@@ -106,7 +106,7 @@ class NowServingCard extends StatelessWidget {
                       } catch (e) {
                         if (context.mounted) {
                           showErrorSnackbar(
-                              context, 'Action failed: ${e.toString()}');
+                              context, 'Action failed: ${e.toString()}',);
                         }
                       }
                     },
@@ -116,7 +116,7 @@ class NowServingCard extends StatelessWidget {
                       height: 44,
                       color: Colors.white,
                       textStyle: theme.titleSmall.copyWith(
-                          color: theme.primary, fontWeight: FontWeight.bold),
+                          color: theme.primary, fontWeight: FontWeight.bold,),
                     ),
                   ),
                 ),

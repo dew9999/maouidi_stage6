@@ -64,7 +64,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       debugPrint('Search failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Search failed: ${e.toString()}')));
+            SnackBar(content: Text('Search failed: ${e.toString()}')),);
       }
     } finally {
       if (mounted) {
@@ -81,7 +81,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         backgroundColor: theme.primaryBackground,
         iconTheme: IconThemeData(color: theme.primaryText),
         title: Text(FFLocalizations.of(context).getText('srchptr'),
-            style: theme.headlineSmall),
+            style: theme.headlineSmall,),
         elevation: 2,
       ),
       body: Column(

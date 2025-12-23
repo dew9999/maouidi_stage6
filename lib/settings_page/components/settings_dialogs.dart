@@ -22,7 +22,7 @@ void showContactUsDialog(BuildContext context) {
     builder: (dialogContext) => AlertDialog(
       backgroundColor: theme.secondaryBackground,
       title: Text(FFLocalizations.of(context).getText('contactus'),
-          style: theme.headlineSmall),
+          style: theme.headlineSmall,),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +61,7 @@ void showDeleteAccountDialog(BuildContext context) {
     builder: (dialogContext) => AlertDialog(
       title: Text(FFLocalizations.of(context).getText('delacct')),
       content: const Text(
-          'Are you sure? This action is permanent and cannot be undone.'),
+          'Are you sure? This action is permanent and cannot be undone.',),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(),
@@ -80,13 +80,13 @@ void showDeleteAccountDialog(BuildContext context) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                       content: Text('Error deleting account: ${e.toString()}'),
-                      backgroundColor: Colors.red),
+                      backgroundColor: Colors.red,),
                 );
               }
             }
           },
           child: Text(FFLocalizations.of(context).getText('delacct'),
-              style: const TextStyle(color: Colors.red)),
+              style: const TextStyle(color: Colors.red),),
         ),
       ],
     ),
@@ -110,7 +110,7 @@ class _ContactRow extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
               child: SelectableText(text,
-                  style: FlutterFlowTheme.of(context).bodyMedium)),
+                  style: FlutterFlowTheme.of(context).bodyMedium,),),
         ],
       ),
     );

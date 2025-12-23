@@ -17,7 +17,7 @@ class MaouidiSupabaseUser extends base_auth_user_provider.BaseAuthUser {
   @override
   base_auth_user_provider.AuthUserInfo get authUserInfo =>
       base_auth_user_provider.AuthUserInfo(
-        uid: user.id,
+        id: user.id,
         email: user.email,
         displayName: user.userMetadata?['full_name'],
         photoUrl: user.userMetadata?['avatar_url'],
@@ -67,7 +67,7 @@ class SupabaseAuthManager implements AuthManager {
   @override
   Future<void> deleteUser(BuildContext context) async {
     try {
-      if (currentUser?.uid == null) {
+      if (currentUser?.id == null) {
         throw Exception('User is not signed in.');
       }
       await SupaFlow.client.rpc('delete_user_account');

@@ -102,7 +102,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                       filled: true,
                       fillColor: theme.secondaryBackground,
                       prefixIcon: Icon(Icons.search_rounded,
-                          color: theme.secondaryText),
+                          color: theme.secondaryText,),
                     ),
                     style: theme.bodyMedium,
                   ),
@@ -112,14 +112,14 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                       duration: 600.ms,
                       curve: Curves.easeOut,
                       begin: 0,
-                      end: 1),
+                      end: 1,),
                   MoveEffect(
                       delay: 100.ms,
                       duration: 600.ms,
                       curve: Curves.easeOut,
                       begin: const Offset(0, 20),
-                      end: const Offset(0, 0)),
-                ]),
+                      end: const Offset(0, 0),),
+                ],),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                   child: Text('Categories', style: theme.titleLarge),
@@ -144,28 +144,28 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         label: FFLocalizations.of(context)
                             .getText('t7w8u2b4' /* Doctors */),
                         onTap: () => context.pushNamed('PartnerListPage',
-                            queryParameters: {'categoryName': 'Doctors'}),
+                            queryParameters: {'categoryName': 'Doctors'},),
                       ),
                       _CategoryCard(
                         icon: FontAwesomeIcons.hospital,
                         label: FFLocalizations.of(context)
                             .getText('fvarzh30' /* Clinics */),
                         onTap: () => context.pushNamed('PartnerListPage',
-                            queryParameters: {'categoryName': 'Clinics'}),
+                            queryParameters: {'categoryName': 'Clinics'},),
                       ),
                       _CategoryCard(
                         icon: FontAwesomeIcons.briefcaseMedical,
                         label: FFLocalizations.of(context)
                             .getText('vzmuomic' /* Homecare */),
                         onTap: () => context.pushNamed('PartnerListPage',
-                            queryParameters: {'categoryName': 'Homecare'}),
+                            queryParameters: {'categoryName': 'Homecare'},),
                       ),
                       _CategoryCard(
                         icon: FontAwesomeIcons.handHoldingHeart,
                         label: FFLocalizations.of(context)
                             .getText('22avau5o' /* Charities */),
                         onTap: () => context.pushNamed('PartnerListPage',
-                            queryParameters: {'categoryName': 'Charities'}),
+                            queryParameters: {'categoryName': 'Charities'},),
                       ),
                     ],
                   ),
@@ -175,14 +175,14 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                       duration: 600.ms,
                       curve: Curves.easeOut,
                       begin: 0,
-                      end: 1),
-                ]),
+                      end: 1,),
+                ],),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
                   child: Text(
                       FFLocalizations.of(context)
                           .getText('sh600y77' /* Featured Partners */),
-                      style: theme.titleLarge),
+                      style: theme.titleLarge,),
                 ),
                 SizedBox(
                   height: 220,
@@ -202,7 +202,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                           snapshot.data!.isEmpty) {
                         return Center(
                             child: Text('No featured partners available.',
-                                style: theme.bodyMedium));
+                                style: theme.bodyMedium,),);
                       }
                       final partners = snapshot.data!;
                       return ListView.builder(
@@ -226,14 +226,14 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                       duration: 600.ms,
                       curve: Curves.easeOut,
                       begin: 0,
-                      end: 1),
+                      end: 1,),
                   MoveEffect(
                       delay: 300.ms,
                       duration: 600.ms,
                       curve: Curves.easeOut,
                       begin: const Offset(0, 40),
-                      end: const Offset(0, 0)),
-                ]),
+                      end: const Offset(0, 0),),
+                ],),
               ],
             ),
           ),
@@ -272,7 +272,7 @@ class _CategoryCard extends StatelessWidget {
             const SizedBox(width: 12),
             Text(label,
                 style: theme.titleSmall.copyWith(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
+                    color: Colors.white, fontWeight: FontWeight.bold,),),
           ],
         ),
       ),
@@ -317,7 +317,7 @@ class _FeaturedPartnerCard extends StatelessWidget {
                   errorWidget: (context, url, error) => Container(
                     color: theme.alternate,
                     child: Icon(Icons.person,
-                        size: 60, color: theme.secondaryText),
+                        size: 60, color: theme.secondaryText,),
                   ),
                 ),
               ),
@@ -345,7 +345,7 @@ class _FeaturedPartnerCard extends StatelessWidget {
                     Row(
                       children: [
                         Icon(Icons.star_rounded,
-                            color: theme.warning, size: 18),
+                            color: theme.warning, size: 18,),
                         const SizedBox(width: 4),
                         Text(
                           partner.averageRating?.toStringAsFixed(1) ??

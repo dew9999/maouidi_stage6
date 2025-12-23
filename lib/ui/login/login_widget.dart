@@ -98,7 +98,7 @@ class _LoginWidgetState extends State<LoginWidget>
                         gradient: LinearGradient(
                           colors: [
                             FlutterFlowTheme.of(context).primary,
-                            FlutterFlowTheme.of(context).tertiary
+                            FlutterFlowTheme.of(context).tertiary,
                           ],
                           stops: const [0.0, 1.0],
                           begin: const AlignmentDirectional(-1.0, -1.0),
@@ -112,7 +112,7 @@ class _LoginWidgetState extends State<LoginWidget>
                           gradient: LinearGradient(
                             colors: [
                               const Color(0x00FFFFFF),
-                              FlutterFlowTheme.of(context).secondaryBackground
+                              FlutterFlowTheme.of(context).secondaryBackground,
                             ],
                             stops: const [0.0, 1.0],
                             begin: const AlignmentDirectional(0.0, -1.0),
@@ -132,7 +132,11 @@ class _LoginWidgetState extends State<LoginWidget>
                             ),
                             Padding(
                               padding: const EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 12.0, 0.0, 0.0),
+                                0.0,
+                                12.0,
+                                0.0,
+                                0.0,
+                              ),
                               child: Text(
                                 FFLocalizations.of(context).getText(
                                   'elr6im80', /* Sign In */
@@ -144,7 +148,11 @@ class _LoginWidgetState extends State<LoginWidget>
                             ),
                             Padding(
                               padding: const EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 4.0, 0.0, 0.0),
+                                0.0,
+                                4.0,
+                                0.0,
+                                0.0,
+                              ),
                               child: Text(
                                 FFLocalizations.of(context).getText(
                                   'bw1u9riq', /* Use the account below to sign in. */
@@ -160,7 +168,11 @@ class _LoginWidgetState extends State<LoginWidget>
                     ),
                     Padding(
                       padding: const EdgeInsetsDirectional.fromSTEB(
-                          24.0, 24.0, 24.0, 32.0),
+                        24.0,
+                        24.0,
+                        24.0,
+                        32.0,
+                      ),
                       child: Form(
                         key: _formKey,
                         child: Column(
@@ -224,7 +236,11 @@ class _LoginWidgetState extends State<LoginWidget>
                             ),
                             Padding(
                               padding: const EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 16.0, 0.0, 0.0),
+                                0.0,
+                                16.0,
+                                0.0,
+                                0.0,
+                              ),
                               child: TextFormField(
                                 controller: _model.passwordTextController,
                                 focusNode: _model.passwordFocusNode,
@@ -300,7 +316,11 @@ class _LoginWidgetState extends State<LoginWidget>
                               alignment: const AlignmentDirectional(0.0, 0.0),
                               child: Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 24.0, 0.0, 16.0),
+                                  0.0,
+                                  24.0,
+                                  0.0,
+                                  16.0,
+                                ),
                                 child: FFButtonWidget(
                                   onPressed: () async {
                                     if (!(_formKey.currentState?.validate() ??
@@ -320,7 +340,8 @@ class _LoginWidgetState extends State<LoginWidget>
                                               .showSnackBar(
                                             const SnackBar(
                                               content: Text(
-                                                  'An unknown error occurred.'),
+                                                'An unknown error occurred.',
+                                              ),
                                             ),
                                           );
                                         }
@@ -354,7 +375,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                     textStyle: FlutterFlowTheme.of(context)
                                         .typography
                                         .titleSmall
-                                        .override(
+                                        ?.override(
                                           fontFamily: 'Inter',
                                           color: Colors.white,
                                         ),
@@ -398,7 +419,8 @@ class _LoginWidgetState extends State<LoginWidget>
                           ],
                         ),
                       ).animateOnPageLoad(
-                          animationsMap['columnOnPageLoadAnimation']!),
+                        animationsMap['columnOnPageLoadAnimation']!,
+                      ),
                     ),
                   ],
                 ),

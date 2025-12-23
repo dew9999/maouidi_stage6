@@ -1,6 +1,8 @@
 // lib/booking_page/booking_page_widget.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:maouidi/features/bookings/presentation/booking_controller.dart';
 import 'package:maouidi/services/api_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '/flutter_flow/flutter_flow_calendar.dart';
@@ -8,11 +10,10 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-import 'package:maouidi/partner_dashboard_page/components/dashboard_helpers.dart';
 export 'booking_page_model.dart';
 
 Future<Map<String, String>?> showHomecareDetailsDialog(
-    BuildContext context) async {
+    BuildContext context,) async {
   final theme = FlutterFlowTheme.of(context);
   final formKey = GlobalKey<FormState>();
   final caseController = TextEditingController();
@@ -24,7 +25,7 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
       return AlertDialog(
         backgroundColor: theme.secondaryBackground,
         title: Text(FFLocalizations.of(context).getText('hcdetails'),
-            style: theme.headlineSmall),
+            style: theme.headlineSmall,),
         content: Form(
           key: formKey,
           child: SingleChildScrollView(
@@ -39,7 +40,7 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
                     hintText: FFLocalizations.of(context).getText('casedescex'),
                     hintStyle: theme.labelMedium,
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(8),),
                   ),
                   maxLines: 3,
                   validator: (v) => v == null || v.isEmpty
@@ -55,7 +56,7 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
                     hintText: FFLocalizations.of(context).getText('fulladdrex'),
                     hintStyle: theme.labelMedium,
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(8),),
                   ),
                   maxLines: 2,
                   validator: (v) => v == null || v.isEmpty
@@ -70,7 +71,7 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(null),
             child: Text(FFLocalizations.of(context).getText('cancel'),
-                style: TextStyle(color: theme.secondaryText)),
+                style: TextStyle(color: theme.secondaryText),),
           ),
           ElevatedButton(
             onPressed: () {
@@ -116,7 +117,7 @@ class _BookingPageWidgetState extends State<BookingPageWidget> {
     _partnerDataFuture = Supabase.instance.client
         .from('medical_partners')
         .select(
-            'booking_system_type, full_name, closed_days, category, working_hours')
+            'booking_system_type, full_name, closed_days, category, working_hours',)
         .eq('id', widget.partnerId)
         .maybeSingle();
   }
@@ -133,12 +134,12 @@ class _BookingPageWidgetState extends State<BookingPageWidget> {
           borderRadius: 30.0,
           buttonSize: 60.0,
           icon: const Icon(Icons.arrow_back_rounded,
-              color: Colors.white, size: 30.0),
+              color: Colors.white, size: 30.0,),
           onPressed: () => context.safePop(),
         ),
         title: Text(FFLocalizations.of(context).getText('bookapptbar'),
             style: FlutterFlowTheme.of(context).headlineMedium.override(
-                fontFamily: 'Inter', color: Colors.white, fontSize: 22.0)),
+                fontFamily: 'Inter', color: Colors.white, fontSize: 22.0,),),
         centerTitle: true,
         elevation: 2.0,
       ),
@@ -155,7 +156,7 @@ class _BookingPageWidgetState extends State<BookingPageWidget> {
                 snapshot.data == null) {
               return Center(
                   child: Text(
-                      FFLocalizations.of(context).getText('ptrnotconfig')));
+                      FFLocalizations.of(context).getText('ptrnotconfig'),),);
             }
 
             final partnerData = snapshot.data!;
@@ -193,7 +194,7 @@ class _BookingPageWidgetState extends State<BookingPageWidget> {
   }
 }
 
-class _NumberQueueBookingView extends StatefulWidget {
+class _NumberQueueBookingView extends ConsumerStatefulWidget {
   const _NumberQueueBookingView({
     required this.partnerId,
     required this.partnerName,
@@ -210,12 +211,12 @@ class _NumberQueueBookingView extends StatefulWidget {
   final Map<String, dynamic> workingHours;
 
   @override
-  State<_NumberQueueBookingView> createState() =>
+  ConsumerState<_NumberQueueBookingView> createState() =>
       __NumberQueueBookingViewState();
 }
 
-class __NumberQueueBookingViewState extends State<_NumberQueueBookingView> {
-  bool _isLoading = false;
+class __NumberQueueBookingViewState
+    extends ConsumerState<_NumberQueueBookingView> {
   DateTime _selectedDate = DateTime.now();
 
   bool isSameDay(DateTime? a, DateTime? b) {
@@ -224,38 +225,42 @@ class __NumberQueueBookingViewState extends State<_NumberQueueBookingView> {
   }
 
   Future<void> _bookAppointment(
-      {String? onBehalfOfName, String? onBehalfOfPhone}) async {
+      {String? onBehalfOfName, String? onBehalfOfPhone,}) async {
     Map<String, String>? homecareDetails;
     if (widget.partnerCategory == 'Homecare' && !widget.isPartnerBooking) {
       homecareDetails = await showHomecareDetailsDialog(context);
       if (homecareDetails == null) return;
     }
 
-    setState(() => _isLoading = true);
     try {
       final appointmentDateUTC = DateTime.utc(
-          _selectedDate.year, _selectedDate.month, _selectedDate.day);
-
-      await Supabase.instance.client.rpc(
-        'book_appointment',
-        params: {
-          'partner_id_arg': widget.partnerId,
-          'appointment_time_arg': appointmentDateUTC.toIso8601String(),
-          'on_behalf_of_name_arg': onBehalfOfName,
-          'on_behalf_of_phone_arg': onBehalfOfPhone,
-          'is_partner_override': widget.isPartnerBooking,
-          'case_description_arg': homecareDetails?['case_description'],
-          'patient_location_arg': homecareDetails?['patient_location'],
-        },
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
       );
 
+      await ref.read(bookingControllerProvider.notifier).bookAppointment(
+            partnerId: widget.partnerId,
+            appointmentTime: appointmentDateUTC,
+            onBehalfOfName: onBehalfOfName,
+            onBehalfOfPhone: onBehalfOfPhone,
+            isPartnerOverride: widget.isPartnerBooking,
+            caseDescription: homecareDetails?['case_description'],
+            patientLocation: homecareDetails?['patient_location'],
+          );
+
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(widget.partnerCategory == 'Homecare'
-              ? FFLocalizations.of(context).getText('reqsent')
-              : FFLocalizations.of(context).getText('gotnum')),
-          backgroundColor: Colors.green));
-      context.pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.partnerCategory == 'Homecare'
+                ? FFLocalizations.of(context).getText('reqsent')
+                : FFLocalizations.of(context).getText('gotnum'),
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+      if (mounted) context.pop();
     } catch (e) {
       if (!mounted) return;
       String errorMessage = 'An unexpected error occurred. Please try again.';
@@ -271,9 +276,12 @@ class __NumberQueueBookingViewState extends State<_NumberQueueBookingView> {
         errorMessage =
             'Could not connect to the server. Please check your internet connection.';
       }
-      showErrorSnackbar(context, errorMessage);
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -288,7 +296,7 @@ class __NumberQueueBookingViewState extends State<_NumberQueueBookingView> {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: theme.secondaryBackground,
         title: Text(FFLocalizations.of(context).getText('bookforpatient'),
-            style: theme.titleLarge),
+            style: theme.titleLarge,),
         content: Form(
           key: formKey,
           child: Column(
@@ -298,19 +306,19 @@ class __NumberQueueBookingViewState extends State<_NumberQueueBookingView> {
                   controller: nameController,
                   decoration: InputDecoration(
                       labelText:
-                          FFLocalizations.of(context).getText('ptfullname')),
+                          FFLocalizations.of(context).getText('ptfullname'),),
                   validator: (v) => v!.isEmpty
                       ? FFLocalizations.of(context).getText('fieldreq')
-                      : null),
+                      : null,),
               TextFormField(
                   controller: phoneController,
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                       labelText:
-                          FFLocalizations.of(context).getText('ptphone')),
+                          FFLocalizations.of(context).getText('ptphone'),),
                   validator: (v) => v!.isEmpty
                       ? FFLocalizations.of(context).getText('fieldreq')
-                      : null),
+                      : null,),
             ],
           ),
         ),
@@ -318,14 +326,14 @@ class __NumberQueueBookingViewState extends State<_NumberQueueBookingView> {
           TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(FFLocalizations.of(context).getText('cancel'),
-                  style: TextStyle(color: theme.secondaryText))),
+                  style: TextStyle(color: theme.secondaryText),),),
           ElevatedButton(
             onPressed: () async {
               if (formKey.currentState!.validate()) {
                 Navigator.of(dialogContext).pop();
                 await _bookAppointment(
                     onBehalfOfName: nameController.text,
-                    onBehalfOfPhone: phoneController.text);
+                    onBehalfOfPhone: phoneController.text,);
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: theme.primary),
@@ -349,7 +357,7 @@ class __NumberQueueBookingViewState extends State<_NumberQueueBookingView> {
     final isPastDay = _selectedDate.isBefore(DateTime.now().startOfDay);
 
     final bool isButtonDisabled =
-        _isLoading || isDateInClosedDays || !isWorkingDay || isPastDay;
+        isDateInClosedDays || !isWorkingDay || isPastDay;
 
     return Column(
       children: [
@@ -390,7 +398,7 @@ class __NumberQueueBookingViewState extends State<_NumberQueueBookingView> {
                         ? Icons.medical_services_outlined
                         : Icons.confirmation_number_outlined,
                     size: 60,
-                    color: theme.primary),
+                    color: theme.primary,),
                 const SizedBox(height: 16),
                 Text(
                   '${widget.partnerCategory == 'Homecare' ? FFLocalizations.of(context).getText('requestvisit') : FFLocalizations.of(context).getText('getnumberfor')} for the day of:',
@@ -448,16 +456,11 @@ class __NumberQueueBookingViewState extends State<_NumberQueueBookingView> {
                             await _bookAppointment();
                           }
                         },
-                  text: _isLoading
-                      ? FFLocalizations.of(context).getText('submitting')
-                      : (widget.isPartnerBooking
-                          ? FFLocalizations.of(context)
-                              .getText('bookforpatient')
-                          : (widget.partnerCategory == 'Homecare'
-                              ? FFLocalizations.of(context)
-                                  .getText('submithcreq')
-                              : FFLocalizations.of(context)
-                                  .getText('getmynum'))),
+                  text: widget.isPartnerBooking
+                      ? FFLocalizations.of(context).getText('bookforpatient')
+                      : (widget.partnerCategory == 'Homecare'
+                          ? FFLocalizations.of(context).getText('submithcreq')
+                          : FFLocalizations.of(context).getText('getmynum')),
                   options: FFButtonOptions(
                     height: 50,
                     color: theme.primary,
@@ -468,7 +471,7 @@ class __NumberQueueBookingViewState extends State<_NumberQueueBookingView> {
                     disabledColor: theme.alternate,
                     disabledTextColor: theme.secondaryText,
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -480,7 +483,7 @@ class __NumberQueueBookingViewState extends State<_NumberQueueBookingView> {
 
 class _TimeSlotBookingView extends StatefulWidget {
   const _TimeSlotBookingView(
-      {required this.partnerId, required this.isPartnerBooking});
+      {required this.partnerId, required this.isPartnerBooking,});
   final String partnerId;
   final bool isPartnerBooking;
 
@@ -600,7 +603,7 @@ class _TimeSlotGridState extends State<_TimeSlotGrid> {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: theme.secondaryBackground,
         title: Text(FFLocalizations.of(context).getText('bookforpatient'),
-            style: theme.titleLarge),
+            style: theme.titleLarge,),
         content: Form(
           key: formKey,
           child: Column(
@@ -610,19 +613,19 @@ class _TimeSlotGridState extends State<_TimeSlotGrid> {
                   controller: nameController,
                   decoration: InputDecoration(
                       labelText:
-                          FFLocalizations.of(context).getText('ptfullname')),
+                          FFLocalizations.of(context).getText('ptfullname'),),
                   validator: (v) => v!.isEmpty
                       ? FFLocalizations.of(context).getText('fieldreq')
-                      : null),
+                      : null,),
               TextFormField(
                   controller: phoneController,
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                       labelText:
-                          FFLocalizations.of(context).getText('ptphone')),
+                          FFLocalizations.of(context).getText('ptphone'),),
                   validator: (v) => v!.isEmpty
                       ? FFLocalizations.of(context).getText('fieldreq')
-                      : null),
+                      : null,),
             ],
           ),
         ),
@@ -630,14 +633,14 @@ class _TimeSlotGridState extends State<_TimeSlotGrid> {
           TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(FFLocalizations.of(context).getText('cancel'),
-                  style: TextStyle(color: theme.secondaryText))),
+                  style: TextStyle(color: theme.secondaryText),),),
           ElevatedButton(
             onPressed: () async {
               if (formKey.currentState!.validate()) {
                 Navigator.of(dialogContext).pop();
                 await _bookAppointment(slot,
                     onBehalfOfName: nameController.text,
-                    onBehalfOfPhone: phoneController.text);
+                    onBehalfOfPhone: phoneController.text,);
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: theme.primary),
@@ -649,11 +652,11 @@ class _TimeSlotGridState extends State<_TimeSlotGrid> {
   }
 
   Future<void> _bookAppointment(TimeSlot slot,
-      {String? onBehalfOfName, String? onBehalfOfPhone}) async {
+      {String? onBehalfOfName, String? onBehalfOfPhone,}) async {
     showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()));
+        builder: (context) => const Center(child: CircularProgressIndicator()),);
 
     try {
       await Supabase.instance.client.rpc(
@@ -673,7 +676,7 @@ class _TimeSlotGridState extends State<_TimeSlotGrid> {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(FFLocalizations.of(context).getText('apptcreated')),
-          backgroundColor: Colors.green));
+          backgroundColor: Colors.green,),);
 
       widget.onBookingComplete();
     } catch (e) {
@@ -690,7 +693,12 @@ class _TimeSlotGridState extends State<_TimeSlotGrid> {
         errorMessage =
             'Could not connect to the server. Please check your internet connection.';
       }
-      showErrorSnackbar(context, errorMessage);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -703,18 +711,18 @@ class _TimeSlotGridState extends State<_TimeSlotGrid> {
           return Center(
               child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(
-                      FlutterFlowTheme.of(context).primary)));
+                      FlutterFlowTheme.of(context).primary,),),);
         }
         if (snapshot.hasError) {
           return Center(
               child: Text(
                   '${FFLocalizations.of(context).getText('loadslotserr')}: ${snapshot.error}',
-                  style: FlutterFlowTheme.of(context).bodyMedium));
+                  style: FlutterFlowTheme.of(context).bodyMedium,),);
         }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(
               child: Text(FFLocalizations.of(context).getText('noslots'),
-                  style: FlutterFlowTheme.of(context).bodyMedium));
+                  style: FlutterFlowTheme.of(context).bodyMedium,),);
         }
 
         final availableSlots = snapshot.data!;
@@ -729,7 +737,7 @@ class _TimeSlotGridState extends State<_TimeSlotGrid> {
           itemCount: availableSlots.length,
           itemBuilder: (context, index) {
             final slot = availableSlots[index];
-            bool isTappable = slot.status == SlotStatus.available;
+            final bool isTappable = slot.status == SlotStatus.available;
             Color buttonColor;
             switch (slot.status) {
               case SlotStatus.available:

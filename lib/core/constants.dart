@@ -53,7 +53,7 @@ const List<String> medicalSpecialties = [
   'Forensic Medicine and Medical Deontology',
   'Occupational Medicine',
   'Stomatology',
-  'Transfusion Medicine (Hemobiology)'
+  'Transfusion Medicine (Hemobiology)',
 ];
 const List<String> algerianStates = [
   'Adrar',
@@ -113,7 +113,7 @@ const List<String> algerianStates = [
   'Touggourt',
   'Djanet',
   'El M\'Ghair',
-  'El Meniaa'
+  'El Meniaa',
 ];
 const String defaultAvatarUrl =
     'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/health-app-j75f2j/assets/7957s72h1p38/avatar-default.png';

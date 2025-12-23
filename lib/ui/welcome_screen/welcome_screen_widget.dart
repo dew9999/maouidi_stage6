@@ -187,7 +187,7 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget>
                     colors: [
                       FlutterFlowTheme.of(context).primary,
                       FlutterFlowTheme.of(context).secondary,
-                      FlutterFlowTheme.of(context).tertiary
+                      FlutterFlowTheme.of(context).tertiary,
                     ],
                     stops: const [0.0, 0.5, 1.0],
                     begin: const AlignmentDirectional(-1.0, -1.0),
@@ -201,7 +201,7 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget>
                     gradient: LinearGradient(
                       colors: [
                         const Color(0x00FFFFFF),
-                        FlutterFlowTheme.of(context).primary
+                        FlutterFlowTheme.of(context).primary,
                       ],
                       stops: const [0.0, 1.0],
                       begin: const AlignmentDirectional(0.0, -1.0),
@@ -219,10 +219,10 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget>
                           'https://jtoeizfokgydtsqdciuu.supabase.co/storage/v1/object/public/logo/1000.png',
                         ),
                       ).animateOnPageLoad(
-                          animationsMap['containerOnPageLoadAnimation2']!),
+                          animationsMap['containerOnPageLoadAnimation2']!,),
                       Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(
-                            0.0, 44.0, 0.0, 0.0),
+                            0.0, 44.0, 0.0, 0.0,),
                         child: Text(
                           FFLocalizations.of(context).getText(
                             'zuf2lagf',
@@ -236,11 +236,11 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget>
                                     .white, // Explicitly set to white for clarity
                               ),
                         ).animateOnPageLoad(
-                            animationsMap['textOnPageLoadAnimation1']!),
+                            animationsMap['textOnPageLoadAnimation1']!,),
                       ),
                       Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(
-                            44.0, 8.0, 44.0, 0.0),
+                            44.0, 8.0, 44.0, 0.0,),
                         child: Text(
                           FFLocalizations.of(context).getText(
                             '2qjevbjl',
@@ -254,13 +254,13 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget>
                                     color: const Color(0xCCFFFFFF), // 80% White
                                   ),
                         ).animateOnPageLoad(
-                            animationsMap['textOnPageLoadAnimation2']!),
+                            animationsMap['textOnPageLoadAnimation2']!,),
                       ),
                     ],
                   ),
                 ),
               ).animateOnPageLoad(
-                  animationsMap['containerOnPageLoadAnimation1']!),
+                  animationsMap['containerOnPageLoadAnimation1']!,),
             ),
             Padding(
               padding:
@@ -273,7 +273,7 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget>
                       alignment: const AlignmentDirectional(0.0, 0.0),
                       child: Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(
-                            0.0, 0.0, 8.0, 16.0),
+                            0.0, 0.0, 8.0, 16.0,),
                         child: FFButtonWidget(
                           onPressed: () async {
                             context.pushNamed('Create');
@@ -299,7 +299,7 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget>
                             borderRadius: BorderRadius.circular(12.0),
                           ),
                         ).animateOnPageLoad(
-                            animationsMap['buttonOnPageLoadAnimation1']!),
+                            animationsMap['buttonOnPageLoadAnimation1']!,),
                       ),
                     ),
                   ),
@@ -308,7 +308,7 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget>
                       alignment: const AlignmentDirectional(0.0, 0.0),
                       child: Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(
-                            8.0, 0.0, 0.0, 16.0),
+                            8.0, 0.0, 0.0, 16.0,),
                         child: FFButtonWidget(
                           onPressed: () async {
                             context.pushNamed('Login');
@@ -335,7 +335,7 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget>
                             borderRadius: BorderRadius.circular(12.0),
                           ),
                         ).animateOnPageLoad(
-                            animationsMap['buttonOnPageLoadAnimation2']!),
+                            animationsMap['buttonOnPageLoadAnimation2']!,),
                       ),
                     ),
                   ),

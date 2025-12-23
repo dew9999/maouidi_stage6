@@ -1,0 +1,172 @@
+Analyzing maouidi...                                            
+
+  error - The getter 'uid' isn't defined for the type 'User' - lib\auth\supabase_auth\auth_util.dart:12:43 - undefined_getter
+  error - The getter 'displayName' isn't defined for the type 'User' - lib\auth\supabase_auth\auth_util.dart:13:51 - undefined_getter
+  error - The getter 'photoUrl' isn't defined for the type 'User' - lib\auth\supabase_auth\auth_util.dart:14:45 - undefined_getter
+  error - The getter 'phoneNumber' isn't defined for the type 'User' - lib\auth\supabase_auth\auth_util.dart:15:47 - undefined_getter
+  error - The getter 'emailVerified' isn't defined for the type 'User' - lib\auth\supabase_auth\auth_util.dart:16:51 - undefined_getter
+  error - A value of type 'MaouidiSupabaseUser?' can't be assigned to a variable of type 'User?' - lib\auth\supabase_auth\auth_util.dart:30:19 - invalid_assignment
+  error - The returned type 'User?' isn't returnable from a 'BaseAuthUser?' function, as required by the closure's context - lib\auth\supabase_auth\auth_util.dart:31:12 - return_of_invalid_type_from_closure
+  error - A value of type 'User?' can't be returned from the function 'currentUser' because it has a return type of 'BaseAuthUser?' - lib\auth\supabase_auth\supabase_auth_manager.dart:51:7 - return_of_invalid_type
+  error - A value of type 'MaouidiSupabaseUser' can't be assigned to a variable of type 'User?' - lib\auth\supabase_auth\supabase_auth_manager.dart:57:45 - invalid_assignment
+  error - A value of type 'MaouidiSupabaseUser' can't be assigned to a variable of type 'User?' - lib\auth\supabase_auth\supabase_auth_manager.dart:133:11 - invalid_assignment
+  error - A value of type 'User?' can't be returned from the method 'signInWithEmail' because it has a return type of 'Future<BaseAuthUser?>' - lib\auth\supabase_auth\supabase_auth_manager.dart:134:14 - return_of_invalid_type
+  error - The method 'serializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:129:21 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:131:11 - undefined_identifier
+  error - The method 'serializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:134:19 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:136:11 - undefined_identifier
+  error - The method 'serializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:139:19 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:141:11 - undefined_identifier
+  error - The method 'serializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:144:20 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:146:11 - undefined_identifier
+  error - The method 'serializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:149:22 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:151:11 - undefined_identifier
+  error - The method 'serializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:154:21 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:156:11 - undefined_identifier
+  error - The method 'serializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:159:19 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:161:11 - undefined_identifier
+  error - The method 'deserializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:168:19 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:170:11 - undefined_identifier
+  error - The method 'deserializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:173:17 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:175:11 - undefined_identifier
+  error - The method 'deserializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:178:17 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:180:11 - undefined_identifier
+  error - The method 'deserializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:183:18 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:185:11 - undefined_identifier
+  error - The method 'deserializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:188:20 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:190:11 - undefined_identifier
+  error - The method 'deserializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:193:19 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:195:11 - undefined_identifier
+  error - The method 'deserializeParam' isn't defined for the type 'WorkingHoursStruct' - lib\backend\schema\structs\working_hours_struct.dart:198:17 - undefined_method
+  error - Undefined name 'ParamType' - lib\backend\schema\structs\working_hours_struct.dart:200:11 - undefined_identifier
+  error - Undefined class 'ParamType' - lib\backend\schema\util\schema_util.dart:21:3 - undefined_class
+  error - The function 'deserializeParam' isn't defined - lib\backend\schema\util\schema_util.dart:44:12 - undefined_function
+warning - The matched value type 'Type' can never match the required type 'int' - lib\backend\supabase\database\row.dart:71:10 - pattern_never_matches_value_type
+warning - The matched value type 'Type' can never match the required type 'double' - lib\backend\supabase\database\row.dart:73:10 - pattern_never_matches_value_type
+  error - The method 'pop' isn't defined for the type 'BuildContext' - lib\booking_page\booking_page_widget.dart:263:28 - undefined_method
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\booking_page\booking_page_widget.dart:656:5 - unawaited_futures
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\components\partner_card_widget.dart:28:19 - undefined_method
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\components\partner_card_widget.dart:125:31 - undefined_method
+   info - 'AutoDisposeProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\core\providers\screen_utils_provider.g.dart:25:26 - deprecated_member_use
+   info - 'AutoDisposeProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\core\providers\secure_storage_provider.g.dart:27:28 - deprecated_member_use
+   info - 'AutoDisposeProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\core\providers\secure_storage_provider.g.dart:47:34 - deprecated_member_use
+   info - 'AutoDisposeProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\core\providers\supabase_provider.g.dart:28:29 - deprecated_member_use
+   info - 'AutoDisposeProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\core\router\router_provider.g.dart:29:21 - deprecated_member_use
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\core\theme\app_theme.dart:42:7 - deprecated_member_use
+   info - 'surfaceVariant' is deprecated and shouldn't be used. Use surfaceContainerHighest instead. This feature was deprecated after v3.18.0-0.1.pre - lib\core\theme\app_theme.dart:44:7 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\theme\app_theme.dart:84:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\theme\app_theme.dart:104:38 - deprecated_member_use
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\core\theme\app_theme.dart:191:7 - deprecated_member_use
+   info - 'surfaceVariant' is deprecated and shouldn't be used. Use surfaceContainerHighest instead. This feature was deprecated after v3.18.0-0.1.pre - lib\core\theme\app_theme.dart:193:7 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\theme\app_theme.dart:233:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\theme\app_theme.dart:253:38 - deprecated_member_use
+   info - Missing a required trailing comma - lib\features\appointments\data\appointment_model.g.dart:10:34 - require_trailing_commas
+   info - Missing a required trailing comma - lib\features\appointments\data\appointment_model.g.dart:33:40 - require_trailing_commas
+warning - The value of the local variable 'channel' isn't used - lib\features\appointments\data\appointment_repository.dart:88:11 - unused_local_variable
+   info - 'AutoDisposeProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\features\appointments\data\appointment_repository.g.dart:30:7 - deprecated_member_use
+   info - 'AutoDisposeStreamProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\features\appointments\presentation\appointments_stream_provider.g.dart:186:8 - deprecated_member_use
+   info - 'AutoDisposeNotifierProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\features\appointments\presentation\partner_dashboard_controller.g.dart:188:8 - deprecated_member_use
+   info - 'AutoDisposeProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\features\auth\data\auth_repository.g.dart:25:29 - deprecated_member_use
+   info - 'AutoDisposeStreamProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\features\auth\presentation\auth_state_provider.g.dart:27:24 - deprecated_member_use
+   info - 'AutoDisposeFutureProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\features\auth\presentation\auth_state_provider.g.dart:45:25 - deprecated_member_use
+   info - 'AutoDisposeFutureProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\features\auth\presentation\user_role_provider.g.dart:32:23 - deprecated_member_use
+   info - 'AutoDisposeProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\features\bookings\data\booking_repository.g.dart:26:32 - deprecated_member_use
+   info - 'AutoDisposeProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\features\partners\data\partner_repository.g.dart:26:32 - deprecated_member_use
+   info - 'AutoDisposeFutureProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\features\partners\presentation\partner_providers.g.dart:176:25 - deprecated_member_use
+   info - 'AutoDisposeFutureProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\features\partners\presentation\partner_providers.g.dart:338:8 - deprecated_member_use
+   info - 'AutoDisposeProviderRef' is deprecated and shouldn't be used. will be removed in 3.0.0. Use Ref instead - lib\features\reviews\data\review_repository.g.dart:27:31 - deprecated_member_use
+   info - Unnecessary use of getter and setter to wrap a field - lib\flutter_flow\flutter_flow_model.dart:45:10 - unnecessary_getters_setters
+  error - Target of URI doesn't exist: 'nav/nav.dart' - lib\flutter_flow\flutter_flow_util.dart:14:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'nav/nav.dart' - lib\flutter_flow\flutter_flow_util.dart:26:8 - uri_does_not_exist
+   info - Don't invoke 'print' in production code - lib\flutter_flow\flutter_flow_util.dart:189:5 - avoid_print
+warning - The member 'setState' can only be used within instance members of subclasses of 'State' - lib\flutter_flow\flutter_flow_util.dart:263:7 - invalid_use_of_protected_member
+warning - The declaration '_getTextWidth' isn't referenced - lib\flutter_flow\flutter_flow_widgets.dart:297:9 - unused_element
+   info - Don't invoke 'print' in production code - lib\flutter_flow\nav\serialization_util.dart:90:5 - avoid_print
+   info - The constant name 'String' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:148:3 - constant_identifier_names
+   info - The constant name 'DateTime' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:150:3 - constant_identifier_names
+   info - The constant name 'DateTimeRange' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:151:3 - constant_identifier_names
+   info - The constant name 'LatLng' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:152:3 - constant_identifier_names
+   info - The constant name 'Color' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:153:3 - constant_identifier_names
+   info - The constant name 'FFPlace' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:154:3 - constant_identifier_names
+   info - The constant name 'FFUploadedFile' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:155:3 - constant_identifier_names
+   info - The constant name 'JSON' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:156:3 - constant_identifier_names
+   info - The constant name 'DataStruct' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:157:3 - constant_identifier_names
+   info - The constant name 'SupabaseRow' isn't a lowerCamelCase identifier - lib\flutter_flow\nav\serialization_util.dart:158:3 - constant_identifier_names
+   info - Use 'TypeName _' instead of a type literal - lib\flutter_flow\nav\serialization_util.dart:217:16 - type_literal_in_constant_pattern
+   info - Use 'TypeName _' instead of a type literal - lib\flutter_flow\nav\serialization_util.dart:219:16 - type_literal_in_constant_pattern
+   info - Use 'TypeName _' instead of a type literal - lib\flutter_flow\nav\serialization_util.dart:221:16 - type_literal_in_constant_pattern
+   info - Use 'TypeName _' instead of a type literal - lib\flutter_flow\nav\serialization_util.dart:223:16 - type_literal_in_constant_pattern
+   info - Use 'TypeName _' instead of a type literal - lib\flutter_flow\nav\serialization_util.dart:225:16 - type_literal_in_constant_pattern
+   info - Don't invoke 'print' in production code - lib\flutter_flow\nav\serialization_util.dart:235:5 - avoid_print
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\main.dart:39:29 - unawaited_futures
+   info - Invalid use of a private type in a public API - lib\main.dart:51:10 - library_private_types_in_public_api
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\nav_bar_page.dart:141:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\nav_bar_page.dart:161:58 - deprecated_member_use
+   info - The variable name '_showBookForPatientDialog_QueueBased' isn't a lowerCamelCase identifier - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:128:8 - non_constant_identifier_names
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:220:34 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:221:42 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:223:48 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:230:25 - use_build_context_synchronously
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:258:33 - undefined_method
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:1361:17 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:1371:19 - unawaited_futures
+   info - Don't use 'BuildContext's across async gaps - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:1371:33 - use_build_context_synchronously
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\partner_profile_page\partner_profile_page_widget.dart:577:27 - undefined_method
+   info - The variable name '_ClinicDoctorsList' isn't a lowerCamelCase identifier - lib\partner_profile_page\partner_profile_page_widget.dart:626:10 - non_constant_identifier_names
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\partner_profile_page\partner_profile_page_widget.dart:844:32 - undefined_method
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\services\notification_service.dart:12:29 - unawaited_futures
+   info - Don't use 'BuildContext's across async gaps - lib\settings_page\components\settings_dialogs.dart:76:17 - use_build_context_synchronously
+  error - The method 'go' isn't defined for the type 'BuildContext' - lib\settings_page\components\settings_dialogs.dart:76:25 - undefined_method
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\settings_page\settings_page_widget.dart:139:34 - undefined_method
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor or activeTrackColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\settings_page\settings_page_widget.dart:150:19 - deprecated_member_use
+  error - The method 'go' isn't defined for the type 'BuildContext' - lib\settings_page\settings_page_widget.dart:191:27 - undefined_method
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\settings_page\settings_page_widget.dart:403:34 - undefined_method
+  error - The method 'go' isn't defined for the type 'BuildContext' - lib\settings_page\settings_page_widget.dart:605:27 - undefined_method
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor or activeTrackColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\settings_page\settings_page_widget.dart:663:17 - deprecated_member_use
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\settings_page\settings_page_widget.dart:685:36 - undefined_method
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\settings_page\settings_page_widget.dart:691:36 - undefined_method
+   info - Don't use 'BuildContext's across async gaps - lib\settings_page\settings_page_widget.dart:746:9 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\settings_page\settings_page_widget.dart:752:32 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\settings_page\settings_page_widget.dart:782:9 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\settings_page\settings_page_widget.dart:789:32 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\settings_page\settings_page_widget.dart:1068:30 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\settings_page\settings_page_widget.dart:1069:38 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\settings_page\settings_page_widget.dart:1075:30 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\settings_page\settings_page_widget.dart:1076:38 - use_build_context_synchronously
+  error - The method 'pop' isn't defined for the type 'BuildContext' - lib\ui\forgot_password\forgot_password_widget.dart:106:23 - undefined_method
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\ui\home_page\home_page_widget.dart:82:33 - undefined_method
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\ui\home_page\home_page_widget.dart:146:46 - undefined_method
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\ui\home_page\home_page_widget.dart:153:46 - undefined_method
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\ui\home_page\home_page_widget.dart:160:46 - undefined_method
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\ui\home_page\home_page_widget.dart:167:46 - undefined_method
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\ui\home_page\home_page_widget.dart:301:32 - undefined_method
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\ui\login\login_widget.dart:319:64 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\ui\login\login_widget.dart:330:41 - use_build_context_synchronously
+  error - The method 'goNamed' isn't defined for the type 'BuildContext' - lib\ui\login\login_widget.dart:330:49 - undefined_method
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\ui\login\login_widget.dart:335:62 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\ui\login\login_widget.dart:340:69 - use_build_context_synchronously
+  error - The method 'override' can't be unconditionally invoked because the receiver can be 'null' - lib\ui\login\login_widget.dart:357:42 - unchecked_use_of_nullable_value
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\ui\login\login_widget.dart:375:43 - undefined_method
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\ui\welcome_screen\welcome_screen_widget.dart:279:37 - undefined_method
+  error - The method 'pushNamed' isn't defined for the type 'BuildContext' - lib\ui\welcome_screen\welcome_screen_widget.dart:314:37 - undefined_method
+
+flutter : 149 issues 
+found. (ran in 4.6s)
+At line:1 char:1
++ flutter analyze 
+2>&1 | Tee-Object 
+-Variable output; 
+$output | Out-Fil ...
++ 
+~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (149 iss   
+ ues found. (ran     
+in 4.6s):String)     
+[], RemoteExcep    
+tion
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 

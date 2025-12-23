@@ -4,6 +4,7 @@ import '/backend/schema/util/schema_util.dart';
 
 import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/nav/serialization_util.dart';
 
 class WorkingHoursStruct extends BaseStruct {
   WorkingHoursStruct({

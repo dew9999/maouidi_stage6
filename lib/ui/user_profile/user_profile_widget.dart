@@ -58,7 +58,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
       final userData = await Supabase.instance.client
           .from('users')
           .select('first_name, last_name, phone, state, date_of_birth, gender')
-          .eq('id', currentUserUid)
+          .eq('id', currentUserId)
           .single();
 
       if (mounted) {
@@ -74,7 +74,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
         });
       }
     } catch (e) {
-      debugPrint("Error loading user data: $e");
+      debugPrint('Error loading user data: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -92,22 +92,27 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
         'state': _model.stateValueController!.value,
         'gender': _model.genderValueController!.value,
         'date_of_birth': _dateOfBirth?.toIso8601String(),
-      }).eq('id', currentUserUid);
+      }).eq('id', currentUserId);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(FFLocalizations.of(context).getText('prof saved')),
-          backgroundColor: Colors.green,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(FFLocalizations.of(context).getText('prof saved')),
+            backgroundColor: Colors.green,
+          ),
+        );
         await _loadUserData();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              '${FFLocalizations.of(context).getText('proferr')} ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${FFLocalizations.of(context).getText('proferr')} ${e.toString()}',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -135,12 +140,17 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
         backgroundColor: theme.primary,
         automaticallyImplyLeading: true,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: Text(FFLocalizations.of(context).getText('yourprof'),
-            style: theme.headlineMedium.copyWith(color: Colors.white)),
+        title: Text(
+          FFLocalizations.of(context).getText('yourprof'),
+          style: theme.headlineMedium.copyWith(color: Colors.white),
+        ),
         actions: [
           IconButton(
-            icon: Icon(_isEditMode ? Icons.done_rounded : Icons.edit_rounded,
-                color: Colors.white, size: 28),
+            icon: Icon(
+              _isEditMode ? Icons.done_rounded : Icons.edit_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
             onPressed: () {
               if (_isEditMode) {
                 _saveProfileChanges();
@@ -198,7 +208,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                             FFLocalizations.of(context).getText('selectgender'),
                         options: [
                           FFLocalizations.of(context).getText('male'),
-                          FFLocalizations.of(context).getText('female')
+                          FFLocalizations.of(context).getText('female'),
                         ],
                         icon: Icons.wc_outlined,
                       ),
@@ -221,7 +231,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                           return null;
                         },
                         inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
+                          FilteringTextInputFormatter.digitsOnly,
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -334,9 +344,10 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                   backgroundColor: theme.primaryBackground,
                   itemStyle: TextStyle(color: theme.primaryText, fontSize: 18),
                   doneStyle: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                   cancelStyle:
                       const TextStyle(color: Colors.white, fontSize: 16),
                 ),
@@ -345,9 +356,10 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
       child: AbsorbPointer(
         child: _buildTextField(
           controller: TextEditingController(
-              text: _dateOfBirth == null
-                  ? ''
-                  : DateFormat.yMMMMd().format(_dateOfBirth!)),
+            text: _dateOfBirth == null
+                ? ''
+                : DateFormat.yMMMMd().format(_dateOfBirth!),
+          ),
           label: FFLocalizations.of(context).getText('dob'),
           icon: Icons.calendar_today_outlined,
         ),

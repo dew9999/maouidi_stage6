@@ -36,7 +36,7 @@ dynamic deserializeStructParam<T>(
     }
     return paramValues
         .map<T>((e) => deserializeStructParam<T>(e, paramType, false,
-            structBuilder: structBuilder))
+            structBuilder: structBuilder,),)
         .toList();
   } else if (param is Map<String, dynamic>) {
     return structBuilder(param);

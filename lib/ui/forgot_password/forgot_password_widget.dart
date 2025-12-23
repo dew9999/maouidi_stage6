@@ -131,7 +131,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget>
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(
-                            12.0, 0.0, 12.0, 0.0),
+                            12.0, 0.0, 12.0, 0.0,),
                         child: SingleChildScrollView(
                           child: Column(
                             mainAxisSize: MainAxisSize.max,
@@ -139,7 +139,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget>
                             children: [
                               Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(
-                                    12.0, 32.0, 0.0, 8.0),
+                                    12.0, 32.0, 0.0, 8.0,),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
                                     'uhtykqxj' /* Forgot Password ? */,
@@ -155,7 +155,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget>
                               ),
                               Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(
-                                    12.0, 0.0, 12.0, 12.0),
+                                    12.0, 0.0, 12.0, 12.0,),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
                                     'amfoac12' /* We will send you a reset link. */,
@@ -171,7 +171,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget>
                               ),
                               Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(
-                                    16.0, 12.0, 16.0, 0.0),
+                                    16.0, 12.0, 16.0, 0.0,),
                                 child: TextFormField(
                                   controller: _model.emailAddressTextController,
                                   focusNode: _model.emailAddressFocusNode,
@@ -189,7 +189,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget>
                                           letterSpacing: 0.0,
                                         ),
                                     hintText: FFLocalizations.of(context).getText(
-                                        'a308pr0q' /* Enter you email here... */),
+                                        'a308pr0q', /* Enter you email here... */),
                                     enabledBorder: UnderlineInputBorder(
                                       borderSide: BorderSide(
                                         color: FlutterFlowTheme.of(context)
@@ -258,7 +258,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget>
                         : _isKeyboardVisible))
                       Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(
-                            16.0, 12.0, 16.0, 24.0),
+                            16.0, 12.0, 16.0, 24.0,),
                         child: FFButtonWidget(
                           onPressed: () async {
                             if (_formKey.currentState == null ||

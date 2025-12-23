@@ -45,32 +45,32 @@ class HomecareDetailsView extends StatelessWidget {
             Row(
               children: [
                 Icon(Icons.description_outlined,
-                    size: 16, color: secondaryTextColor),
+                    size: 16, color: secondaryTextColor,),
                 const SizedBox(width: 8),
                 Text('Case Description',
                     style:
-                        theme.labelMedium.copyWith(color: secondaryTextColor)),
+                        theme.labelMedium.copyWith(color: secondaryTextColor),),
               ],
             ),
             const SizedBox(height: 4),
             Text(caseDescription,
-                style: theme.bodyMedium.copyWith(color: textColor)),
+                style: theme.bodyMedium.copyWith(color: textColor),),
             if (location != null && location.isNotEmpty) ...[
               const SizedBox(height: 12),
               Row(
                 children: [
                   Icon(Icons.location_on_outlined,
-                      size: 16, color: secondaryTextColor),
+                      size: 16, color: secondaryTextColor,),
                   const SizedBox(width: 8),
                   Text('Patient Location',
                       style: theme.labelMedium
-                          .copyWith(color: secondaryTextColor)),
+                          .copyWith(color: secondaryTextColor),),
                 ],
               ),
               const SizedBox(height: 4),
               Text(location,
-                  style: theme.bodyMedium.copyWith(color: textColor)),
-            ]
+                  style: theme.bodyMedium.copyWith(color: textColor),),
+            ],
           ],
         ),
       ),

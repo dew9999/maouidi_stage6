@@ -9,7 +9,7 @@ import 'supabase_auth_manager.dart';
 final AuthManager authManager = SupabaseAuthManager();
 
 String get currentUserEmail => currentUser?.email ?? '';
-String get currentUserUid => currentUser?.uid ?? '';
+String get currentUserId => currentUser?.id ?? '';
 String get currentUserDisplayName => currentUser?.displayName ?? '';
 String get currentUserPhoto => currentUser?.photoUrl ?? '';
 String get currentPhoneNumber => currentUser?.phoneNumber ?? '';

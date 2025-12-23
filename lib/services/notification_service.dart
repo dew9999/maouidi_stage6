@@ -27,7 +27,7 @@ class NotificationService {
     try {
       await Supabase.instance.client.rpc('update_player_id', params: {
         'player_id_arg': playerId,
-      });
+      },);
       debugPrint('OneSignal Player ID saved to Supabase: $playerId');
     } catch (e) {
       debugPrint('Error saving OneSignal Player ID: $e');

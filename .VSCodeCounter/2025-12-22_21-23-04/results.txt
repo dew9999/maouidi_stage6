@@ -1,0 +1,290 @@
+Date : 2025-12-22 21:23:04
+Directory : c:\maouidi 22\maouidi
+Total : 157 files,  19821 codes, 990 comments, 2834 blanks, all 23645 lines
+
+Languages
++-----------------+------------+------------+------------+------------+------------+
+| language        | files      | code       | comment    | blank      | total      |
++-----------------+------------+------------+------------+------------+------------+
+| Dart            |        121 |     17,145 |        905 |      1,768 |     19,818 |
+| MS SQL          |          1 |      1,211 |         29 |        787 |      2,027 |
+| HTML            |          2 |        594 |          0 |        135 |        729 |
+| XML             |         11 |        204 |          0 |         24 |        228 |
+| JSON            |          3 |        151 |          0 |          2 |        153 |
+| Gradle          |          3 |        138 |          2 |         31 |        171 |
+| TypeScript      |          1 |        132 |          5 |         18 |        155 |
+| YAML            |          3 |        110 |         34 |         28 |        172 |
+| PowerShell      |          3 |         43 |          8 |         12 |         63 |
+| Ruby            |          1 |         33 |          2 |         11 |         46 |
+| Swift           |          2 |         32 |          2 |          8 |         42 |
+| JavaScript      |          1 |         10 |          2 |          2 |         14 |
+| Java Properties |          2 |         10 |          1 |          1 |         12 |
+| Markdown        |          2 |          7 |          0 |          6 |         13 |
+| C++             |          1 |          1 |          0 |          1 |          2 |
++-----------------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                              | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                 |        157 |     19,821 |        990 |      2,834 |     23,645 |
+| . (Files)                                                                                         |          8 |      1,368 |         71 |        831 |      2,270 |
+| android                                                                                           |         15 |        839 |          3 |        168 |      1,010 |
+| android (Files)                                                                                   |          3 |         70 |          0 |         16 |         86 |
+| android\app                                                                                       |         10 |        214 |          2 |         37 |        253 |
+| android\app (Files)                                                                               |          1 |         73 |          2 |         15 |         90 |
+| android\app\src                                                                                   |          9 |        141 |          0 |         22 |        163 |
+| android\app\src\debug                                                                             |          1 |          7 |          0 |          1 |          8 |
+| android\app\src\main                                                                              |          7 |        127 |          0 |         20 |        147 |
+| android\app\src\main (Files)                                                                      |          1 |         44 |          0 |          9 |         53 |
+| android\app\src\main\res                                                                          |          6 |         83 |          0 |         11 |         94 |
+| android\app\src\main\res\drawable                                                                 |          1 |         11 |          0 |          2 |         13 |
+| android\app\src\main\res\values                                                                   |          2 |         21 |          0 |          3 |         24 |
+| android\app\src\main\res\values-night                                                             |          1 |         17 |          0 |          2 |         19 |
+| android\app\src\main\res\values-night-v31                                                         |          1 |         17 |          0 |          2 |         19 |
+| android\app\src\main\res\values-v31                                                               |          1 |         17 |          0 |          2 |         19 |
+| android\app\src\profile                                                                           |          1 |          7 |          0 |          1 |          8 |
+| android\build                                                                                     |          1 |        550 |          0 |        114 |        664 |
+| android\build\reports                                                                             |          1 |        550 |          0 |        114 |        664 |
+| android\build\reports\problems                                                                    |          1 |        550 |          0 |        114 |        664 |
+| android\gradle                                                                                    |          1 |          5 |          1 |          1 |          7 |
+| android\gradle\wrapper                                                                            |          1 |          5 |          1 |          1 |          7 |
+| ios                                                                                               |          9 |        277 |          4 |         26 |        307 |
+| ios (Files)                                                                                       |          1 |         33 |          2 |         11 |         46 |
+| ios\ImageNotification                                                                             |          1 |         20 |          2 |          6 |         28 |
+| ios\Runner                                                                                        |          7 |        224 |          0 |          9 |        233 |
+| ios\Runner (Files)                                                                                |          2 |         13 |          0 |          3 |         16 |
+| ios\Runner\Assets.xcassets                                                                        |          3 |        148 |          0 |          4 |        152 |
+| ios\Runner\Assets.xcassets\AppIcon.appiconset                                                     |          1 |        122 |          0 |          1 |        123 |
+| ios\Runner\Assets.xcassets\LaunchImage.imageset                                                   |          2 |         26 |          0 |          3 |         29 |
+| ios\Runner\Base.lproj                                                                             |          2 |         63 |          0 |          2 |         65 |
+| lib                                                                                               |        120 |     17,138 |        898 |      1,764 |     19,800 |
+| lib (Files)                                                                                       |          3 |        288 |         24 |         37 |        349 |
+| lib\auth                                                                                          |          4 |        224 |         10 |         40 |        274 |
+| lib\auth (Files)                                                                                  |          2 |         51 |          3 |         13 |         67 |
+| lib\auth\supabase_auth                                                                            |          2 |        173 |          7 |         27 |        207 |
+| lib\backend                                                                                       |         12 |        681 |         20 |        185 |        886 |
+| lib\backend\schema                                                                                |          3 |        252 |         10 |         47 |        309 |
+| lib\backend\schema\structs                                                                        |          2 |        188 |          9 |         37 |        234 |
+| lib\backend\schema\util                                                                           |          1 |         64 |          1 |         10 |         75 |
+| lib\backend\supabase                                                                              |          9 |        429 |         10 |        138 |        577 |
+| lib\backend\supabase (Files)                                                                      |          1 |         22 |          2 |          8 |         32 |
+| lib\backend\supabase\database                                                                     |          8 |        407 |          8 |        130 |        545 |
+| lib\backend\supabase\database (Files)                                                             |          3 |        213 |          3 |         46 |        262 |
+| lib\backend\supabase\database\tables                                                              |          5 |        194 |          5 |         84 |        283 |
+| lib\booking_page                                                                                  |          2 |        750 |          1 |         53 |        804 |
+| lib\components                                                                                    |          2 |        187 |          2 |         10 |        199 |
+| lib\core                                                                                          |         13 |        987 |        177 |        187 |      1,351 |
+| lib\core (Files)                                                                                  |          2 |        140 |          6 |          7 |        153 |
+| lib\core\providers                                                                                |          6 |        193 |         83 |         79 |        355 |
+| lib\core\router                                                                                   |          2 |        169 |         32 |         22 |        223 |
+| lib\core\theme                                                                                    |          3 |        485 |         56 |         79 |        620 |
+| lib\features                                                                                      |         34 |      2,586 |        536 |        458 |      3,580 |
+| lib\features\appointments                                                                         |         11 |      1,153 |        193 |        162 |      1,508 |
+| lib\features\appointments\data                                                                    |          5 |        645 |         59 |         60 |        764 |
+| lib\features\appointments\presentation                                                            |          6 |        508 |        134 |        102 |        744 |
+| lib\features\auth                                                                                 |          6 |        124 |         80 |         44 |        248 |
+| lib\features\auth\data                                                                            |          2 |         56 |         27 |         18 |        101 |
+| lib\features\auth\presentation                                                                    |          4 |         68 |         53 |         26 |        147 |
+| lib\features\bookings                                                                             |          4 |         95 |         42 |         25 |        162 |
+| lib\features\bookings\data                                                                        |          2 |         49 |         20 |         13 |         82 |
+| lib\features\bookings\presentation                                                                |          2 |         46 |         22 |         12 |         80 |
+| lib\features\partners                                                                             |          4 |        337 |        121 |         76 |        534 |
+| lib\features\partners\data                                                                        |          2 |         70 |         26 |         18 |        114 |
+| lib\features\partners\presentation                                                                |          2 |        267 |         95 |         58 |        420 |
+| lib\features\reviews                                                                              |          9 |        877 |        100 |        151 |      1,128 |
+| lib\features\reviews\data                                                                         |          5 |        328 |         51 |         62 |        441 |
+| lib\features\reviews\presentation                                                                 |          4 |        549 |         49 |         89 |        687 |
+| lib\flutter_flow                                                                                  |         15 |      3,706 |         37 |        275 |      4,018 |
+| lib\flutter_flow (Files)                                                                          |         13 |      3,312 |         32 |        245 |      3,589 |
+| lib\flutter_flow\nav                                                                              |          2 |        394 |          5 |         30 |        429 |
+| lib\pages                                                                                         |          2 |         70 |          2 |         20 |         92 |
+| lib\partner_dashboard_page                                                                        |          5 |      1,684 |         22 |        113 |      1,819 |
+| lib\partner_dashboard_page (Files)                                                                |          2 |      1,440 |         12 |         88 |      1,540 |
+| lib\partner_dashboard_page\components                                                             |          3 |        244 |         10 |         25 |        279 |
+| lib\partner_list_page                                                                             |          2 |        246 |          2 |         19 |        267 |
+| lib\partner_profile_page                                                                          |          2 |        864 |          1 |         64 |        929 |
+| lib\patient_dashboard                                                                             |          2 |        656 |          2 |         49 |        707 |
+| lib\search                                                                                        |          1 |        120 |          1 |         13 |        134 |
+| lib\services                                                                                      |          2 |         58 |          9 |         15 |         82 |
+| lib\settings_page                                                                                 |          7 |      1,516 |         17 |         95 |      1,628 |
+| lib\settings_page (Files)                                                                         |          2 |      1,088 |         11 |         66 |      1,165 |
+| lib\settings_page\components                                                                      |          5 |        428 |          6 |         29 |        463 |
+| lib\ui                                                                                            |         12 |      2,515 |         35 |        131 |      2,681 |
+| lib\ui\create                                                                                     |          2 |        615 |         12 |         28 |        655 |
+| lib\ui\forgot_password                                                                            |          2 |        316 |          3 |         21 |        340 |
+| lib\ui\home_page                                                                                  |          2 |        367 |          3 |         22 |        392 |
+| lib\ui\login                                                                                      |          2 |        442 |          6 |         20 |        468 |
+| lib\ui\user_profile                                                                               |          2 |        425 |          9 |         28 |        462 |
+| lib\ui\welcome_screen                                                                             |          2 |        350 |          2 |         12 |        364 |
+| supabase                                                                                          |          2 |        138 |          5 |         18 |        161 |
+| supabase (Files)                                                                                  |          1 |          6 |          0 |          0 |          6 |
+| supabase\functions                                                                                |          1 |        132 |          5 |         18 |        155 |
+| supabase\functions\send-notification                                                              |          1 |        132 |          5 |         18 |        155 |
+| test                                                                                              |          1 |          7 |          7 |          4 |         18 |
+| web                                                                                               |          2 |         54 |          2 |         23 |         79 |
++---------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------------------------------+-----------------+------------+------------+------------+------------+
+| filename                                                                                          | language        | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------+-----------------+------------+------------+------------+------------+
+| c:\maouidi 22\maouidi\README.md                                                                   | Markdown        |          4 |          0 |          4 |          8 |
+| c:\maouidi 22\maouidi\analysis_options.yaml                                                       | YAML            |         35 |         22 |         13 |         70 |
+| c:\maouidi 22\maouidi\analyze_errors.ps1                                                          | PowerShell      |         23 |          6 |          8 |         37 |
+| c:\maouidi 22\maouidi\android\app\build.gradle                                                    | Gradle          |         73 |          2 |         15 |         90 |
+| c:\maouidi 22\maouidi\android\app\src\debug\AndroidManifest.xml                                   | XML             |          7 |          0 |          1 |          8 |
+| c:\maouidi 22\maouidi\android\app\src\main\AndroidManifest.xml                                    | XML             |         44 |          0 |          9 |         53 |
+| c:\maouidi 22\maouidi\android\app\src\main\res\drawable\launch_background.xml                     | XML             |         11 |          0 |          2 |         13 |
+| c:\maouidi 22\maouidi\android\app\src\main\res\values-night-v31\styles.xml                        | XML             |         17 |          0 |          2 |         19 |
+| c:\maouidi 22\maouidi\android\app\src\main\res\values-night\styles.xml                            | XML             |         17 |          0 |          2 |         19 |
+| c:\maouidi 22\maouidi\android\app\src\main\res\values-v31\styles.xml                              | XML             |         17 |          0 |          2 |         19 |
+| c:\maouidi 22\maouidi\android\app\src\main\res\values\strings.xml                                 | XML             |          4 |          0 |          1 |          5 |
+| c:\maouidi 22\maouidi\android\app\src\main\res\values\styles.xml                                  | XML             |         17 |          0 |          2 |         19 |
+| c:\maouidi 22\maouidi\android\app\src\profile\AndroidManifest.xml                                 | XML             |          7 |          0 |          1 |          8 |
+| c:\maouidi 22\maouidi\android\build.gradle                                                        | Gradle          |         44 |          0 |         10 |         54 |
+| c:\maouidi 22\maouidi\android\build\reports\problems\problems-report.html                         | HTML            |        550 |          0 |        114 |        664 |
+| c:\maouidi 22\maouidi\android\gradle.properties                                                   | Java Properties |          5 |          0 |          0 |          5 |
+| c:\maouidi 22\maouidi\android\gradle\wrapper\gradle-wrapper.properties                            | Java Properties |          5 |          1 |          1 |          7 |
+| c:\maouidi 22\maouidi\android\settings.gradle                                                     | Gradle          |         21 |          0 |          6 |         27 |
+| c:\maouidi 22\maouidi\capture_analyze.ps1                                                         | PowerShell      |          4 |          0 |          1 |          5 |
+| c:\maouidi 22\maouidi\devtools_options.yaml                                                       | YAML            |          3 |          0 |          1 |          4 |
+| c:\maouidi 22\maouidi\ios\ImageNotification\NotificationService.swift                             | Swift           |         20 |          2 |          6 |         28 |
+| c:\maouidi 22\maouidi\ios\Podfile                                                                 | Ruby            |         33 |          2 |         11 |         46 |
+| c:\maouidi 22\maouidi\ios\Runner\AppDelegate.swift                                                | Swift           |         12 |          0 |          2 |         14 |
+| c:\maouidi 22\maouidi\ios\Runner\Assets.xcassets\AppIcon.appiconset\Contents.json                 | JSON            |        122 |          0 |          1 |        123 |
+| c:\maouidi 22\maouidi\ios\Runner\Assets.xcassets\LaunchImage.imageset\Contents.json               | JSON            |         23 |          0 |          1 |         24 |
+| c:\maouidi 22\maouidi\ios\Runner\Assets.xcassets\LaunchImage.imageset\README.md                   | Markdown        |          3 |          0 |          2 |          5 |
+| c:\maouidi 22\maouidi\ios\Runner\Base.lproj\LaunchScreen.storyboard                               | XML             |         37 |          0 |          1 |         38 |
+| c:\maouidi 22\maouidi\ios\Runner\Base.lproj\Main.storyboard                                       | XML             |         26 |          0 |          1 |         27 |
+| c:\maouidi 22\maouidi\ios\Runner\Runner-Bridging-Header.h                                         | C++             |          1 |          0 |          1 |          2 |
+| c:\maouidi 22\maouidi\lib\auth\auth_manager.dart                                                  | Dart            |         22 |          2 |          6 |         30 |
+| c:\maouidi 22\maouidi\lib\auth\base_auth_user_provider.dart                                       | Dart            |         29 |          1 |          7 |         37 |
+| c:\maouidi 22\maouidi\lib\auth\supabase_auth\auth_util.dart                                       | Dart            |         27 |          4 |          7 |         38 |
+| c:\maouidi 22\maouidi\lib\auth\supabase_auth\supabase_auth_manager.dart                           | Dart            |        146 |          3 |         20 |        169 |
+| c:\maouidi 22\maouidi\lib\backend\schema\structs\index.dart                                       | Dart            |          2 |          1 |          3 |          6 |
+| c:\maouidi 22\maouidi\lib\backend\schema\structs\working_hours_struct.dart                        | Dart            |        186 |          8 |         34 |        228 |
+| c:\maouidi 22\maouidi\lib\backend\schema\util\schema_util.dart                                    | Dart            |         64 |          1 |         10 |         75 |
+| c:\maouidi 22\maouidi\lib\backend\supabase\database\database.dart                                 | Dart            |         10 |          0 |          3 |         13 |
+| c:\maouidi 22\maouidi\lib\backend\supabase\database\row.dart                                      | Dart            |         80 |          3 |         15 |         98 |
+| c:\maouidi 22\maouidi\lib\backend\supabase\database\table.dart                                    | Dart            |        123 |          0 |         28 |        151 |
+| c:\maouidi 22\maouidi\lib\backend\supabase\database\tables\appointments.dart                      | Dart            |         46 |          3 |         19 |         68 |
+| c:\maouidi 22\maouidi\lib\backend\supabase\database\tables\medical_partners.dart                  | Dart            |         71 |          2 |         30 |        103 |
+| c:\maouidi 22\maouidi\lib\backend\supabase\database\tables\notifications.dart                     | Dart            |         25 |          0 |         11 |         36 |
+| c:\maouidi 22\maouidi\lib\backend\supabase\database\tables\reviews.dart                           | Dart            |         26 |          0 |         12 |         38 |
+| c:\maouidi 22\maouidi\lib\backend\supabase\database\tables\users.dart                             | Dart            |         26 |          0 |         12 |         38 |
+| c:\maouidi 22\maouidi\lib\backend\supabase\supabase.dart                                          | Dart            |         22 |          2 |          8 |         32 |
+| c:\maouidi 22\maouidi\lib\booking_page\booking_page_model.dart                                    | Dart            |         16 |          0 |          4 |         20 |
+| c:\maouidi 22\maouidi\lib\booking_page\booking_page_widget.dart                                   | Dart            |        734 |          1 |         49 |        784 |
+| c:\maouidi 22\maouidi\lib\components\empty_state_widget.dart                                      | Dart            |         44 |          1 |          5 |         50 |
+| c:\maouidi 22\maouidi\lib\components\partner_card_widget.dart                                     | Dart            |        143 |          1 |          5 |        149 |
+| c:\maouidi 22\maouidi\lib\core\constants.dart                                                     | Dart            |        117 |          1 |          2 |        120 |
+| c:\maouidi 22\maouidi\lib\core\localization_helpers.dart                                          | Dart            |         23 |          5 |          5 |         33 |
+| c:\maouidi 22\maouidi\lib\core\providers\screen_utils_provider.dart                               | Dart            |         91 |         33 |         41 |        165 |
+| c:\maouidi 22\maouidi\lib\core\providers\screen_utils_provider.g.dart                             | Dart            |         12 |         10 |          6 |         28 |
+| c:\maouidi 22\maouidi\lib\core\providers\secure_storage_provider.dart                             | Dart            |         42 |          9 |         14 |         65 |
+| c:\maouidi 22\maouidi\lib\core\providers\secure_storage_provider.g.dart                           | Dart            |         28 |         14 |          8 |         50 |
+| c:\maouidi 22\maouidi\lib\core\providers\supabase_provider.dart                                   | Dart            |          7 |          5 |          4 |         16 |
+| c:\maouidi 22\maouidi\lib\core\providers\supabase_provider.g.dart                                 | Dart            |         13 |         12 |          6 |         31 |
+| c:\maouidi 22\maouidi\lib\core\router\router_provider.dart                                        | Dart            |        157 |         18 |         16 |        191 |
+| c:\maouidi 22\maouidi\lib\core\router\router_provider.g.dart                                      | Dart            |         12 |         14 |          6 |         32 |
+| c:\maouidi 22\maouidi\lib\core\theme\app_theme.dart                                               | Dart            |        298 |         32 |         37 |        367 |
+| c:\maouidi 22\maouidi\lib\core\theme\app_theme.g.dart                                             | Dart            |         14 |          9 |          6 |         29 |
+| c:\maouidi 22\maouidi\lib\core\theme\flutter_flow_theme_bridge.dart                               | Dart            |        173 |         15 |         36 |        224 |
+| c:\maouidi 22\maouidi\lib\features\appointments\data\appointment_model.dart                       | Dart            |         48 |          5 |          6 |         59 |
+| c:\maouidi 22\maouidi\lib\features\appointments\data\appointment_model.freezed.dart               | Dart            |        449 |         15 |         26 |        490 |
+| c:\maouidi 22\maouidi\lib\features\appointments\data\appointment_model.g.dart                     | Dart            |         43 |          4 |          5 |         52 |
+| c:\maouidi 22\maouidi\lib\features\appointments\data\appointment_repository.dart                  | Dart            |         89 |         24 |         17 |        130 |
+| c:\maouidi 22\maouidi\lib\features\appointments\data\appointment_repository.g.dart                | Dart            |         16 |         11 |          6 |         33 |
+| c:\maouidi 22\maouidi\lib\features\appointments\presentation\appointments_stream_provider.dart    | Dart            |         12 |          6 |          4 |         22 |
+| c:\maouidi 22\maouidi\lib\features\appointments\presentation\appointments_stream_provider.g.dart  | Dart            |        120 |         54 |         27 |        201 |
+| c:\maouidi 22\maouidi\lib\features\appointments\presentation\partner_dashboard_controller.dart    | Dart            |         51 |         12 |         12 |         75 |
+| c:\maouidi 22\maouidi\lib\features\appointments\presentation\partner_dashboard_controller.g.dart  | Dart            |        132 |         42 |         30 |        204 |
+| c:\maouidi 22\maouidi\lib\features\appointments\presentation\partner_dashboard_state.dart         | Dart            |         14 |          4 |          5 |         23 |
+| c:\maouidi 22\maouidi\lib\features\appointments\presentation\partner_dashboard_state.freezed.dart | Dart            |        179 |         16 |         24 |        219 |
+| c:\maouidi 22\maouidi\lib\features\auth\data\auth_repository.dart                                 | Dart            |         43 |         18 |         12 |         73 |
+| c:\maouidi 22\maouidi\lib\features\auth\data\auth_repository.g.dart                               | Dart            |         13 |          9 |          6 |         28 |
+| c:\maouidi 22\maouidi\lib\features\auth\presentation\auth_state_provider.dart                     | Dart            |         16 |          8 |          6 |         30 |
+| c:\maouidi 22\maouidi\lib\features\auth\presentation\auth_state_provider.g.dart                   | Dart            |         23 |         17 |          8 |         48 |
+| c:\maouidi 22\maouidi\lib\features\auth\presentation\user_role_provider.dart                      | Dart            |         17 |         11 |          6 |         34 |
+| c:\maouidi 22\maouidi\lib\features\auth\presentation\user_role_provider.g.dart                    | Dart            |         12 |         17 |          6 |         35 |
+| c:\maouidi 22\maouidi\lib\features\bookings\data\booking_repository.dart                          | Dart            |         35 |         11 |          7 |         53 |
+| c:\maouidi 22\maouidi\lib\features\bookings\data\booking_repository.g.dart                        | Dart            |         14 |          9 |          6 |         29 |
+| c:\maouidi 22\maouidi\lib\features\bookings\presentation\booking_controller.dart                  | Dart            |         32 |         11 |          6 |         49 |
+| c:\maouidi 22\maouidi\lib\features\bookings\presentation\booking_controller.g.dart                | Dart            |         14 |         11 |          6 |         31 |
+| c:\maouidi 22\maouidi\lib\features\partners\data\partner_repository.dart                          | Dart            |         56 |         17 |         12 |         85 |
+| c:\maouidi 22\maouidi\lib\features\partners\data\partner_repository.g.dart                        | Dart            |         14 |          9 |          6 |         29 |
+| c:\maouidi 22\maouidi\lib\features\partners\presentation\partner_providers.dart                   | Dart            |         47 |         10 |         10 |         67 |
+| c:\maouidi 22\maouidi\lib\features\partners\presentation\partner_providers.g.dart                 | Dart            |        220 |         85 |         48 |        353 |
+| c:\maouidi 22\maouidi\lib\features\reviews\data\review_model.dart                                 | Dart            |         24 |          5 |          6 |         35 |
+| c:\maouidi 22\maouidi\lib\features\reviews\data\review_model.freezed.dart                         | Dart            |        199 |         15 |         26 |        240 |
+| c:\maouidi 22\maouidi\lib\features\reviews\data\review_model.g.dart                               | Dart            |         17 |          4 |          5 |         26 |
+| c:\maouidi 22\maouidi\lib\features\reviews\data\review_repository.dart                            | Dart            |         75 |         16 |         19 |        110 |
+| c:\maouidi 22\maouidi\lib\features\reviews\data\review_repository.g.dart                          | Dart            |         13 |         11 |          6 |         30 |
+| c:\maouidi 22\maouidi\lib\features\reviews\presentation\review_controller.dart                    | Dart            |         44 |         10 |         10 |         64 |
+| c:\maouidi 22\maouidi\lib\features\reviews\presentation\review_controller.g.dart                  | Dart            |         14 |         11 |          6 |         31 |
+| c:\maouidi 22\maouidi\lib\features\reviews\presentation\review_state.dart                         | Dart            |          9 |          4 |          4 |         17 |
+| c:\maouidi 22\maouidi\lib\features\reviews\presentation\review_state.freezed.dart                 | Dart            |        482 |         24 |         69 |        575 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\flutter_flow_animations.dart                               | Dart            |        102 |          0 |         11 |        113 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\flutter_flow_calendar.dart                                 | Dart            |        292 |          4 |         26 |        322 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\flutter_flow_drop_down.dart                                | Dart            |        354 |          4 |         22 |        380 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\flutter_flow_icon_button.dart                              | Dart            |        185 |          0 |         11 |        196 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\flutter_flow_model.dart                                    | Dart            |        136 |          2 |         20 |        158 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\flutter_flow_theme.dart                                    | Dart            |        379 |          1 |         27 |        407 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\flutter_flow_util.dart                                     | Dart            |        263 |          5 |         29 |        297 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\flutter_flow_widgets.dart                                  | Dart            |        352 |          4 |         24 |        380 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\form_field_controller.dart                                 | Dart            |         14 |          3 |          7 |         24 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\internationalization.dart                                  | Dart            |      1,108 |          9 |         49 |      1,166 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\lat_lng.dart                                               | Dart            |         15 |          0 |          5 |         20 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\nav\nav.dart                                               | Dart            |        170 |          2 |         18 |        190 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\nav\serialization_util.dart                                | Dart            |        224 |          3 |         12 |        239 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\place.dart                                                 | Dart            |         49 |          0 |          6 |         55 |
+| c:\maouidi 22\maouidi\lib\flutter_flow\uploaded_file.dart                                         | Dart            |         63 |          0 |          8 |         71 |
+| c:\maouidi 22\maouidi\lib\index.dart                                                              | Dart            |         17 |          1 |          1 |         19 |
+| c:\maouidi 22\maouidi\lib\main.dart                                                               | Dart            |         91 |         10 |         22 |        123 |
+| c:\maouidi 22\maouidi\lib\nav_bar_page.dart                                                       | Dart            |        180 |         13 |         14 |        207 |
+| c:\maouidi 22\maouidi\lib\pages\privacy_policy_page.dart                                          | Dart            |         35 |          1 |         10 |         46 |
+| c:\maouidi 22\maouidi\lib\pages\terms_of_service_page.dart                                        | Dart            |         35 |          1 |         10 |         46 |
+| c:\maouidi 22\maouidi\lib\partner_dashboard_page\components\dashboard_helpers.dart                | Dart            |         54 |          5 |          9 |         68 |
+| c:\maouidi 22\maouidi\lib\partner_dashboard_page\components\homecare_details_view.dart            | Dart            |         69 |          3 |          8 |         80 |
+| c:\maouidi 22\maouidi\lib\partner_dashboard_page\components\now_serving_card.dart                 | Dart            |        121 |          2 |          8 |        131 |
+| c:\maouidi 22\maouidi\lib\partner_dashboard_page\partner_dashboard_page_model.dart                | Dart            |         22 |          4 |          8 |         34 |
+| c:\maouidi 22\maouidi\lib\partner_dashboard_page\partner_dashboard_page_widget.dart               | Dart            |      1,418 |          8 |         80 |      1,506 |
+| c:\maouidi 22\maouidi\lib\partner_list_page\partner_list_page_model.dart                          | Dart            |          9 |          0 |          3 |         12 |
+| c:\maouidi 22\maouidi\lib\partner_list_page\partner_list_page_widget.dart                         | Dart            |        237 |          2 |         16 |        255 |
+| c:\maouidi 22\maouidi\lib\partner_profile_page\partner_profile_page_model.dart                    | Dart            |         11 |          0 |          3 |         14 |
+| c:\maouidi 22\maouidi\lib\partner_profile_page\partner_profile_page_widget.dart                   | Dart            |        853 |          1 |         61 |        915 |
+| c:\maouidi 22\maouidi\lib\patient_dashboard\patient_dashboard_model.dart                          | Dart            |          9 |          1 |          4 |         14 |
+| c:\maouidi 22\maouidi\lib\patient_dashboard\patient_dashboard_widget.dart                         | Dart            |        647 |          1 |         45 |        693 |
+| c:\maouidi 22\maouidi\lib\search\search_results_page.dart                                         | Dart            |        120 |          1 |         13 |        134 |
+| c:\maouidi 22\maouidi\lib\services\api_service.dart                                               | Dart            |         32 |          5 |          8 |         45 |
+| c:\maouidi 22\maouidi\lib\services\notification_service.dart                                      | Dart            |         26 |          4 |          7 |         37 |
+| c:\maouidi 22\maouidi\lib\settings_page\components\become_partner_dialog.dart                     | Dart            |        150 |          2 |         10 |        162 |
+| c:\maouidi 22\maouidi\lib\settings_page\components\profile_card.dart                              | Dart            |         61 |          1 |          5 |         67 |
+| c:\maouidi 22\maouidi\lib\settings_page\components\settings_dialogs.dart                          | Dart            |        111 |          1 |          7 |        119 |
+| c:\maouidi 22\maouidi\lib\settings_page\components\settings_group.dart                            | Dart            |         42 |          0 |          4 |         46 |
+| c:\maouidi 22\maouidi\lib\settings_page\components\settings_item.dart                             | Dart            |         64 |          2 |          3 |         69 |
+| c:\maouidi 22\maouidi\lib\settings_page\settings_page_model.dart                                  | Dart            |          9 |          1 |          4 |         14 |
+| c:\maouidi 22\maouidi\lib\settings_page\settings_page_widget.dart                                 | Dart            |      1,079 |         10 |         62 |      1,151 |
+| c:\maouidi 22\maouidi\lib\ui\create\create_model.dart                                             | Dart            |         42 |          6 |          9 |         57 |
+| c:\maouidi 22\maouidi\lib\ui\create\create_widget.dart                                            | Dart            |        573 |          6 |         19 |        598 |
+| c:\maouidi 22\maouidi\lib\ui\forgot_password\forgot_password_model.dart                           | Dart            |         15 |          2 |          5 |         22 |
+| c:\maouidi 22\maouidi\lib\ui\forgot_password\forgot_password_widget.dart                          | Dart            |        301 |          1 |         16 |        318 |
+| c:\maouidi 22\maouidi\lib\ui\home_page\home_page_model.dart                                       | Dart            |         17 |          2 |          6 |         25 |
+| c:\maouidi 22\maouidi\lib\ui\home_page\home_page_widget.dart                                      | Dart            |        350 |          1 |         16 |        367 |
+| c:\maouidi 22\maouidi\lib\ui\login\login_model.dart                                               | Dart            |         24 |          3 |          6 |         33 |
+| c:\maouidi 22\maouidi\lib\ui\login\login_widget.dart                                              | Dart            |        418 |          3 |         14 |        435 |
+| c:\maouidi 22\maouidi\lib\ui\user_profile\user_profile_model.dart                                 | Dart            |         40 |          8 |          9 |         57 |
+| c:\maouidi 22\maouidi\lib\ui\user_profile\user_profile_widget.dart                                | Dart            |        385 |          1 |         19 |        405 |
+| c:\maouidi 22\maouidi\lib\ui\welcome_screen\welcome_screen_model.dart                             | Dart            |         10 |          0 |          3 |         13 |
+| c:\maouidi 22\maouidi\lib\ui\welcome_screen\welcome_screen_widget.dart                            | Dart            |        340 |          2 |          9 |        351 |
+| c:\maouidi 22\maouidi\parse_errors.ps1                                                            | PowerShell      |         16 |          2 |          3 |         21 |
+| c:\maouidi 22\maouidi\pubspec.yaml                                                                | YAML            |         72 |         12 |         14 |         98 |
+| c:\maouidi 22\maouidi\schema.sql                                                                  | MS SQL          |      1,211 |         29 |        787 |      2,027 |
+| c:\maouidi 22\maouidi\supabase\deno.json                                                          | JSON            |          6 |          0 |          0 |          6 |
+| c:\maouidi 22\maouidi\supabase\functions\send-notification\index.ts                               | TypeScript      |        132 |          5 |         18 |        155 |
+| c:\maouidi 22\maouidi\test\widget_test.dart                                                       | Dart            |          7 |          7 |          4 |         18 |
+| c:\maouidi 22\maouidi\web\flutter_bootstrap.js                                                    | JavaScript      |         10 |          2 |          2 |         14 |
+| c:\maouidi 22\maouidi\web\index.html                                                              | HTML            |         44 |          0 |         21 |         65 |
+| Total                                                                                             |                 |     19,821 |        990 |      2,834 |     23,645 |
++---------------------------------------------------------------------------------------------------+-----------------+------------+------------+------------+------------+

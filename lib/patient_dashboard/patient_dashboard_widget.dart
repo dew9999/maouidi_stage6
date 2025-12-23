@@ -37,7 +37,7 @@ class _PatientDashboardWidgetState extends State<PatientDashboardWidget>
       builder: (dialogContext) => AlertDialog(
         title: Text(
             FFLocalizations.of(context).getText('payment_required_title'),
-            style: theme.headlineSmall),
+            style: theme.headlineSmall,),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -53,7 +53,7 @@ class _PatientDashboardWidgetState extends State<PatientDashboardWidget>
                 child: Row(
                   children: [
                     Icon(Icons.warning_amber_rounded,
-                        color: theme.warning, size: 24),
+                        color: theme.warning, size: 24,),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -73,9 +73,9 @@ class _PatientDashboardWidgetState extends State<PatientDashboardWidget>
               ),
               const SizedBox(height: 16),
               Text(FFLocalizations.of(context).getText('payment_rib'),
-                  style: theme.bodyLarge),
+                  style: theme.bodyLarge,),
               Text(FFLocalizations.of(context).getText('payment_name'),
-                  style: theme.bodyLarge),
+                  style: theme.bodyLarge,),
               const SizedBox(height: 16),
               Text(
                 FFLocalizations.of(context)
@@ -93,7 +93,7 @@ class _PatientDashboardWidgetState extends State<PatientDashboardWidget>
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(FFLocalizations.of(context).getText('dialog_close'),
-                style: TextStyle(color: theme.primaryText)),
+                style: TextStyle(color: theme.primaryText),),
           ),
         ],
         backgroundColor: theme.secondaryBackground,
@@ -158,7 +158,7 @@ class _PatientDashboardWidgetState extends State<PatientDashboardWidget>
         _showPaymentDialog(context);
       }
     } catch (e) {
-      debugPrint("Error checking partner category: $e");
+      debugPrint('Error checking partner category: $e');
     }
   }
 
@@ -172,7 +172,7 @@ class _PatientDashboardWidgetState extends State<PatientDashboardWidget>
   }
 
   Future<List<Map<String, dynamic>>> _fetchAppointments(List<String> statuses,
-      {bool? isUpcoming}) {
+      {bool? isUpcoming,}) {
     final client = Supabase.instance.client;
     final userId = client.auth.currentUser?.id;
     if (userId == null) return Future.value([]);
@@ -180,7 +180,7 @@ class _PatientDashboardWidgetState extends State<PatientDashboardWidget>
     var query = client
         .from('appointments')
         .select(
-            '*, appointment_number, has_review, completed_at, medical_partners(full_name, specialty, category)')
+            '*, appointment_number, has_review, completed_at, medical_partners(full_name, specialty, category)',)
         .eq('booking_user_id', userId)
         .inFilter('status', statuses);
 
@@ -210,7 +210,7 @@ class _PatientDashboardWidgetState extends State<PatientDashboardWidget>
         backgroundColor: theme.primary,
         title: Text(FFLocalizations.of(context).getText('myapts'),
             style: theme.headlineMedium.override(
-                fontFamily: 'Inter', color: Colors.white, fontSize: 22.0)),
+                fontFamily: 'Inter', color: Colors.white, fontSize: 22.0,),),
         automaticallyImplyLeading: false,
         centerTitle: true,
         bottom: TabBar(
@@ -235,10 +235,10 @@ class _PatientDashboardWidgetState extends State<PatientDashboardWidget>
             children: [
               _buildAppointmentList(_fetchAppointments(
                   ['Pending', 'Confirmed', 'Rescheduled'],
-                  isUpcoming: true)),
+                  isUpcoming: true,),),
               _buildAppointmentList(_fetchAppointments(['Completed'])),
               _buildAppointmentList(_fetchAppointments(
-                  ['Cancelled_ByUser', 'Cancelled_ByPartner', 'NoShow'])),
+                  ['Cancelled_ByUser', 'Cancelled_ByPartner', 'NoShow'],),),
             ],
           );
         },
@@ -352,7 +352,7 @@ class PatientAppointmentCard extends StatelessWidget {
             blurRadius: 4,
             color: theme.primaryBackground,
             offset: const Offset(0, 2),
-          )
+          ),
         ],
       ),
       child: Padding(
@@ -377,12 +377,12 @@ class PatientAppointmentCard extends StatelessWidget {
                       Text(
                         DateFormat('MMM').format(appointmentTime).toUpperCase(),
                         style: theme.bodySmall.copyWith(
-                            fontWeight: FontWeight.bold, color: theme.primary),
+                            fontWeight: FontWeight.bold, color: theme.primary,),
                       ),
                       Text(
                         DateFormat('d').format(appointmentTime),
                         style: theme.headlineMedium.override(
-                            fontFamily: 'Inter', fontWeight: FontWeight.bold),
+                            fontFamily: 'Inter', fontWeight: FontWeight.bold,),
                       ),
                     ],
                   ),
@@ -423,7 +423,7 @@ class PatientAppointmentCard extends StatelessWidget {
                                   '${FFLocalizations.of(context).getText('yournum')} #$appointmentNumber',
                                   style: theme.bodyMedium.copyWith(
                                       color: theme.secondaryText,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.bold,),
                                 )
                               else
                                 Text(
@@ -434,7 +434,7 @@ class PatientAppointmentCard extends StatelessWidget {
                             ],
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -483,7 +483,7 @@ class PatientAppointmentCard extends StatelessWidget {
   }
 
   void _showCancelDialog(
-      BuildContext context, int appointmentId, String partnerName) {
+      BuildContext context, int appointmentId, String partnerName,) {
     final theme = FlutterFlowTheme.of(context);
 
     showDialog(
@@ -491,7 +491,7 @@ class PatientAppointmentCard extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: theme.secondaryBackground,
         title: Text(FFLocalizations.of(context).getText('cnclaptq'),
-            style: theme.titleLarge),
+            style: theme.titleLarge,),
         content: Text(
           '${FFLocalizations.of(context).getText('cnclaptsure')} $partnerName?',
           style: theme.bodyMedium,
@@ -500,7 +500,7 @@ class PatientAppointmentCard extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(FFLocalizations.of(context).getText('back'),
-                style: TextStyle(color: theme.secondaryText)),
+                style: TextStyle(color: theme.secondaryText),),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -514,15 +514,15 @@ class PatientAppointmentCard extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content:
                         Text(FFLocalizations.of(context).getText('aptcnld')),
-                    backgroundColor: Colors.green));
+                    backgroundColor: Colors.green,),);
                 onActionCompleted();
               } catch (e) {
                 if (!context.mounted) return;
                 Navigator.of(dialogContext).pop();
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(
-                        '${FFLocalizations.of(context).getText('cnclfail')}: ${e.toString()}'),
-                    backgroundColor: theme.error));
+                        '${FFLocalizations.of(context).getText('cnclfail')}: ${e.toString()}',),
+                    backgroundColor: theme.error,),);
               }
             },
             style: ElevatedButton.styleFrom(
@@ -537,7 +537,7 @@ class PatientAppointmentCard extends StatelessWidget {
   }
 
   void _showReviewDialog(
-      BuildContext context, int appointmentId, String partnerName) {
+      BuildContext context, int appointmentId, String partnerName,) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -580,22 +580,22 @@ class _ReviewSheetState extends State<_ReviewSheet> {
         'appointment_id_arg': widget.appointmentId,
         'rating_arg': _rating,
         'review_text_arg': _reviewController.text,
-      });
+      },);
 
       if (!mounted) return;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(FFLocalizations.of(context).getText('thankrev')),
         backgroundColor: Colors.green,
-      ));
+      ),);
       widget.onSuccess();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
-            '${FFLocalizations.of(context).getText('revfail')}: ${e.toString()}'),
+            '${FFLocalizations.of(context).getText('revfail')}: ${e.toString()}',),
         backgroundColor: FlutterFlowTheme.of(context).error,
-      ));
+      ),);
     } finally {
       if (mounted) {
         setState(() => _isSubmitting = false);

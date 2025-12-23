@@ -26,14 +26,14 @@ Future<List<TimeSlot>> getAvailableTimeSlots({
     final response = await supabase.rpc('get_available_slots', params: {
       'partner_id_arg': partnerId,
       'day_arg': dayArg,
-    });
+    },);
 
     // Convert the response into the TimeSlot objects our UI expects
     final List<TimeSlot> availableSlots = (response as List<dynamic>)
         .map((item) => TimeSlot(
               time: DateTime.parse(item['available_slot']),
               status: SlotStatus.available,
-            ))
+            ),)
         .toList();
 
     return availableSlots;

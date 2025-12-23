@@ -33,9 +33,9 @@ class _BecomePartnerDialogState extends State<BecomePartnerDialog> {
     // MODIFIED: Use the passed-in widget data to initialize controllers
     final nameParts = widget.currentDisplayName.split(' ');
     firstNameController = TextEditingController(
-        text: nameParts.isNotEmpty ? nameParts.first : '');
+        text: nameParts.isNotEmpty ? nameParts.first : '',);
     lastNameController = TextEditingController(
-        text: nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '');
+        text: nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',);
     phoneController = TextEditingController(text: widget.currentPhoneNumber);
   }
 
@@ -62,21 +62,21 @@ class _BecomePartnerDialogState extends State<BecomePartnerDialog> {
           'address_arg': addressController.text,
           'national_id_arg': nationalIdController.text,
           'license_id_arg': licenseController.text,
-        });
+        },);
 
         if (!mounted) return;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Application submitted! We will contact you soon.'),
           backgroundColor: Colors.green,
-        ));
+        ),);
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-              'Error: ${e is PostgrestException ? e.message : e.toString()}'),
+              'Error: ${e is PostgrestException ? e.message : e.toString()}',),
           backgroundColor: FlutterFlowTheme.of(context).error,
-        ));
+        ),);
       } finally {
         if (mounted) {
           setState(() => isLoading = false);
@@ -151,7 +151,7 @@ class _BecomePartnerDialogState extends State<BecomePartnerDialog> {
                   width: 20,
                   height: 20,
                   child: CircularProgressIndicator(
-                      color: Colors.white, strokeWidth: 2),
+                      color: Colors.white, strokeWidth: 2,),
                 )
               : const Text('Submit'),
         ),

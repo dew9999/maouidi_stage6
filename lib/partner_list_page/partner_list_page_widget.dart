@@ -1,18 +1,19 @@
 // lib/partner_list_page/partner_list_page_widget.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maouidi/backend/supabase/supabase.dart';
 import 'package:maouidi/components/partner_card_widget.dart';
 import 'package:maouidi/core/constants.dart';
+import 'package:maouidi/features/partners/presentation/partner_providers.dart';
 import 'package:maouidi/flutter_flow/flutter_flow_drop_down.dart';
 import 'package:maouidi/flutter_flow/flutter_flow_theme.dart';
 import 'package:maouidi/flutter_flow/flutter_flow_util.dart';
 import 'package:maouidi/flutter_flow/form_field_controller.dart';
-import 'package:maouidi/partner_dashboard_page/components/dashboard_helpers.dart';
 import 'partner_list_page_model.dart';
 export 'partner_list_page_model.dart';
 
-class PartnerListPageWidget extends StatefulWidget {
+class PartnerListPageWidget extends ConsumerStatefulWidget {
   const PartnerListPageWidget({
     super.key,
     this.categoryName,
@@ -24,15 +25,14 @@ class PartnerListPageWidget extends StatefulWidget {
   static String routePath = '/partnerListPage';
 
   @override
-  State<PartnerListPageWidget> createState() => _PartnerListPageWidgetState();
+  ConsumerState<PartnerListPageWidget> createState() =>
+      _PartnerListPageWidgetState();
 }
 
-class _PartnerListPageWidgetState extends State<PartnerListPageWidget> {
+class _PartnerListPageWidgetState extends ConsumerState<PartnerListPageWidget> {
   late PartnerListPageModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
-  bool _isLoading = true;
-  List<MedicalPartnersRow> _partners = [];
   late FormFieldController<String> _stateValueController;
   late FormFieldController<String> _specialtyValueController;
   late Future<List<String>> _specialtiesFuture;
@@ -45,7 +45,6 @@ class _PartnerListPageWidgetState extends State<PartnerListPageWidget> {
     _stateValueController = FormFieldController<String>(null);
     _specialtyValueController = FormFieldController<String>(null);
     _specialtiesFuture = _fetchSpecialties();
-    _triggerSearch();
   }
 
   Future<List<String>> _fetchSpecialties() async {
@@ -61,47 +60,11 @@ class _PartnerListPageWidgetState extends State<PartnerListPageWidget> {
     }
   }
 
-  Future<void> _triggerSearch() async {
-    if (!mounted) return;
-    setState(() => _isLoading = true);
-
-    try {
-      final response = await Supabase.instance.client.rpc(
-        'get_filtered_partners',
-        params: {
-          'category_arg': widget.categoryName,
-          'state_arg': _stateValueController.value,
-          'specialty_arg': _specialtyValueController.value,
-        },
-      );
-
-      final partners =
-          (response as List).map((data) => MedicalPartnersRow(data)).toList();
-
-      if (mounted) {
-        setState(() {
-          _partners = partners;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error fetching partners: $e');
-      if (mounted) {
-        showErrorSnackbar(context,
-            'Failed to load partners. Please check your internet connection and try again.');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
   void _clearFilters() {
     setState(() {
       _stateValueController.value = null;
       _specialtyValueController.value = null;
     });
-    _triggerSearch();
   }
 
   @override
@@ -120,6 +83,17 @@ class _PartnerListPageWidgetState extends State<PartnerListPageWidget> {
     final bool isFilterActive = _stateValueController.value != null ||
         _specialtyValueController.value != null;
 
+    // Watch the partner list provider with current filter parameters
+    final partnersAsync = ref.watch(
+      partnerListProvider(
+        PartnerListParams(
+          category: widget.categoryName ?? 'Doctors',
+          state: _stateValueController.value,
+          specialty: _specialtyValueController.value,
+        ),
+      ),
+    );
+
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: theme.primaryBackground,
@@ -128,9 +102,10 @@ class _PartnerListPageWidgetState extends State<PartnerListPageWidget> {
         automaticallyImplyLeading: true,
         iconTheme: IconThemeData(color: theme.primaryText),
         title: Text(
-            widget.categoryName ??
-                FFLocalizations.of(context).getText('ptrlist' /* Partners */),
-            style: theme.headlineSmall),
+          widget.categoryName ??
+              FFLocalizations.of(context).getText('ptrlist' /* Partners */),
+          style: theme.headlineSmall,
+        ),
         centerTitle: true,
         elevation: 2.0,
       ),
@@ -145,7 +120,7 @@ class _PartnerListPageWidgetState extends State<PartnerListPageWidget> {
                   blurRadius: 4,
                   color: theme.primaryBackground,
                   offset: const Offset(0, 2),
-                )
+                ),
               ],
             ),
             child: Column(
@@ -157,15 +132,14 @@ class _PartnerListPageWidgetState extends State<PartnerListPageWidget> {
                         controller: _stateValueController,
                         options: [
                           FFLocalizations.of(context).getText('allstates'),
-                          ...algerianStates
+                          ...algerianStates,
                         ],
                         onChanged: (val) {
                           setState(() => _stateValueController.value = val ==
                                   FFLocalizations.of(context)
                                       .getText('allstates')
                               ? null
-                              : val);
-                          _triggerSearch();
+                              : val,);
                         },
                         textStyle: theme.bodyMedium,
                         hintText:
@@ -186,8 +160,10 @@ class _PartnerListPageWidgetState extends State<PartnerListPageWidget> {
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
                               return const Center(
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2));
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              );
                             }
                             final specialties = snapshot.data!;
                             return FlutterFlowDropDown<String>(
@@ -195,7 +171,7 @@ class _PartnerListPageWidgetState extends State<PartnerListPageWidget> {
                               options: [
                                 FFLocalizations.of(context)
                                     .getText('allspecialties'),
-                                ...specialties
+                                ...specialties,
                               ],
                               onChanged: (val) {
                                 setState(() => _specialtyValueController.value =
@@ -203,8 +179,7 @@ class _PartnerListPageWidgetState extends State<PartnerListPageWidget> {
                                             FFLocalizations.of(context)
                                                 .getText('allspecialties')
                                         ? null
-                                        : val);
-                                _triggerSearch();
+                                        : val,);
                               },
                               textStyle: theme.bodyMedium,
                               hintText: FFLocalizations.of(context)
@@ -235,24 +210,42 @@ class _PartnerListPageWidgetState extends State<PartnerListPageWidget> {
             ),
           ),
           Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _partners.isEmpty
-                    ? Center(
-                        child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                            FFLocalizations.of(context).getText('nopartners'),
-                            textAlign: TextAlign.center),
-                      ))
-                    : ListView.builder(
-                        padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
-                        itemCount: _partners.length,
-                        itemBuilder: (context, index) {
-                          final partner = _partners[index];
-                          return PartnerCardWidget(partner: partner);
-                        },
+            child: partnersAsync.when(
+              data: (partners) {
+                if (partners.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        FFLocalizations.of(context).getText('nopartners'),
+                        textAlign: TextAlign.center,
                       ),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
+                  itemCount: partners.length,
+                  itemBuilder: (context, index) {
+                    final partner = partners[index];
+                    return PartnerCardWidget(partner: partner);
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'Failed to load partners. Please check your internet connection and try again.',
+                      textAlign: TextAlign.center,
+                      style: theme.bodyMedium.copyWith(color: theme.error),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),

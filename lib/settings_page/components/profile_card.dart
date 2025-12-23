@@ -47,15 +47,15 @@ class ProfileCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(name.isNotEmpty ? name : 'User Profile',
-                          style: theme.titleLarge),
+                          style: theme.titleLarge,),
                       Text(email,
                           style: theme.bodyMedium
-                              .copyWith(color: theme.secondaryText)),
+                              .copyWith(color: theme.secondaryText),),
                     ],
                   ),
                 ),
                 Icon(Icons.arrow_forward_ios,
-                    color: theme.secondaryText, size: 18),
+                    color: theme.secondaryText, size: 18,),
               ],
             ),
           ),

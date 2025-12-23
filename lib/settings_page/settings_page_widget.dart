@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/supabase_auth/auth_util.dart';
 import '../../core/constants.dart';
 import '../../backend/supabase/supabase.dart';
@@ -10,6 +11,7 @@ import '../../flutter_flow/flutter_flow_theme.dart';
 import '../../flutter_flow/flutter_flow_util.dart';
 import '../../flutter_flow/flutter_flow_widgets.dart';
 import '../../flutter_flow/form_field_controller.dart';
+import '../../features/auth/presentation/user_role_provider.dart';
 import '../../index.dart';
 import '../../main.dart';
 import '../../pages/privacy_policy_page.dart';
@@ -20,20 +22,20 @@ import 'components/become_partner_dialog.dart';
 import 'components/profile_card.dart';
 import 'components/settings_dialogs.dart';
 
-class SettingsPageWidget extends StatefulWidget {
+class SettingsPageWidget extends ConsumerStatefulWidget {
   const SettingsPageWidget({super.key});
   static String routeName = 'SettingsPage';
   static String routePath = '/settingsPage';
 
   @override
-  State<SettingsPageWidget> createState() => _SettingsPageWidgetState();
+  ConsumerState<SettingsPageWidget> createState() => _SettingsPageWidgetState();
 }
 
-class _SettingsPageWidgetState extends State<SettingsPageWidget> {
+class _SettingsPageWidgetState extends ConsumerState<SettingsPageWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    final userRole = AppStateNotifier.instance.userRole;
+    final userRoleAsync = ref.watch(userRoleProvider);
 
     return Scaffold(
       backgroundColor: theme.primaryBackground,
@@ -41,15 +43,24 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
         backgroundColor: theme.primaryBackground,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: Text(FFLocalizations.of(context).getText('settings'),
-            style: theme.headlineMedium.override(fontFamily: 'Inter')),
+        title: Text(
+          FFLocalizations.of(context).getText('settings'),
+          style: theme.headlineMedium.override(fontFamily: 'Inter'),
+        ),
         centerTitle: true,
       ),
-      body: userRole == null
-          ? const Center(child: CircularProgressIndicator())
-          : userRole == 'Medical Partner'
+      body: userRoleAsync.when(
+        data: (userRole) {
+          if (userRole == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return userRole == 'Medical Partner'
               ? _PartnerSettingsView()
-              : _PatientSettingsView(),
+              : _PatientSettingsView();
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => const Center(child: Text('Error loading settings')),
+      ),
     );
   }
 }
@@ -82,7 +93,7 @@ class _PatientSettingsViewState extends State<_PatientSettingsView> {
       final userData = await Supabase.instance.client
           .from('users')
           .select('first_name, last_name, phone, notifications_enabled')
-          .eq('id', currentUserUid)
+          .eq('id', currentUserId)
           .single();
 
       if (mounted) {
@@ -95,7 +106,7 @@ class _PatientSettingsViewState extends State<_PatientSettingsView> {
         });
       }
     } catch (e) {
-      debugPrint("Error loading patient data: $e");
+      debugPrint('Error loading patient data: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -104,7 +115,8 @@ class _PatientSettingsViewState extends State<_PatientSettingsView> {
   Future<void> _updateNotificationPreference(bool isEnabled) async {
     try {
       await Supabase.instance.client.from('users').update(
-          {'notifications_enabled': isEnabled}).eq('id', currentUserUid);
+        {'notifications_enabled': isEnabled},
+      ).eq('id', currentUserId);
     } catch (e) {
       debugPrint('Error updating notification preference: $e');
       if (mounted) {
@@ -138,7 +150,7 @@ class _PatientSettingsViewState extends State<_PatientSettingsView> {
                 subtitle: FFLocalizations.of(context).getText('rcvalerts'),
                 trailing: Switch.adaptive(
                   value: _notificationsEnabled,
-                  activeColor: theme.primary,
+                  thumbColor: WidgetStateProperty.all(theme.primary),
                   onChanged: (newValue) {
                     setState(() => _notificationsEnabled = newValue);
                     _updateNotificationPreference(newValue);
@@ -267,8 +279,9 @@ class _PartnerSettingsViewState extends State<_PartnerSettingsView> {
       final data = await Supabase.instance.client
           .from('medical_partners')
           .select(
-              'full_name, specialty, category, parent_clinic_id, confirmation_mode, booking_system_type, daily_booking_limit, working_hours, closed_days, is_active, notifications_enabled')
-          .eq('id', currentUserUid)
+            'full_name, specialty, category, parent_clinic_id, confirmation_mode, booking_system_type, daily_booking_limit, working_hours, closed_days, is_active, notifications_enabled',
+          )
+          .eq('id', currentUserId)
           .single();
       if (mounted) {
         setState(() {
@@ -317,7 +330,7 @@ class _PartnerSettingsViewState extends State<_PartnerSettingsView> {
         });
       }
     } catch (e) {
-      debugPrint("Error loading partner data: $e");
+      debugPrint('Error loading partner data: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -326,7 +339,8 @@ class _PartnerSettingsViewState extends State<_PartnerSettingsView> {
   Future<void> _updateNotificationPreference(bool isEnabled) async {
     try {
       await Supabase.instance.client.from('medical_partners').update(
-          {'notifications_enabled': isEnabled}).eq('id', currentUserUid);
+        {'notifications_enabled': isEnabled},
+      ).eq('id', currentUserId);
     } catch (e) {
       debugPrint('Error updating notification preference: $e');
       if (mounted) {
@@ -357,19 +371,23 @@ class _PartnerSettingsViewState extends State<_PartnerSettingsView> {
         'working_hours': finalWorkingHours,
         'closed_days': formattedClosedDays,
         'is_active': _isActive,
-      }).eq('id', currentUserUid);
+      }).eq('id', currentUserId);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Settings saved successfully!'),
-          backgroundColor: Colors.green,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Settings saved successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Failed to save settings: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save settings: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -393,7 +411,7 @@ class _PartnerSettingsViewState extends State<_PartnerSettingsView> {
             email: currentUserEmail,
             onTap: () => context.pushNamed(
               PartnerProfilePageWidget.routeName,
-              queryParameters: {'partnerId': currentUserUid}.withoutNulls,
+              queryParameters: {'partnerId': currentUserId}.withoutNulls,
             ),
           ),
           if (isDoctor)
@@ -433,10 +451,12 @@ class _PartnerSettingsViewState extends State<_PartnerSettingsView> {
                       options: ['None', ..._clinics.map((c) => c.id)],
                       optionLabels: [
                         'None',
-                        ..._clinics.map((c) => c.fullName ?? 'Unnamed Clinic')
+                        ..._clinics.map((c) => c.fullName ?? 'Unnamed Clinic'),
                       ],
-                      onChanged: (val) => setState(() =>
-                          _clinicController.value = val == 'None' ? null : val),
+                      onChanged: (val) => setState(
+                        () => _clinicController.value =
+                            val == 'None' ? null : val,
+                      ),
                       textStyle: theme.bodyMedium
                           .copyWith(overflow: TextOverflow.ellipsis),
                       hintText: 'Select...',
@@ -502,13 +522,18 @@ class _PartnerSettingsViewState extends State<_PartnerSettingsView> {
                         ),
                         segments: const [
                           ButtonSegment(
-                              value: 'time_based', label: Text('Slots')),
+                            value: 'time_based',
+                            label: Text('Slots'),
+                          ),
                           ButtonSegment(
-                              value: 'number_based', label: Text('Queue')),
+                            value: 'number_based',
+                            label: Text('Queue'),
+                          ),
                         ],
                         selected: {_bookingSystemType},
                         onSelectionChanged: (newSelection) => setState(
-                            () => _bookingSystemType = newSelection.first),
+                          () => _bookingSystemType = newSelection.first,
+                        ),
                       ),
               ),
               if (_bookingSystemType == 'number_based')
@@ -532,26 +557,31 @@ class _PartnerSettingsViewState extends State<_PartnerSettingsView> {
                       },
                       textAlign: TextAlign.end,
                       decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'e.g., 20',
-                          hintStyle: theme.labelMedium),
+                        border: InputBorder.none,
+                        hintText: 'e.g., 20',
+                        hintStyle: theme.labelMedium,
+                      ),
                     ),
                   ),
                 ),
             ],
           ),
-          SettingsGroup(title: "Your Availability", children: [
-            _WorkingHoursEditor(
-              initialHours: _workingHours,
-              onChanged: (newHours) => setState(() => _workingHours = newHours),
-            ),
-            _ClosedDaysEditor(
-              initialDays: _closedDays,
-              onChanged: (newDays) => setState(() => _closedDays = newDays),
-            ),
-          ]),
           SettingsGroup(
-            title: "Actions",
+            title: 'Your Availability',
+            children: [
+              _WorkingHoursEditor(
+                initialHours: _workingHours,
+                onChanged: (newHours) =>
+                    setState(() => _workingHours = newHours),
+              ),
+              _ClosedDaysEditor(
+                initialDays: _closedDays,
+                onChanged: (newDays) => setState(() => _closedDays = newDays),
+              ),
+            ],
+          ),
+          SettingsGroup(
+            title: 'Actions',
             children: [_EmergencyCard()],
           ),
           SettingsGroup(
@@ -581,10 +611,11 @@ class _PartnerSettingsViewState extends State<_PartnerSettingsView> {
                   ? FFLocalizations.of(context).getText('saving')
                   : FFLocalizations.of(context).getText('saveall'),
               options: FFButtonOptions(
-                  width: double.infinity,
-                  height: 50,
-                  color: theme.primary,
-                  textStyle: theme.titleSmall.copyWith(color: Colors.white)),
+                width: double.infinity,
+                height: 50,
+                color: theme.primary,
+                textStyle: theme.titleSmall.copyWith(color: Colors.white),
+              ),
             ),
           ),
           Padding(
@@ -598,10 +629,11 @@ class _PartnerSettingsViewState extends State<_PartnerSettingsView> {
               },
               text: FFLocalizations.of(context).getText('logout'),
               options: FFButtonOptions(
-                  width: double.infinity,
-                  height: 50,
-                  color: theme.error,
-                  textStyle: theme.titleSmall.copyWith(color: Colors.white)),
+                width: double.infinity,
+                height: 50,
+                color: theme.error,
+                textStyle: theme.titleSmall.copyWith(color: Colors.white),
+              ),
             ),
           ),
         ],
@@ -651,7 +683,7 @@ class _GeneralAndLegalSettings extends StatelessWidget {
               title: FFLocalizations.of(context).getText('darkmode'),
               trailing: Switch.adaptive(
                 value: isDarkMode,
-                activeColor: theme.primary,
+                thumbColor: WidgetStateProperty.all(theme.primary),
                 onChanged: (isDarkMode) {
                   final newMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
                   MyApp.of(context).setThemeMode(newMode);
@@ -692,8 +724,10 @@ class _WorkingHoursEditor extends StatefulWidget {
   final Map<String, List<String>> initialHours;
   final ValueChanged<Map<String, List<String>>> onChanged;
 
-  const _WorkingHoursEditor(
-      {required this.initialHours, required this.onChanged});
+  const _WorkingHoursEditor({
+    required this.initialHours,
+    required this.onChanged,
+  });
 
   @override
   State<_WorkingHoursEditor> createState() => _WorkingHoursEditorState();
@@ -718,32 +752,43 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
   }
 
   Future<void> _editTimeSlot(
-      BuildContext context, String dayKey, int slotIndex) async {
+    BuildContext context,
+    String dayKey,
+    int slotIndex,
+  ) async {
     final parts = _hours[dayKey]![slotIndex].split('-');
-    TimeOfDay startTime = TimeOfDay(
-        hour: int.parse(parts[0].split(':')[0]),
-        minute: int.parse(parts[0].split(':')[1]));
-    TimeOfDay endTime = TimeOfDay(
-        hour: int.parse(parts[1].split(':')[0]),
-        minute: int.parse(parts[1].split(':')[1]));
+    final TimeOfDay startTime = TimeOfDay(
+      hour: int.parse(parts[0].split(':')[0]),
+      minute: int.parse(parts[0].split(':')[1]),
+    );
+    final TimeOfDay endTime = TimeOfDay(
+      hour: int.parse(parts[1].split(':')[0]),
+      minute: int.parse(parts[1].split(':')[1]),
+    );
 
     final newStartTime = await showTimePicker(
-        context: context,
-        initialTime: startTime,
-        helpText: 'Select Start Time');
+      context: context,
+      initialTime: startTime,
+      helpText: 'Select Start Time',
+    );
     if (newStartTime == null) return;
 
     final newEndTime = await showTimePicker(
-        context: context, initialTime: endTime, helpText: 'Select End Time');
+      context: context,
+      initialTime: endTime,
+      helpText: 'Select End Time',
+    );
     if (newEndTime != null) {
       final startMinutes = newStartTime.hour * 60 + newStartTime.minute;
       final endMinutes = newEndTime.hour * 60 + newEndTime.minute;
       if (endMinutes <= startMinutes) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('End time must be after start time.'),
-            backgroundColor: Colors.red,
-          ));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('End time must be after start time.'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
         return;
       }
@@ -764,23 +809,29 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
     const endTime = TimeOfDay(hour: 17, minute: 0);
 
     final newStartTime = await showTimePicker(
-        context: context,
-        initialTime: startTime,
-        helpText: 'Select Start Time');
+      context: context,
+      initialTime: startTime,
+      helpText: 'Select Start Time',
+    );
     if (newStartTime == null) return;
 
     final newEndTime = await showTimePicker(
-        context: context, initialTime: endTime, helpText: 'Select End Time');
+      context: context,
+      initialTime: endTime,
+      helpText: 'Select End Time',
+    );
     if (newEndTime != null) {
       final startMinutes = newStartTime.hour * 60 + newStartTime.minute;
       final endMinutes = newEndTime.hour * 60 + newEndTime.minute;
 
       if (endMinutes <= startMinutes) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('End time must be after start time.'),
-            backgroundColor: Colors.red,
-          ));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('End time must be after start time.'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
         return;
       }
@@ -837,11 +888,13 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
                   child: Column(
                     children: [
                       ...(_hours[dayKey] ?? []).asMap().entries.map((entry) {
-                        int idx = entry.key;
-                        String timeSlot = entry.value;
+                        final int idx = entry.key;
+                        final String timeSlot = entry.value;
                         return Container(
                           padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8),
+                            vertical: 4,
+                            horizontal: 8,
+                          ),
                           margin: const EdgeInsets.only(bottom: 8),
                           decoration: BoxDecoration(
                             color:
@@ -851,32 +904,38 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(timeSlot,
-                                  style:
-                                      FlutterFlowTheme.of(context).bodyMedium),
+                              Text(
+                                timeSlot,
+                                style: FlutterFlowTheme.of(context).bodyMedium,
+                              ),
                               Row(
                                 children: [
                                   IconButton(
-                                      icon: Icon(Icons.edit,
-                                          size: 20,
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryText),
-                                      onPressed: () =>
-                                          _editTimeSlot(context, dayKey, idx)),
+                                    icon: Icon(
+                                      Icons.edit,
+                                      size: 20,
+                                      color: FlutterFlowTheme.of(context)
+                                          .secondaryText,
+                                    ),
+                                    onPressed: () =>
+                                        _editTimeSlot(context, dayKey, idx),
+                                  ),
                                   IconButton(
-                                      icon: Icon(Icons.delete_outline,
-                                          size: 20,
-                                          color: FlutterFlowTheme.of(context)
-                                              .error),
-                                      onPressed: () {
-                                        setState(() {
-                                          _hours[dayKey]!.removeAt(idx);
-                                          if (_hours[dayKey]!.isEmpty) {
-                                            _hours.remove(dayKey);
-                                          }
-                                        });
-                                        widget.onChanged(_hours);
-                                      }),
+                                    icon: Icon(
+                                      Icons.delete_outline,
+                                      size: 20,
+                                      color: FlutterFlowTheme.of(context).error,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _hours[dayKey]!.removeAt(idx);
+                                        if (_hours[dayKey]!.isEmpty) {
+                                          _hours.remove(dayKey);
+                                        }
+                                      });
+                                      widget.onChanged(_hours);
+                                    },
+                                  ),
                                 ],
                               ),
                             ],
@@ -887,8 +946,9 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
                         width: double.infinity,
                         child: OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(
-                              foregroundColor:
-                                  FlutterFlowTheme.of(context).primary),
+                            foregroundColor:
+                                FlutterFlowTheme.of(context).primary,
+                          ),
                           icon: const Icon(Icons.add),
                           label: const Text('Add Time Slot'),
                           onPressed: () => _addTimeSlot(context, dayKey),
@@ -948,17 +1008,21 @@ class _ClosedDaysEditorState extends State<_ClosedDaysEditor> {
             _days.sort();
           });
           widget.onChanged(_days);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Day closed and patients have been notified.'),
-            backgroundColor: Colors.green,
-          ));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Day closed and patients have been notified.'),
+              backgroundColor: Colors.green,
+            ),
+          );
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Error closing day: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error closing day: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       } finally {
         if (mounted) {
@@ -988,20 +1052,23 @@ class _ClosedDaysEditorState extends State<_ClosedDaysEditor> {
           _days.isEmpty
               ? const Center(
                   child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text('You have no specific closed days scheduled.'),
-                ))
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text('You have no specific closed days scheduled.'),
+                  ),
+                )
               : Wrap(
                   spacing: 8.0,
                   runSpacing: 8.0,
                   children: _days
-                      .map((day) => Chip(
-                            label: Text(DateFormat.yMMMd().format(day)),
-                            onDeleted: () => _removeDay(day),
-                            deleteIconColor: theme.error,
-                            backgroundColor: theme.primaryBackground,
-                            labelStyle: theme.bodyMedium,
-                          ))
+                      .map(
+                        (day) => Chip(
+                          label: Text(DateFormat.yMMMd().format(day)),
+                          onDeleted: () => _removeDay(day),
+                          deleteIconColor: theme.error,
+                          backgroundColor: theme.primaryBackground,
+                          labelStyle: theme.bodyMedium,
+                        ),
+                      )
                       .toList(),
                 ),
           const SizedBox(height: 16),
@@ -1046,7 +1113,8 @@ class _EmergencyCard extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         title: const Text('Confirm Emergency'),
         content: const Text(
-            'This will alert and cancel appointments for patients in the near future. Are you sure?'),
+          'This will alert and cancel appointments for patients in the near future. Are you sure?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
@@ -1059,15 +1127,17 @@ class _EmergencyCard extends StatelessWidget {
                 Navigator.of(dialogContext).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                      content: Text('Emergency alert sent successfully.'),
-                      backgroundColor: Colors.green),
+                    content: Text('Emergency alert sent successfully.'),
+                    backgroundColor: Colors.green,
+                  ),
                 );
               } catch (e) {
                 Navigator.of(dialogContext).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                      content: Text('Error: ${e.toString()}'),
-                      backgroundColor: Colors.red),
+                    content: Text('Error: ${e.toString()}'),
+                    backgroundColor: Colors.red,
+                  ),
                 );
               }
             },

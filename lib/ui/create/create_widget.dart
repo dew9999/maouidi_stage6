@@ -94,7 +94,10 @@ class _CreateWidgetState extends State<CreateWidget>
   }
 
   Future<void> _showInfoDialog(
-      BuildContext context, String title, Widget content) {
+    BuildContext context,
+    String title,
+    Widget content,
+  ) {
     final theme = FlutterFlowTheme.of(context);
     return showDialog(
       context: context,
@@ -118,8 +121,11 @@ class _CreateWidgetState extends State<CreateWidget>
                     children: [
                       Text(title, style: theme.headlineSmall),
                       FlutterFlowIconButton(
-                        icon: Icon(Icons.close_rounded,
-                            color: theme.secondaryText, size: 24),
+                        icon: Icon(
+                          Icons.close_rounded,
+                          color: theme.secondaryText,
+                          size: 24,
+                        ),
                         onPressed: () => Navigator.of(dialogContext).pop(),
                         borderRadius: 30,
                         buttonSize: 48,
@@ -174,7 +180,7 @@ class _CreateWidgetState extends State<CreateWidget>
                 _agreedToTerms = newValue!;
               });
             },
-            activeColor: theme.primary,
+            fillColor: WidgetStateProperty.all(theme.primary),
           ),
           Expanded(
             child: RichText(
@@ -188,13 +194,15 @@ class _CreateWidgetState extends State<CreateWidget>
                   TextSpan(
                     text: FFLocalizations.of(context).getText('privpolicy'),
                     style: TextStyle(
-                        color: theme.primary,
-                        decoration: TextDecoration.underline),
+                      color: theme.primary,
+                      decoration: TextDecoration.underline,
+                    ),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () => _showInfoDialog(
-                          context,
-                          FFLocalizations.of(context).getText('privpolicy'),
-                          _getPrivacyPolicyContent()),
+                            context,
+                            FFLocalizations.of(context).getText('privpolicy'),
+                            _getPrivacyPolicyContent(),
+                          ),
                   ),
                   TextSpan(
                     text: FFLocalizations.of(context).getText('and'),
@@ -203,13 +211,15 @@ class _CreateWidgetState extends State<CreateWidget>
                   TextSpan(
                     text: FFLocalizations.of(context).getText('termsserv'),
                     style: TextStyle(
-                        color: theme.primary,
-                        decoration: TextDecoration.underline),
+                      color: theme.primary,
+                      decoration: TextDecoration.underline,
+                    ),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () => _showInfoDialog(
-                          context,
-                          FFLocalizations.of(context).getText('termsserv'),
-                          _getTermsOfServiceContent()),
+                            context,
+                            FFLocalizations.of(context).getText('termsserv'),
+                            _getTermsOfServiceContent(),
+                          ),
                   ),
                 ],
               ),
@@ -271,7 +281,9 @@ class _CreateWidgetState extends State<CreateWidget>
                             children: [
                               Padding(
                                 padding: const EdgeInsets.only(
-                                    top: 32.0, bottom: 8.0),
+                                  top: 32.0,
+                                  bottom: 8.0,
+                                ),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
                                     'za064viu' /* Welcome to Maouidi */,
@@ -376,7 +388,8 @@ class _CreateWidgetState extends State<CreateWidget>
                                       return 'Email is required.';
                                     }
                                     final emailRegex = RegExp(
-                                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+                                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+                                    );
                                     if (!emailRegex.hasMatch(value)) {
                                       return 'Please enter a valid email address.';
                                     }
@@ -483,7 +496,8 @@ class _CreateWidgetState extends State<CreateWidget>
                               _buildTermsAndPrivacyRow(),
                             ],
                           ).animateOnPageLoad(
-                              animationsMap['columnOnPageLoadAnimation']!),
+                            animationsMap['columnOnPageLoadAnimation']!,
+                          ),
                         ),
                       ),
                     ),
@@ -520,7 +534,8 @@ class _CreateWidgetState extends State<CreateWidget>
                                           .showSnackBar(
                                         SnackBar(
                                           content: const Text(
-                                              'Could not create account. Please try again.'),
+                                            'Could not create account. Please try again.',
+                                          ),
                                           backgroundColor:
                                               FlutterFlowTheme.of(context)
                                                   .error,
@@ -533,7 +548,8 @@ class _CreateWidgetState extends State<CreateWidget>
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
-                                            'Account created! Please check your email to verify your account.'),
+                                          'Account created! Please check your email to verify your account.',
+                                        ),
                                         backgroundColor: Colors.green,
                                       ),
                                     );

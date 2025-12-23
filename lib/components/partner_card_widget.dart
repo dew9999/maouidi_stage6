@@ -41,7 +41,7 @@ class PartnerCardWidget extends StatelessWidget {
                 blurRadius: 3,
                 color: theme.primaryBackground,
                 offset: const Offset(0, 1),
-              )
+              ),
             ],
           ),
           child: Column(
@@ -65,7 +65,7 @@ class PartnerCardWidget extends StatelessWidget {
                         height: 90,
                         color: theme.alternate,
                         child: Icon(Icons.person,
-                            size: 40, color: theme.secondaryText),
+                            size: 40, color: theme.secondaryText,),
                       ),
                     ),
                   ),
@@ -96,7 +96,7 @@ class PartnerCardWidget extends StatelessWidget {
                         Row(
                           children: [
                             Icon(Icons.star_rounded,
-                                color: theme.warning, size: 18),
+                                color: theme.warning, size: 18,),
                             const SizedBox(width: 4),
                             Text(
                               partner.averageRating?.toStringAsFixed(1) ??

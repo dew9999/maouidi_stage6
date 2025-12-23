@@ -61,7 +61,7 @@ class _PartnerProfilePageWidgetState extends State<PartnerProfilePageWidget> {
         });
       }
     } catch (e) {
-      debugPrint("Error loading partner data: $e");
+      debugPrint('Error loading partner data: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -80,7 +80,8 @@ class _PartnerProfilePageWidgetState extends State<PartnerProfilePageWidget> {
         appBar:
             AppBar(title: Text(FFLocalizations.of(context).getText('ptrerr'))),
         body: Center(
-            child: Text(FFLocalizations.of(context).getText('ptridmissing'))),
+          child: Text(FFLocalizations.of(context).getText('ptridmissing')),
+        ),
       );
     }
 
@@ -90,7 +91,9 @@ class _PartnerProfilePageWidgetState extends State<PartnerProfilePageWidget> {
       body: _isLoading || _partnerData == null
           ? Center(
               child: CircularProgressIndicator(
-                  color: FlutterFlowTheme.of(context).primary))
+                color: FlutterFlowTheme.of(context).primary,
+              ),
+            )
           : _ProfileBody(
               partnerData: _partnerData!,
               onProfileUpdated: _loadPartnerData,
@@ -103,8 +106,10 @@ class _ProfileBody extends StatefulWidget {
   final MedicalPartnersRow partnerData;
   final Future<void> Function() onProfileUpdated;
 
-  const _ProfileBody(
-      {required this.partnerData, required this.onProfileUpdated});
+  const _ProfileBody({
+    required this.partnerData,
+    required this.onProfileUpdated,
+  });
 
   @override
   State<_ProfileBody> createState() => _ProfileBodyState();
@@ -157,8 +162,8 @@ class _ProfileBodyState extends State<_ProfileBody> {
     try {
       final file = File(imageFile.path);
       final fileExt = imageFile.path.split('.').last;
-      final fileName = '$currentUserUid.$fileExt';
-      final filePath = '$currentUserUid/$fileName';
+      final fileName = '$currentUserId.$fileExt';
+      final filePath = '$currentUserId/$fileName';
 
       await Supabase.instance.client.storage.from('avatars').upload(
             filePath,
@@ -180,17 +185,21 @@ class _ProfileBodyState extends State<_ProfileBody> {
       await widget.onProfileUpdated();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Profile picture updated!'),
-          backgroundColor: Colors.green,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile picture updated!'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error uploading image: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error uploading image: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -211,27 +220,35 @@ class _ProfileBodyState extends State<_ProfileBody> {
       }).eq('id', widget.partnerData.id);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(FFLocalizations.of(context).getText('prof saved')),
-          backgroundColor: Colors.green,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(FFLocalizations.of(context).getText('prof saved')),
+            backgroundColor: Colors.green,
+          ),
+        );
         await widget.onProfileUpdated();
       }
     } on PostgrestException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              '${FFLocalizations.of(context).getText('proferr')} ${e.message}'),
-          backgroundColor: Colors.red,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${FFLocalizations.of(context).getText('proferr')} ${e.message}',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              '${FFLocalizations.of(context).getText('proferr')} An unknown error occurred.'),
-          backgroundColor: Colors.red,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${FFLocalizations.of(context).getText('proferr')} An unknown error occurred.',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -286,7 +303,7 @@ class _ProfileBodyState extends State<_ProfileBody> {
     final isClinic = widget.partnerData.category == 'Clinics';
     final photoUrl = widget.partnerData.photoUrl;
     final bool isPhotoValid = photoUrl != null && photoUrl.isNotEmpty;
-    final isOwnProfile = currentUserUid == widget.partnerData.id;
+    final isOwnProfile = currentUserId == widget.partnerData.id;
 
     return SliverAppBar(
       pinned: true,
@@ -303,9 +320,13 @@ class _ProfileBodyState extends State<_ProfileBody> {
                     child: CircularProgressIndicator(
                       color: Colors.white,
                       strokeWidth: 2,
-                    ))
-                : Icon(_isEditMode ? Icons.done_rounded : Icons.edit_rounded,
-                    color: Colors.white, size: 28),
+                    ),
+                  )
+                : Icon(
+                    _isEditMode ? Icons.done_rounded : Icons.edit_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
             onPressed: _isSaving
                 ? null
                 : () {
@@ -329,8 +350,9 @@ class _ProfileBodyState extends State<_ProfileBody> {
                 textAlign: TextAlign.center,
                 style: theme.headlineSmall.copyWith(color: Colors.white),
                 decoration: InputDecoration.collapsed(
-                    hintText: FFLocalizations.of(context).getText('fullname'),
-                    hintStyle: const TextStyle(color: Colors.white54)),
+                  hintText: FFLocalizations.of(context).getText('fullname'),
+                  hintStyle: const TextStyle(color: Colors.white54),
+                ),
               )
             : Text(
                 _fullNameController.text,
@@ -367,15 +389,22 @@ class _ProfileBodyState extends State<_ProfileBody> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                          color: Colors.white.withAlpha(204), width: 3),
+                        color: Colors.white.withAlpha(204),
+                        width: 3,
+                      ),
                       image: isPhotoValid
                           ? DecorationImage(
-                              image: NetworkImage(photoUrl), fit: BoxFit.cover)
+                              image: NetworkImage(photoUrl),
+                              fit: BoxFit.cover,
+                            )
                           : null,
                     ),
                     child: !isPhotoValid
-                        ? Icon(isClinic ? Icons.local_hospital : Icons.person,
-                            size: 50, color: Colors.white)
+                        ? Icon(
+                            isClinic ? Icons.local_hospital : Icons.person,
+                            size: 50,
+                            color: Colors.white,
+                          )
                         : null,
                   ),
                   if (_isEditMode && isOwnProfile)
@@ -396,13 +425,16 @@ class _ProfileBodyState extends State<_ProfileBody> {
                               ),
                             )
                           : IconButton(
-                              icon: const Icon(Icons.edit,
-                                  color: Colors.white, size: 16),
+                              icon: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 16,
+                              ),
                               onPressed:
                                   _isUploading ? null : _uploadProfilePicture,
                               padding: EdgeInsets.zero,
                             ),
-                    )
+                    ),
                 ],
               ),
             ),
@@ -420,8 +452,11 @@ class _ProfileBodyState extends State<_ProfileBody> {
           ListTile(
             dense: true,
             contentPadding: EdgeInsets.zero,
-            leading: Icon(Icons.medical_services_outlined,
-                color: theme.secondaryText, size: 20),
+            leading: Icon(
+              Icons.medical_services_outlined,
+              color: theme.secondaryText,
+              size: 20,
+            ),
             title: Text(
               _specialty,
               style: theme.bodyLarge,
@@ -431,8 +466,11 @@ class _ProfileBodyState extends State<_ProfileBody> {
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.apartment_outlined,
-                  color: theme.secondaryText, size: 20),
+              leading: Icon(
+                Icons.apartment_outlined,
+                color: theme.secondaryText,
+                size: 20,
+              ),
               title: _ClinicAffiliation(
                 clinicId: widget.partnerData.parentClinicId!,
               ),
@@ -540,7 +578,9 @@ class _ProfileBodyState extends State<_ProfileBody> {
                     child: Text(
                       FFLocalizations.of(context).getText('viewloc'),
                       style: theme.bodyLarge.copyWith(
-                          color: theme.primary, fontWeight: FontWeight.bold),
+                        color: theme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   Icon(Icons.launch, color: theme.primary, size: 20),
@@ -552,7 +592,7 @@ class _ProfileBodyState extends State<_ProfileBody> {
 
   Widget _buildActionButtons(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    final isOwnProfile = currentUserUid == widget.partnerData.id;
+    final isOwnProfile = currentUserId == widget.partnerData.id;
     final isCharity = widget.partnerData.category == 'Charities';
 
     if (isOwnProfile || widget.partnerData.category == 'Clinics') {
@@ -615,8 +655,10 @@ class _ProfileBodyState extends State<_ProfileBody> {
         const Divider(height: 32),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Text(FFLocalizations.of(context).getText('ptrreviews'),
-              style: theme.headlineSmall),
+          child: Text(
+            FFLocalizations.of(context).getText('ptrreviews'),
+            style: theme.headlineSmall,
+          ),
         ),
         _ReviewsList(partnerId: widget.partnerData.id),
       ],
@@ -631,8 +673,10 @@ class _ProfileBodyState extends State<_ProfileBody> {
         const Divider(height: 48),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Text(FFLocalizations.of(context).getText('ourdocs'),
-              style: theme.headlineSmall),
+          child: Text(
+            FFLocalizations.of(context).getText('ourdocs'),
+            style: theme.headlineSmall,
+          ),
         ),
         FutureBuilder<List<MedicalPartnersRow>>(
           future: MedicalPartnersTable().queryRows(
@@ -644,10 +688,11 @@ class _ProfileBodyState extends State<_ProfileBody> {
             }
             if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return Center(
-                  child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(FFLocalizations.of(context).getText('nodocs')),
-              ));
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(FFLocalizations.of(context).getText('nodocs')),
+                ),
+              );
             }
             final doctors = snapshot.data!;
             return ListView.builder(
@@ -718,9 +763,12 @@ class _ReviewsList extends StatelessWidget {
   final String partnerId;
 
   Future<List<Map<String, dynamic>>> _getReviews() {
-    return Supabase.instance.client.rpc('get_reviews_with_user_names', params: {
-      'partner_id_arg': partnerId
-    }).then((data) => List<Map<String, dynamic>>.from(data as List));
+    return Supabase.instance.client.rpc(
+      'get_reviews_with_user_names',
+      params: {
+        'partner_id_arg': partnerId,
+      },
+    ).then((data) => List<Map<String, dynamic>>.from(data as List));
   }
 
   @override
@@ -733,10 +781,11 @@ class _ReviewsList extends StatelessWidget {
         }
         if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(
-              child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child:
-                      Text(FFLocalizations.of(context).getText('noreviews'))));
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(FFLocalizations.of(context).getText('noreviews')),
+            ),
+          );
         }
         final reviewsList = snapshot.data!;
         return ListView.builder(
@@ -769,7 +818,7 @@ class _ReviewCard extends StatelessWidget {
     final String comment = reviewData['review_text'] ?? '';
     final DateTime createdAt = DateTime.parse(reviewData['created_at']);
 
-    IconData genderIcon = gender == 'Male'
+    final IconData genderIcon = gender == 'Male'
         ? Icons.male
         : (gender == 'Female' ? Icons.female : Icons.person);
 
@@ -777,9 +826,10 @@ class _ReviewCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-          color: theme.secondaryBackground,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: theme.alternate, width: 1)),
+        color: theme.secondaryBackground,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.alternate, width: 1),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -795,12 +845,16 @@ class _ReviewCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(firstName,
-                        style: theme.bodyLarge
-                            .copyWith(fontWeight: FontWeight.bold)),
-                    Text(DateFormat.yMMMMd().format(createdAt),
-                        style: theme.bodySmall
-                            .copyWith(color: theme.secondaryText)),
+                    Text(
+                      firstName,
+                      style:
+                          theme.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      DateFormat.yMMMMd().format(createdAt),
+                      style:
+                          theme.bodySmall.copyWith(color: theme.secondaryText),
+                    ),
                   ],
                 ),
               ),
