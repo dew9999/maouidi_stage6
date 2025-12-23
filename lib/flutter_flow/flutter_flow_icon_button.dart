@@ -62,7 +62,7 @@ class _FlutterFlowIconButtonState extends State<FlutterFlowIconButton> {
   void _updateIcon() {
     final isFontAwesome = widget.icon is FaIcon;
     if (isFontAwesome) {
-      FaIcon icon = widget.icon as FaIcon;
+      final FaIcon icon = widget.icon as FaIcon;
       effectiveIcon = FaIcon(
         icon.icon,
         size: icon.size,
@@ -70,7 +70,7 @@ class _FlutterFlowIconButtonState extends State<FlutterFlowIconButton> {
       iconSize = icon.size;
       iconColor = icon.color;
     } else {
-      Icon icon = widget.icon as Icon;
+      final Icon icon = widget.icon as Icon;
       effectiveIcon = Icon(
         icon.icon,
         size: icon.size,
@@ -82,7 +82,7 @@ class _FlutterFlowIconButtonState extends State<FlutterFlowIconButton> {
 
   @override
   Widget build(BuildContext context) {
-    ButtonStyle style = ButtonStyle(
+    final ButtonStyle style = ButtonStyle(
       shape: WidgetStateProperty.resolveWith<OutlinedBorder>(
         (states) {
           if (states.contains(WidgetState.hovered)) {

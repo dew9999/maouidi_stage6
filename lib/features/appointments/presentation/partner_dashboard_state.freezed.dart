@@ -16,9 +16,29 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$PartnerDashboardState {
+  /// All appointments for the partner
   List<AppointmentModel> get appointments => throw _privateConstructorUsedError;
+
+  /// Today's appointments (filtered by date)
+  List<AppointmentModel> get todayAppointments =>
+      throw _privateConstructorUsedError;
+
+  /// Dashboard statistics (pending, completed, etc.)
+  Map<String, int> get stats => throw _privateConstructorUsedError;
+
+  /// Current patient being served (for queue-based systems)
+  AppointmentModel? get currentPatient => throw _privateConstructorUsedError;
+
+  /// Loading state
+  bool get isLoading => throw _privateConstructorUsedError;
+
+  /// Current view selection ('schedule' or 'analytics')
   String get selectedView => throw _privateConstructorUsedError;
+
+  /// Current status filter ('Pending', 'Confirmed', 'Completed', 'Canceled')
   String get selectedStatus => throw _privateConstructorUsedError;
+
+  /// Error message if any operation fails
   String? get errorMessage => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -34,9 +54,15 @@ abstract class $PartnerDashboardStateCopyWith<$Res> {
   @useResult
   $Res call(
       {List<AppointmentModel> appointments,
+      List<AppointmentModel> todayAppointments,
+      Map<String, int> stats,
+      AppointmentModel? currentPatient,
+      bool isLoading,
       String selectedView,
       String selectedStatus,
       String? errorMessage});
+
+  $AppointmentModelCopyWith<$Res>? get currentPatient;
 }
 
 /// @nodoc
@@ -54,6 +80,10 @@ class _$PartnerDashboardStateCopyWithImpl<$Res,
   @override
   $Res call({
     Object? appointments = null,
+    Object? todayAppointments = null,
+    Object? stats = null,
+    Object? currentPatient = freezed,
+    Object? isLoading = null,
     Object? selectedView = null,
     Object? selectedStatus = null,
     Object? errorMessage = freezed,
@@ -63,6 +93,22 @@ class _$PartnerDashboardStateCopyWithImpl<$Res,
           ? _value.appointments
           : appointments // ignore: cast_nullable_to_non_nullable
               as List<AppointmentModel>,
+      todayAppointments: null == todayAppointments
+          ? _value.todayAppointments
+          : todayAppointments // ignore: cast_nullable_to_non_nullable
+              as List<AppointmentModel>,
+      stats: null == stats
+          ? _value.stats
+          : stats // ignore: cast_nullable_to_non_nullable
+              as Map<String, int>,
+      currentPatient: freezed == currentPatient
+          ? _value.currentPatient
+          : currentPatient // ignore: cast_nullable_to_non_nullable
+              as AppointmentModel?,
+      isLoading: null == isLoading
+          ? _value.isLoading
+          : isLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
       selectedView: null == selectedView
           ? _value.selectedView
           : selectedView // ignore: cast_nullable_to_non_nullable
@@ -77,6 +123,18 @@ class _$PartnerDashboardStateCopyWithImpl<$Res,
               as String?,
     ) as $Val);
   }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $AppointmentModelCopyWith<$Res>? get currentPatient {
+    if (_value.currentPatient == null) {
+      return null;
+    }
+
+    return $AppointmentModelCopyWith<$Res>(_value.currentPatient!, (value) {
+      return _then(_value.copyWith(currentPatient: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -90,9 +148,16 @@ abstract class _$$PartnerDashboardStateImplCopyWith<$Res>
   @useResult
   $Res call(
       {List<AppointmentModel> appointments,
+      List<AppointmentModel> todayAppointments,
+      Map<String, int> stats,
+      AppointmentModel? currentPatient,
+      bool isLoading,
       String selectedView,
       String selectedStatus,
       String? errorMessage});
+
+  @override
+  $AppointmentModelCopyWith<$Res>? get currentPatient;
 }
 
 /// @nodoc
@@ -108,6 +173,10 @@ class __$$PartnerDashboardStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? appointments = null,
+    Object? todayAppointments = null,
+    Object? stats = null,
+    Object? currentPatient = freezed,
+    Object? isLoading = null,
     Object? selectedView = null,
     Object? selectedStatus = null,
     Object? errorMessage = freezed,
@@ -117,6 +186,22 @@ class __$$PartnerDashboardStateImplCopyWithImpl<$Res>
           ? _value._appointments
           : appointments // ignore: cast_nullable_to_non_nullable
               as List<AppointmentModel>,
+      todayAppointments: null == todayAppointments
+          ? _value._todayAppointments
+          : todayAppointments // ignore: cast_nullable_to_non_nullable
+              as List<AppointmentModel>,
+      stats: null == stats
+          ? _value._stats
+          : stats // ignore: cast_nullable_to_non_nullable
+              as Map<String, int>,
+      currentPatient: freezed == currentPatient
+          ? _value.currentPatient
+          : currentPatient // ignore: cast_nullable_to_non_nullable
+              as AppointmentModel?,
+      isLoading: null == isLoading
+          ? _value.isLoading
+          : isLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
       selectedView: null == selectedView
           ? _value.selectedView
           : selectedView // ignore: cast_nullable_to_non_nullable
@@ -137,32 +222,81 @@ class __$$PartnerDashboardStateImplCopyWithImpl<$Res>
 
 class _$PartnerDashboardStateImpl implements _PartnerDashboardState {
   const _$PartnerDashboardStateImpl(
-      {required final List<AppointmentModel> appointments,
+      {final List<AppointmentModel> appointments = const [],
+      final List<AppointmentModel> todayAppointments = const [],
+      final Map<String, int> stats = const {},
+      this.currentPatient,
+      this.isLoading = false,
       this.selectedView = 'schedule',
       this.selectedStatus = 'Pending',
       this.errorMessage})
-      : _appointments = appointments;
+      : _appointments = appointments,
+        _todayAppointments = todayAppointments,
+        _stats = stats;
 
+  /// All appointments for the partner
   final List<AppointmentModel> _appointments;
+
+  /// All appointments for the partner
   @override
+  @JsonKey()
   List<AppointmentModel> get appointments {
     if (_appointments is EqualUnmodifiableListView) return _appointments;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_appointments);
   }
 
+  /// Today's appointments (filtered by date)
+  final List<AppointmentModel> _todayAppointments;
+
+  /// Today's appointments (filtered by date)
+  @override
+  @JsonKey()
+  List<AppointmentModel> get todayAppointments {
+    if (_todayAppointments is EqualUnmodifiableListView)
+      return _todayAppointments;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_todayAppointments);
+  }
+
+  /// Dashboard statistics (pending, completed, etc.)
+  final Map<String, int> _stats;
+
+  /// Dashboard statistics (pending, completed, etc.)
+  @override
+  @JsonKey()
+  Map<String, int> get stats {
+    if (_stats is EqualUnmodifiableMapView) return _stats;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_stats);
+  }
+
+  /// Current patient being served (for queue-based systems)
+  @override
+  final AppointmentModel? currentPatient;
+
+  /// Loading state
+  @override
+  @JsonKey()
+  final bool isLoading;
+
+  /// Current view selection ('schedule' or 'analytics')
   @override
   @JsonKey()
   final String selectedView;
+
+  /// Current status filter ('Pending', 'Confirmed', 'Completed', 'Canceled')
   @override
   @JsonKey()
   final String selectedStatus;
+
+  /// Error message if any operation fails
   @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'PartnerDashboardState(appointments: $appointments, selectedView: $selectedView, selectedStatus: $selectedStatus, errorMessage: $errorMessage)';
+    return 'PartnerDashboardState(appointments: $appointments, todayAppointments: $todayAppointments, stats: $stats, currentPatient: $currentPatient, isLoading: $isLoading, selectedView: $selectedView, selectedStatus: $selectedStatus, errorMessage: $errorMessage)';
   }
 
   @override
@@ -172,6 +306,13 @@ class _$PartnerDashboardStateImpl implements _PartnerDashboardState {
             other is _$PartnerDashboardStateImpl &&
             const DeepCollectionEquality()
                 .equals(other._appointments, _appointments) &&
+            const DeepCollectionEquality()
+                .equals(other._todayAppointments, _todayAppointments) &&
+            const DeepCollectionEquality().equals(other._stats, _stats) &&
+            (identical(other.currentPatient, currentPatient) ||
+                other.currentPatient == currentPatient) &&
+            (identical(other.isLoading, isLoading) ||
+                other.isLoading == isLoading) &&
             (identical(other.selectedView, selectedView) ||
                 other.selectedView == selectedView) &&
             (identical(other.selectedStatus, selectedStatus) ||
@@ -184,6 +325,10 @@ class _$PartnerDashboardStateImpl implements _PartnerDashboardState {
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(_appointments),
+      const DeepCollectionEquality().hash(_todayAppointments),
+      const DeepCollectionEquality().hash(_stats),
+      currentPatient,
+      isLoading,
       selectedView,
       selectedStatus,
       errorMessage);
@@ -198,18 +343,46 @@ class _$PartnerDashboardStateImpl implements _PartnerDashboardState {
 
 abstract class _PartnerDashboardState implements PartnerDashboardState {
   const factory _PartnerDashboardState(
-      {required final List<AppointmentModel> appointments,
+      {final List<AppointmentModel> appointments,
+      final List<AppointmentModel> todayAppointments,
+      final Map<String, int> stats,
+      final AppointmentModel? currentPatient,
+      final bool isLoading,
       final String selectedView,
       final String selectedStatus,
       final String? errorMessage}) = _$PartnerDashboardStateImpl;
 
   @override
+
+  /// All appointments for the partner
   List<AppointmentModel> get appointments;
   @override
+
+  /// Today's appointments (filtered by date)
+  List<AppointmentModel> get todayAppointments;
+  @override
+
+  /// Dashboard statistics (pending, completed, etc.)
+  Map<String, int> get stats;
+  @override
+
+  /// Current patient being served (for queue-based systems)
+  AppointmentModel? get currentPatient;
+  @override
+
+  /// Loading state
+  bool get isLoading;
+  @override
+
+  /// Current view selection ('schedule' or 'analytics')
   String get selectedView;
   @override
+
+  /// Current status filter ('Pending', 'Confirmed', 'Completed', 'Canceled')
   String get selectedStatus;
   @override
+
+  /// Error message if any operation fails
   String? get errorMessage;
   @override
   @JsonKey(ignore: true)

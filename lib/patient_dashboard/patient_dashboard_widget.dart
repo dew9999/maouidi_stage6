@@ -1,216 +1,59 @@
 // lib/patient_dashboard/patient_dashboard_widget.dart
 
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maouidi/core/localization_helpers.dart';
-import '../../components/empty_state_widget.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
-import '../../flutter_flow/flutter_flow_util.dart';
-import '../../flutter_flow/flutter_flow_widgets.dart';
-import 'patient_dashboard_model.dart';
-export 'patient_dashboard_model.dart';
+import '../components/empty_state_widget.dart';
+import '../flutter_flow/flutter_flow_theme.dart';
+import '../flutter_flow/flutter_flow_util.dart';
+import '../flutter_flow/flutter_flow_widgets.dart';
+import '../features/patient/presentation/patient_dashboard_controller.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
-class PatientDashboardWidget extends StatefulWidget {
+class PatientDashboardWidget extends ConsumerStatefulWidget {
   const PatientDashboardWidget({super.key});
 
   static String routeName = 'PatientDashboard';
   static String routePath = '/patientDashboard';
+
   @override
-  State<PatientDashboardWidget> createState() => _PatientDashboardWidgetState();
+  ConsumerState<PatientDashboardWidget> createState() =>
+      _PatientDashboardWidgetState();
 }
 
-class _PatientDashboardWidgetState extends State<PatientDashboardWidget>
-    with TickerProviderStateMixin {
-  late PatientDashboardModel _model;
+class _PatientDashboardWidgetState extends ConsumerState<PatientDashboardWidget>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final ValueNotifier<int> _refreshNotifier = ValueNotifier<int>(0);
-
-  StreamSubscription<List<Map<String, dynamic>>>? _appointmentsSubscription;
-  Map<int, String> _previousAppointmentStatuses = {};
-
-  void _showPaymentDialog(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(
-            FFLocalizations.of(context).getText('payment_required_title'),
-            style: theme.headlineSmall,),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.warning.withAlpha(25),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: theme.warning, width: 1),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.warning_amber_rounded,
-                        color: theme.warning, size: 24,),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        FFLocalizations.of(context)
-                            .getText('payment_emergency_warning'),
-                        style:
-                            theme.bodySmall.copyWith(color: theme.primaryText),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                FFLocalizations.of(context).getText('payment_required_body'),
-                style: theme.bodyMedium,
-              ),
-              const SizedBox(height: 16),
-              Text(FFLocalizations.of(context).getText('payment_rib'),
-                  style: theme.bodyLarge,),
-              Text(FFLocalizations.of(context).getText('payment_name'),
-                  style: theme.bodyLarge,),
-              const SizedBox(height: 16),
-              Text(
-                FFLocalizations.of(context)
-                    .getText('payment_receipt_instruction'),
-                style: theme.bodyMedium,
-              ),
-              SelectableText(
-                FFLocalizations.of(context).getText('payment_email'),
-                style: theme.bodyLarge.copyWith(color: theme.primary),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(FFLocalizations.of(context).getText('dialog_close'),
-                style: TextStyle(color: theme.primaryText),),
-          ),
-        ],
-        backgroundColor: theme.secondaryBackground,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => PatientDashboardModel());
     _tabController = TabController(length: 3, vsync: this, initialIndex: 0);
-    _setupRealtimeListener();
-  }
-
-  void _setupRealtimeListener() {
-    final client = Supabase.instance.client;
-    final userId = client.auth.currentUser?.id;
-    if (userId == null) return;
-
-    _appointmentsSubscription = client
-        .from('appointments')
-        .stream(primaryKey: ['id'])
-        .eq('booking_user_id', userId)
-        .listen((List<Map<String, dynamic>> data) {
-          final newStatuses = <int, String>{};
-          bool needsRefresh = false;
-
-          for (final appointment in data) {
-            final id = appointment['id'] as int;
-            final newStatus = appointment['status'] as String;
-            newStatuses[id] = newStatus;
-
-            final oldStatus = _previousAppointmentStatuses[id];
-
-            if (oldStatus == 'Pending' && newStatus == 'Confirmed') {
-              _checkIfHomecareAndShowDialog(appointment['partner_id']);
-              needsRefresh = true;
-            } else if (oldStatus != null && oldStatus != newStatus) {
-              needsRefresh = true;
-            }
-          }
-
-          if (needsRefresh && mounted) {
-            _refreshNotifier.value++;
-          }
-
-          _previousAppointmentStatuses = newStatuses;
-        });
-  }
-
-  Future<void> _checkIfHomecareAndShowDialog(String partnerId) async {
-    try {
-      final partnerData = await Supabase.instance.client
-          .from('medical_partners')
-          .select('category')
-          .eq('id', partnerId)
-          .single();
-
-      if (mounted && partnerData['category'] == 'Homecare') {
-        _showPaymentDialog(context);
-      }
-    } catch (e) {
-      debugPrint('Error checking partner category: $e');
-    }
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _refreshNotifier.dispose();
-    _model.dispose();
-    _appointmentsSubscription?.cancel();
     super.dispose();
-  }
-
-  Future<List<Map<String, dynamic>>> _fetchAppointments(List<String> statuses,
-      {bool? isUpcoming,}) {
-    final client = Supabase.instance.client;
-    final userId = client.auth.currentUser?.id;
-    if (userId == null) return Future.value([]);
-
-    var query = client
-        .from('appointments')
-        .select(
-            '*, appointment_number, has_review, completed_at, medical_partners(full_name, specialty, category)',)
-        .eq('booking_user_id', userId)
-        .inFilter('status', statuses);
-
-    if (isUpcoming != null) {
-      final now = DateTime.now();
-      final startOfToday = DateTime(now.year, now.month, now.day);
-      final filterTime = startOfToday.toUtc().toIso8601String();
-
-      if (isUpcoming) {
-        query = query.gte('appointment_time', filterTime);
-      } else {
-        query = query.lt('appointment_time', now.toUtc().toIso8601String());
-      }
-    }
-
-    return query
-        .order('appointment_time', ascending: isUpcoming ?? false)
-        .then((data) => List<Map<String, dynamic>>.from(data));
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
+    final dashboardState = ref.watch(patientDashboardControllerProvider);
+
     return Scaffold(
       backgroundColor: theme.primaryBackground,
       appBar: AppBar(
         backgroundColor: theme.primary,
-        title: Text(FFLocalizations.of(context).getText('myapts'),
-            style: theme.headlineMedium.override(
-                fontFamily: 'Inter', color: Colors.white, fontSize: 22.0,),),
+        title: Text(
+          FFLocalizations.of(context).getText('myapts'),
+          style: theme.headlineMedium.override(
+            fontFamily: 'Inter',
+            color: Colors.white,
+            fontSize: 22.0,
+          ),
+        ),
         automaticallyImplyLeading: false,
         centerTitle: true,
         bottom: TabBar(
@@ -227,74 +70,73 @@ class _PatientDashboardWidgetState extends State<PatientDashboardWidget>
           ],
         ),
       ),
-      body: ValueListenableBuilder<int>(
-        valueListenable: _refreshNotifier,
-        builder: (context, value, child) {
+      body: dashboardState.when(
+        data: (state) {
+          if (state.errorMessage != null) {
+            return Center(
+              child: Text('Error: ${state.errorMessage}'),
+            );
+          }
+
           return TabBarView(
             controller: _tabController,
             children: [
-              _buildAppointmentList(_fetchAppointments(
-                  ['Pending', 'Confirmed', 'Rescheduled'],
-                  isUpcoming: true,),),
-              _buildAppointmentList(_fetchAppointments(['Completed'])),
-              _buildAppointmentList(_fetchAppointments(
-                  ['Cancelled_ByUser', 'Cancelled_ByPartner', 'NoShow'],),),
+              _buildAppointmentList(state.upcomingAppointments),
+              _buildAppointmentList(state.completedAppointments),
+              _buildAppointmentList(state.canceledAppointments),
             ],
           );
         },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Text('An error occurred: $error'),
+        ),
       ),
     );
   }
 
-  Widget _buildAppointmentList(Future<List<Map<String, dynamic>>> future) {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: future,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text('An error occurred: ${snapshot.error}.'));
-        }
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return EmptyStateWidget(
-            icon: Icons.calendar_month_outlined,
-            title: FFLocalizations.of(context).getText('noapts'),
-            message: FFLocalizations.of(context).getText('noaptsmsg'),
-          );
-        }
+  Widget _buildAppointmentList(List<Map<String, dynamic>> appointments) {
+    if (appointments.isEmpty) {
+      return EmptyStateWidget(
+        icon: Icons.calendar_month_outlined,
+        title: FFLocalizations.of(context).getText('noapts'),
+        message: FFLocalizations.of(context).getText('noaptsmsg'),
+      );
+    }
 
-        final appointments = snapshot.data!;
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: appointments.length,
-          itemBuilder: (context, index) {
-            final appointmentData = appointments[index];
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12.0),
-              child: PatientAppointmentCard(
-                appointmentData: appointmentData,
-                onActionCompleted: () {
-                  _refreshNotifier.value++;
-                },
-              ),
-            );
-          },
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: appointments.length,
+      itemBuilder: (context, index) {
+        final appointmentData = appointments[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: PatientAppointmentCard(
+            appointmentData: appointmentData,
+            onCancelCompleted: () {
+              ref.read(patientDashboardControllerProvider.notifier).loadData();
+            },
+            onReviewCompleted: () {
+              ref.read(patientDashboardControllerProvider.notifier).loadData();
+            },
+          ),
         );
       },
     );
   }
 }
 
-class PatientAppointmentCard extends StatelessWidget {
+class PatientAppointmentCard extends ConsumerWidget {
   const PatientAppointmentCard({
     super.key,
     required this.appointmentData,
-    required this.onActionCompleted,
+    required this.onCancelCompleted,
+    required this.onReviewCompleted,
   });
 
   final Map<String, dynamic> appointmentData;
-  final VoidCallback onActionCompleted;
+  final VoidCallback onCancelCompleted;
+  final VoidCallback onReviewCompleted;
 
   Color getStatusColor(BuildContext context, String? status) {
     final theme = FlutterFlowTheme.of(context);
@@ -315,7 +157,7 @@ class PatientAppointmentCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = FlutterFlowTheme.of(context);
     final status = appointmentData['status'] as String? ?? '';
     final appointmentId = appointmentData['id'];
@@ -377,12 +219,16 @@ class PatientAppointmentCard extends StatelessWidget {
                       Text(
                         DateFormat('MMM').format(appointmentTime).toUpperCase(),
                         style: theme.bodySmall.copyWith(
-                            fontWeight: FontWeight.bold, color: theme.primary,),
+                          fontWeight: FontWeight.bold,
+                          color: theme.primary,
+                        ),
                       ),
                       Text(
                         DateFormat('d').format(appointmentTime),
                         style: theme.headlineMedium.override(
-                            fontFamily: 'Inter', fontWeight: FontWeight.bold,),
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -422,8 +268,9 @@ class PatientAppointmentCard extends StatelessWidget {
                                 Text(
                                   '${FFLocalizations.of(context).getText('yournum')} #$appointmentNumber',
                                   style: theme.bodyMedium.copyWith(
-                                      color: theme.secondaryText,
-                                      fontWeight: FontWeight.bold,),
+                                    color: theme.secondaryText,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 )
                               else
                                 Text(
@@ -444,8 +291,8 @@ class PatientAppointmentCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 16.0),
                 child: FFButtonWidget(
-                  onPressed: () =>
-                      _showReviewDialog(context, appointmentId, partnerName),
+                  onPressed: () => _showReviewDialog(
+                      context, ref, appointmentId, partnerName,),
                   text: FFLocalizations.of(context).getText('lvrvw'),
                   icon: const Icon(Icons.rate_review_outlined),
                   options: FFButtonOptions(
@@ -462,8 +309,8 @@ class PatientAppointmentCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 12.0),
                 child: FFButtonWidget(
-                  onPressed: () =>
-                      _showCancelDialog(context, appointmentId, partnerName),
+                  onPressed: () => _showCancelDialog(
+                      context, ref, appointmentId, partnerName,),
                   text: FFLocalizations.of(context).getText('cnclapt'),
                   options: FFButtonOptions(
                     width: double.infinity,
@@ -483,15 +330,21 @@ class PatientAppointmentCard extends StatelessWidget {
   }
 
   void _showCancelDialog(
-      BuildContext context, int appointmentId, String partnerName,) {
+    BuildContext context,
+    WidgetRef ref,
+    int appointmentId,
+    String partnerName,
+  ) {
     final theme = FlutterFlowTheme.of(context);
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: theme.secondaryBackground,
-        title: Text(FFLocalizations.of(context).getText('cnclaptq'),
-            style: theme.titleLarge,),
+        title: Text(
+          FFLocalizations.of(context).getText('cnclaptq'),
+          style: theme.titleLarge,
+        ),
         content: Text(
           '${FFLocalizations.of(context).getText('cnclaptsure')} $partnerName?',
           style: theme.bodyMedium,
@@ -499,30 +352,39 @@ class PatientAppointmentCard extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(FFLocalizations.of(context).getText('back'),
-                style: TextStyle(color: theme.secondaryText),),
+            child: Text(
+              FFLocalizations.of(context).getText('back'),
+              style: TextStyle(color: theme.secondaryText),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
               try {
-                await Supabase.instance.client.rpc(
-                  'cancel_and_reorder_queue',
-                  params: {'appointment_id_arg': appointmentId},
-                );
+                await ref
+                    .read(patientDashboardControllerProvider.notifier)
+                    .cancelAppointment(appointmentId);
+
                 if (!context.mounted) return;
                 Navigator.of(dialogContext).pop();
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
                     content:
                         Text(FFLocalizations.of(context).getText('aptcnld')),
-                    backgroundColor: Colors.green,),);
-                onActionCompleted();
+                    backgroundColor: Colors.green,
+                  ),
+                );
+                onCancelCompleted();
               } catch (e) {
                 if (!context.mounted) return;
                 Navigator.of(dialogContext).pop();
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
                     content: Text(
-                        '${FFLocalizations.of(context).getText('cnclfail')}: ${e.toString()}',),
-                    backgroundColor: theme.error,),);
+                      '${FFLocalizations.of(context).getText('cnclfail')}: ${e.toString()}',
+                    ),
+                    backgroundColor: theme.error,
+                  ),
+                );
               }
             },
             style: ElevatedButton.styleFrom(
@@ -537,7 +399,11 @@ class PatientAppointmentCard extends StatelessWidget {
   }
 
   void _showReviewDialog(
-      BuildContext context, int appointmentId, String partnerName,) {
+    BuildContext context,
+    WidgetRef ref,
+    int appointmentId,
+    String partnerName,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -545,13 +411,13 @@ class PatientAppointmentCard extends StatelessWidget {
       builder: (ctx) => _ReviewSheet(
         appointmentId: appointmentId,
         partnerName: partnerName,
-        onSuccess: onActionCompleted,
+        onSuccess: onReviewCompleted,
       ),
     );
   }
 }
 
-class _ReviewSheet extends StatefulWidget {
+class _ReviewSheet extends ConsumerStatefulWidget {
   const _ReviewSheet({
     required this.appointmentId,
     required this.partnerName,
@@ -563,10 +429,10 @@ class _ReviewSheet extends StatefulWidget {
   final VoidCallback onSuccess;
 
   @override
-  State<_ReviewSheet> createState() => _ReviewSheetState();
+  ConsumerState<_ReviewSheet> createState() => _ReviewSheetState();
 }
 
-class _ReviewSheetState extends State<_ReviewSheet> {
+class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
   double _rating = 4.0;
   final _reviewController = TextEditingController();
   bool _isSubmitting = false;
@@ -576,26 +442,31 @@ class _ReviewSheetState extends State<_ReviewSheet> {
     setState(() => _isSubmitting = true);
 
     try {
-      await Supabase.instance.client.rpc('submit_review', params: {
-        'appointment_id_arg': widget.appointmentId,
-        'rating_arg': _rating,
-        'review_text_arg': _reviewController.text,
-      },);
+      await ref.read(patientDashboardControllerProvider.notifier).submitReview(
+            widget.appointmentId,
+            _rating,
+            _reviewController.text,
+          );
 
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(FFLocalizations.of(context).getText('thankrev')),
-        backgroundColor: Colors.green,
-      ),);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(FFLocalizations.of(context).getText('thankrev')),
+          backgroundColor: Colors.green,
+        ),
+      );
       widget.onSuccess();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-            '${FFLocalizations.of(context).getText('revfail')}: ${e.toString()}',),
-        backgroundColor: FlutterFlowTheme.of(context).error,
-      ),);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${FFLocalizations.of(context).getText('revfail')}: ${e.toString()}',
+          ),
+          backgroundColor: FlutterFlowTheme.of(context).error,
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() => _isSubmitting = false);

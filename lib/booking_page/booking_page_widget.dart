@@ -2,19 +2,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:maouidi/features/bookings/data/booking_repository.dart';
 import 'package:maouidi/features/bookings/presentation/booking_controller.dart';
-import 'package:maouidi/services/api_service.dart';
+import 'package:maouidi/features/bookings/presentation/booking_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '/flutter_flow/flutter_flow_calendar.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-export 'booking_page_model.dart';
 
 Future<Map<String, String>?> showHomecareDetailsDialog(
     BuildContext context,) async {
-  final theme = FlutterFlowTheme.of(context);
+  final colorScheme = Theme.of(context).colorScheme;
+  final textTheme = Theme.of(context).textTheme;
   final formKey = GlobalKey<FormState>();
   final caseController = TextEditingController();
   final locationController = TextEditingController();
@@ -23,9 +24,9 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
     context: context,
     builder: (dialogContext) {
       return AlertDialog(
-        backgroundColor: theme.secondaryBackground,
+        backgroundColor: colorScheme.surface,
         title: Text(FFLocalizations.of(context).getText('hcdetails'),
-            style: theme.headlineSmall,),
+            style: textTheme.headlineSmall,),
         content: Form(
           key: formKey,
           child: SingleChildScrollView(
@@ -36,11 +37,12 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
                   controller: caseController,
                   decoration: InputDecoration(
                     labelText: FFLocalizations.of(context).getText('casedesc'),
-                    labelStyle: theme.labelMedium,
+                    labelStyle: textTheme.labelMedium,
                     hintText: FFLocalizations.of(context).getText('casedescex'),
-                    hintStyle: theme.labelMedium,
+                    hintStyle: textTheme.labelMedium,
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   maxLines: 3,
                   validator: (v) => v == null || v.isEmpty
@@ -52,11 +54,12 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
                   controller: locationController,
                   decoration: InputDecoration(
                     labelText: FFLocalizations.of(context).getText('fulladdr'),
-                    labelStyle: theme.labelMedium,
+                    labelStyle: textTheme.labelMedium,
                     hintText: FFLocalizations.of(context).getText('fulladdrex'),
-                    hintStyle: theme.labelMedium,
+                    hintStyle: textTheme.labelMedium,
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   maxLines: 2,
                   validator: (v) => v == null || v.isEmpty
@@ -71,7 +74,7 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(null),
             child: Text(FFLocalizations.of(context).getText('cancel'),
-                style: TextStyle(color: theme.secondaryText),),
+                style: TextStyle(color: colorScheme.onSurfaceVariant),),
           ),
           ElevatedButton(
             onPressed: () {
@@ -82,7 +85,8 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
                 });
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: theme.primary),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
             child: Text(FFLocalizations.of(context).getText('submitreq')),
           ),
         ],
@@ -91,7 +95,7 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
   );
 }
 
-class BookingPageWidget extends StatefulWidget {
+class BookingPageWidget extends ConsumerWidget {
   const BookingPageWidget({
     super.key,
     required this.partnerId,
@@ -105,29 +109,13 @@ class BookingPageWidget extends StatefulWidget {
   final bool isPartnerBooking;
 
   @override
-  State<BookingPageWidget> createState() => _BookingPageWidgetState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bookingState = ref.watch(bookingControllerProvider(partnerId));
 
-class _BookingPageWidgetState extends State<BookingPageWidget> {
-  late Future<Map<String, dynamic>?> _partnerDataFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _partnerDataFuture = Supabase.instance.client
-        .from('medical_partners')
-        .select(
-            'booking_system_type, full_name, closed_days, category, working_hours',)
-        .eq('id', widget.partnerId)
-        .maybeSingle();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: FlutterFlowTheme.of(context).primary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         automaticallyImplyLeading: false,
         leading: FlutterFlowIconButton(
           borderColor: Colors.transparent,
@@ -138,86 +126,59 @@ class _BookingPageWidgetState extends State<BookingPageWidget> {
           onPressed: () => context.safePop(),
         ),
         title: Text(FFLocalizations.of(context).getText('bookapptbar'),
-            style: FlutterFlowTheme.of(context).headlineMedium.override(
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontFamily: 'Inter', color: Colors.white, fontSize: 22.0,),),
         centerTitle: true,
         elevation: 2.0,
       ),
       body: SafeArea(
         top: true,
-        child: FutureBuilder<Map<String, dynamic>?>(
-          future: _partnerDataFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError ||
-                !snapshot.hasData ||
-                snapshot.data == null) {
-              return Center(
-                  child: Text(
-                      FFLocalizations.of(context).getText('ptrnotconfig'),),);
-            }
-
-            final partnerData = snapshot.data!;
-            final bookingType =
-                partnerData['booking_system_type'] ?? 'time_based';
-            final partnerName = partnerData['full_name'] ?? 'this partner';
-            final partnerCategory = partnerData['category'];
-            final closedDaysRaw =
-                partnerData['closed_days'] as List<dynamic>? ?? [];
-            final closedDays = closedDaysRaw
-                .map((day) => DateTime.parse(day.toString()))
-                .toList();
-            final workingHours =
-                partnerData['working_hours'] as Map<String, dynamic>? ?? {};
-
-            if (bookingType == 'number_based') {
-              return _NumberQueueBookingView(
-                partnerId: widget.partnerId,
-                partnerName: partnerName,
-                partnerCategory: partnerCategory,
-                isPartnerBooking: widget.isPartnerBooking,
-                closedDays: closedDays,
-                workingHours: workingHours,
-              );
-            } else {
-              return _TimeSlotBookingView(
-                partnerId: widget.partnerId,
-                isPartnerBooking: widget.isPartnerBooking,
-              );
-            }
-          },
-        ),
+        child: bookingState.isLoadingPartner
+            ? const Center(child: CircularProgressIndicator())
+            : bookingState.partnerData == null
+                ? Center(
+                    child: Text(
+                        FFLocalizations.of(context).getText('ptrnotconfig'),),)
+                : _buildBookingView(
+                    context, ref, bookingState, partnerId, isPartnerBooking,),
       ),
     );
   }
+
+  Widget _buildBookingView(
+    BuildContext context,
+    WidgetRef ref,
+    BookingState state,
+    String partnerId,
+    bool isPartnerBooking,
+  ) {
+    final partnerData = state.partnerData!;
+
+    if (partnerData.bookingSystemType == 'number_based') {
+      return _NumberQueueBookingView(
+        partnerId: partnerId,
+        partnerData: partnerData,
+        isPartnerBooking: isPartnerBooking,
+      );
+    } else {
+      return _TimeSlotBookingView(
+        partnerId: partnerId,
+        isPartnerBooking: isPartnerBooking,
+      );
+    }
+  }
 }
 
-class _NumberQueueBookingView extends ConsumerStatefulWidget {
+class _NumberQueueBookingView extends ConsumerWidget {
   const _NumberQueueBookingView({
     required this.partnerId,
-    required this.partnerName,
+    required this.partnerData,
     required this.isPartnerBooking,
-    required this.closedDays,
-    this.partnerCategory,
-    required this.workingHours,
   });
+
   final String partnerId;
-  final String partnerName;
+  final PartnerBookingData partnerData;
   final bool isPartnerBooking;
-  final List<DateTime> closedDays;
-  final String? partnerCategory;
-  final Map<String, dynamic> workingHours;
-
-  @override
-  ConsumerState<_NumberQueueBookingView> createState() =>
-      __NumberQueueBookingViewState();
-}
-
-class __NumberQueueBookingViewState
-    extends ConsumerState<_NumberQueueBookingView> {
-  DateTime _selectedDate = DateTime.now();
 
   bool isSameDay(DateTime? a, DateTime? b) {
     if (a == null || b == null) return false;
@@ -225,44 +186,53 @@ class __NumberQueueBookingViewState
   }
 
   Future<void> _bookAppointment(
-      {String? onBehalfOfName, String? onBehalfOfPhone,}) async {
+    BuildContext context,
+    WidgetRef ref, {
+    String? onBehalfOfName,
+    String? onBehalfOfPhone,
+  }) async {
+    final bookingState = ref.read(bookingControllerProvider(partnerId));
+    final selectedDate = bookingState.selectedDate;
+
     Map<String, String>? homecareDetails;
-    if (widget.partnerCategory == 'Homecare' && !widget.isPartnerBooking) {
+    if (partnerData.category == 'Homecare' && !isPartnerBooking) {
       homecareDetails = await showHomecareDetailsDialog(context);
       if (homecareDetails == null) return;
     }
 
     try {
       final appointmentDateUTC = DateTime.utc(
-        _selectedDate.year,
-        _selectedDate.month,
-        _selectedDate.day,
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
       );
 
-      await ref.read(bookingControllerProvider.notifier).bookAppointment(
-            partnerId: widget.partnerId,
+      await ref
+          .read(bookingControllerProvider(partnerId).notifier)
+          .confirmBooking(
+            partnerId: partnerId,
             appointmentTime: appointmentDateUTC,
             onBehalfOfName: onBehalfOfName,
             onBehalfOfPhone: onBehalfOfPhone,
-            isPartnerOverride: widget.isPartnerBooking,
+            isPartnerOverride: isPartnerBooking,
             caseDescription: homecareDetails?['case_description'],
             patientLocation: homecareDetails?['patient_location'],
           );
 
-      if (!mounted) return;
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            widget.partnerCategory == 'Homecare'
+            partnerData.category == 'Homecare'
                 ? FFLocalizations.of(context).getText('reqsent')
                 : FFLocalizations.of(context).getText('gotnum'),
           ),
           backgroundColor: Colors.green,
         ),
       );
-      if (mounted) context.pop();
+      if (context.mounted) context.pop();
     } catch (e) {
-      if (!mounted) return;
+      if (!context.mounted) return;
       String errorMessage = 'An unexpected error occurred. Please try again.';
       if (e is PostgrestException) {
         if (e.message.contains('You already have an active appointment')) {
@@ -285,8 +255,9 @@ class __NumberQueueBookingViewState
     }
   }
 
-  void _showBookForPatientDialog() {
-    final theme = FlutterFlowTheme.of(context);
+  void _showBookForPatientDialog(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
     final phoneController = TextEditingController();
@@ -294,49 +265,56 @@ class __NumberQueueBookingViewState
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: theme.secondaryBackground,
+        backgroundColor: colorScheme.surface,
         title: Text(FFLocalizations.of(context).getText('bookforpatient'),
-            style: theme.titleLarge,),
+            style: textTheme.titleLarge,),
         content: Form(
           key: formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                      labelText:
-                          FFLocalizations.of(context).getText('ptfullname'),),
-                  validator: (v) => v!.isEmpty
-                      ? FFLocalizations.of(context).getText('fieldreq')
-                      : null,),
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: FFLocalizations.of(context).getText('ptfullname'),
+                ),
+                validator: (v) => v!.isEmpty
+                    ? FFLocalizations.of(context).getText('fieldreq')
+                    : null,
+              ),
               TextFormField(
-                  controller: phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                      labelText:
-                          FFLocalizations.of(context).getText('ptphone'),),
-                  validator: (v) => v!.isEmpty
-                      ? FFLocalizations.of(context).getText('fieldreq')
-                      : null,),
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: FFLocalizations.of(context).getText('ptphone'),
+                ),
+                validator: (v) => v!.isEmpty
+                    ? FFLocalizations.of(context).getText('fieldreq')
+                    : null,
+              ),
             ],
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(FFLocalizations.of(context).getText('cancel'),
-                  style: TextStyle(color: theme.secondaryText),),),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(FFLocalizations.of(context).getText('cancel'),
+                style: TextStyle(color: colorScheme.onSurfaceVariant),),
+          ),
           ElevatedButton(
             onPressed: () async {
               if (formKey.currentState!.validate()) {
                 Navigator.of(dialogContext).pop();
                 await _bookAppointment(
-                    onBehalfOfName: nameController.text,
-                    onBehalfOfPhone: phoneController.text,);
+                  context,
+                  ref,
+                  onBehalfOfName: nameController.text,
+                  onBehalfOfPhone: phoneController.text,
+                );
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: theme.primary),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
             child: Text(FFLocalizations.of(context).getText('submitreq')),
           ),
         ],
@@ -345,16 +323,19 @@ class __NumberQueueBookingViewState
   }
 
   @override
-  Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final bookingState = ref.watch(bookingControllerProvider(partnerId));
+    final selectedDate = bookingState.selectedDate;
 
     final isDateInClosedDays =
-        widget.closedDays.any((d) => isSameDay(d, _selectedDate));
+        partnerData.closedDays.any((d) => isSameDay(d, selectedDate));
 
-    final dayOfWeekKey = _selectedDate.weekday.toString();
-    final isWorkingDay = widget.workingHours.containsKey(dayOfWeekKey);
+    final dayOfWeekKey = selectedDate.weekday.toString();
+    final isWorkingDay = partnerData.workingHours.containsKey(dayOfWeekKey);
 
-    final isPastDay = _selectedDate.isBefore(DateTime.now().startOfDay);
+    final isPastDay = selectedDate.isBefore(DateTime.now().startOfDay);
 
     final bool isButtonDisabled =
         isDateInClosedDays || !isWorkingDay || isPastDay;
@@ -364,24 +345,25 @@ class __NumberQueueBookingViewState
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: FlutterFlowCalendar(
-            color: theme.primary,
-            iconColor: theme.secondaryText,
+            color: colorScheme.primary,
+            iconColor: colorScheme.onSurfaceVariant,
             weekFormat: false,
             weekStartsMonday: false,
             rowHeight: 44.0,
-            initialDate: _selectedDate,
+            initialDate: selectedDate,
             onChange: (newSelectedDate) {
               if (newSelectedDate != null) {
-                setState(() {
-                  _selectedDate = newSelectedDate.start;
-                });
+                ref
+                    .read(bookingControllerProvider(partnerId).notifier)
+                    .onDateSelected(newSelectedDate.start, partnerId);
               }
             },
-            titleStyle: theme.titleLarge,
-            dayOfWeekStyle: theme.bodyLarge,
-            dateStyle: theme.bodyMedium,
-            selectedDateStyle: theme.titleSmall.copyWith(color: Colors.white),
-            inactiveDateStyle: theme.labelMedium,
+            titleStyle: textTheme.titleLarge,
+            dayOfWeekStyle: textTheme.bodyLarge,
+            dateStyle: textTheme.bodyMedium,
+            selectedDateStyle:
+                textTheme.titleSmall?.copyWith(color: Colors.white),
+            inactiveDateStyle: textTheme.labelMedium,
             locale: FFLocalizations.of(context).languageCode,
           ),
         ),
@@ -394,28 +376,29 @@ class __NumberQueueBookingViewState
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Icon(
-                    widget.partnerCategory == 'Homecare'
-                        ? Icons.medical_services_outlined
-                        : Icons.confirmation_number_outlined,
-                    size: 60,
-                    color: theme.primary,),
+                  partnerData.category == 'Homecare'
+                      ? Icons.medical_services_outlined
+                      : Icons.confirmation_number_outlined,
+                  size: 60,
+                  color: colorScheme.primary,
+                ),
                 const SizedBox(height: 16),
                 Text(
-                  '${widget.partnerCategory == 'Homecare' ? FFLocalizations.of(context).getText('requestvisit') : FFLocalizations.of(context).getText('getnumberfor')} for the day of:',
+                  '${partnerData.category == 'Homecare' ? FFLocalizations.of(context).getText('requestvisit') : FFLocalizations.of(context).getText('getnumberfor')} for the day of:',
                   textAlign: TextAlign.center,
-                  style: theme.headlineSmall,
+                  style: textTheme.headlineSmall,
                 ),
                 Text(
-                  DateFormat.yMMMMd().format(_selectedDate),
+                  DateFormat.yMMMMd().format(selectedDate),
                   textAlign: TextAlign.center,
-                  style:
-                      theme.headlineSmall.copyWith(fontWeight: FontWeight.bold),
+                  style: textTheme.headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "${FFLocalizations.of(context).getText('atpartner')} ${widget.partnerName}",
+                  "${FFLocalizations.of(context).getText('atpartner')} ${partnerData.fullName}",
                   textAlign: TextAlign.center,
-                  style: theme.bodyLarge,
+                  style: textTheme.bodyLarge,
                 ),
                 const Spacer(),
                 if (isPastDay)
@@ -425,7 +408,8 @@ class __NumberQueueBookingViewState
                       FFLocalizations.of(context)
                           .getText('past_date_booking_error'),
                       textAlign: TextAlign.center,
-                      style: theme.bodyMedium.copyWith(color: theme.error),
+                      style: textTheme.bodyMedium
+                          ?.copyWith(color: colorScheme.error),
                     ),
                   )
                 else if (isDateInClosedDays)
@@ -434,7 +418,8 @@ class __NumberQueueBookingViewState
                     child: Text(
                       FFLocalizations.of(context).getText('closeddate'),
                       textAlign: TextAlign.center,
-                      style: theme.bodyMedium.copyWith(color: theme.error),
+                      style: textTheme.bodyMedium
+                          ?.copyWith(color: colorScheme.error),
                     ),
                   )
                 else if (!isWorkingDay)
@@ -443,33 +428,34 @@ class __NumberQueueBookingViewState
                     child: Text(
                       FFLocalizations.of(context).getText('notworkingday'),
                       textAlign: TextAlign.center,
-                      style: theme.bodyMedium.copyWith(color: theme.error),
+                      style: textTheme.bodyMedium
+                          ?.copyWith(color: colorScheme.error),
                     ),
                   ),
                 FFButtonWidget(
                   onPressed: isButtonDisabled
                       ? null
                       : () async {
-                          if (widget.isPartnerBooking) {
-                            _showBookForPatientDialog();
+                          if (isPartnerBooking) {
+                            _showBookForPatientDialog(context, ref);
                           } else {
-                            await _bookAppointment();
+                            await _bookAppointment(context, ref);
                           }
                         },
-                  text: widget.isPartnerBooking
+                  text: isPartnerBooking
                       ? FFLocalizations.of(context).getText('bookforpatient')
-                      : (widget.partnerCategory == 'Homecare'
+                      : (partnerData.category == 'Homecare'
                           ? FFLocalizations.of(context).getText('submithcreq')
                           : FFLocalizations.of(context).getText('getmynum')),
                   options: FFButtonOptions(
                     height: 50,
-                    color: theme.primary,
-                    textStyle: theme.titleSmall
-                        .override(fontFamily: 'Inter', color: Colors.white),
+                    color: colorScheme.primary,
+                    textStyle: textTheme.titleSmall
+                        ?.copyWith(fontFamily: 'Inter', color: Colors.white),
                     elevation: 3,
                     borderRadius: BorderRadius.circular(12),
-                    disabledColor: theme.alternate,
-                    disabledTextColor: theme.secondaryText,
+                    disabledColor: colorScheme.surfaceContainerHighest,
+                    disabledTextColor: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -481,47 +467,47 @@ class __NumberQueueBookingViewState
   }
 }
 
-class _TimeSlotBookingView extends StatefulWidget {
-  const _TimeSlotBookingView(
-      {required this.partnerId, required this.isPartnerBooking,});
+class _TimeSlotBookingView extends ConsumerWidget {
+  const _TimeSlotBookingView({
+    required this.partnerId,
+    required this.isPartnerBooking,
+  });
+
   final String partnerId;
   final bool isPartnerBooking;
 
   @override
-  State<_TimeSlotBookingView> createState() => __TimeSlotBookingViewState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final bookingState = ref.watch(bookingControllerProvider(partnerId));
+    final selectedDate = bookingState.selectedDate;
 
-class __TimeSlotBookingViewState extends State<_TimeSlotBookingView> {
-  DateTime _selectedDate = DateTime.now();
-  int _refreshCounter = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: FlutterFlowCalendar(
-            color: theme.primary,
-            iconColor: theme.secondaryText,
+            color: colorScheme.primary,
+            iconColor: colorScheme.onSurfaceVariant,
             weekFormat: false,
             weekStartsMonday: false,
             rowHeight: 44.0,
-            initialDate: _selectedDate,
+            initialDate: selectedDate,
             onChange: (newSelectedDate) {
               if (newSelectedDate != null) {
-                setState(() {
-                  _selectedDate = newSelectedDate.start;
-                });
+                ref
+                    .read(bookingControllerProvider(partnerId).notifier)
+                    .onDateSelected(newSelectedDate.start, partnerId);
               }
             },
-            titleStyle: theme.titleLarge,
-            dayOfWeekStyle: theme.bodyLarge,
-            dateStyle: theme.bodyMedium,
-            selectedDateStyle: theme.titleSmall.copyWith(color: Colors.white),
-            inactiveDateStyle: theme.labelMedium,
+            titleStyle: textTheme.titleLarge,
+            dayOfWeekStyle: textTheme.bodyLarge,
+            dateStyle: textTheme.bodyMedium,
+            selectedDateStyle:
+                textTheme.titleSmall?.copyWith(color: Colors.white),
+            inactiveDateStyle: textTheme.labelMedium,
             locale: FFLocalizations.of(context).languageCode,
           ),
         ),
@@ -530,16 +516,8 @@ class __TimeSlotBookingViewState extends State<_TimeSlotBookingView> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: _TimeSlotGrid(
-              key: ValueKey(_refreshCounter),
-              partnerId: widget.partnerId,
-              selectedDate: _selectedDate,
-              isPartnerBooking: widget.isPartnerBooking,
-              onBookingComplete: () async {
-                await Future.delayed(const Duration(milliseconds: 400));
-                if (mounted) {
-                  setState(() => _refreshCounter++);
-                }
-              },
+              partnerId: partnerId,
+              isPartnerBooking: isPartnerBooking,
             ),
           ),
         ),
@@ -548,52 +526,19 @@ class __TimeSlotBookingViewState extends State<_TimeSlotBookingView> {
   }
 }
 
-class _TimeSlotGrid extends StatefulWidget {
+class _TimeSlotGrid extends ConsumerWidget {
   const _TimeSlotGrid({
-    super.key,
     required this.partnerId,
-    required this.selectedDate,
-    required this.onBookingComplete,
     required this.isPartnerBooking,
   });
 
   final String partnerId;
-  final DateTime selectedDate;
-  final VoidCallback onBookingComplete;
   final bool isPartnerBooking;
 
-  @override
-  State<_TimeSlotGrid> createState() => _TimeSlotGridState();
-}
-
-class _TimeSlotGridState extends State<_TimeSlotGrid> {
-  late Future<List<TimeSlot>> _slotsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchSlots();
-  }
-
-  @override
-  void didUpdateWidget(_TimeSlotGrid oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.selectedDate != oldWidget.selectedDate) {
-      _fetchSlots();
-    }
-  }
-
-  void _fetchSlots() {
-    setState(() {
-      _slotsFuture = getAvailableTimeSlots(
-        partnerId: widget.partnerId,
-        selectedDate: widget.selectedDate,
-      );
-    });
-  }
-
-  void _showBookForPatientDialog(BuildContext context, TimeSlot slot) {
-    final theme = FlutterFlowTheme.of(context);
+  void _showBookForPatientDialog(
+      BuildContext context, WidgetRef ref, TimeSlot slot,) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
     final phoneController = TextEditingController();
@@ -601,49 +546,57 @@ class _TimeSlotGridState extends State<_TimeSlotGrid> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: theme.secondaryBackground,
+        backgroundColor: colorScheme.surface,
         title: Text(FFLocalizations.of(context).getText('bookforpatient'),
-            style: theme.titleLarge,),
+            style: textTheme.titleLarge,),
         content: Form(
           key: formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                      labelText:
-                          FFLocalizations.of(context).getText('ptfullname'),),
-                  validator: (v) => v!.isEmpty
-                      ? FFLocalizations.of(context).getText('fieldreq')
-                      : null,),
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: FFLocalizations.of(context).getText('ptfullname'),
+                ),
+                validator: (v) => v!.isEmpty
+                    ? FFLocalizations.of(context).getText('fieldreq')
+                    : null,
+              ),
               TextFormField(
-                  controller: phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                      labelText:
-                          FFLocalizations.of(context).getText('ptphone'),),
-                  validator: (v) => v!.isEmpty
-                      ? FFLocalizations.of(context).getText('fieldreq')
-                      : null,),
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: FFLocalizations.of(context).getText('ptphone'),
+                ),
+                validator: (v) => v!.isEmpty
+                    ? FFLocalizations.of(context).getText('fieldreq')
+                    : null,
+              ),
             ],
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(FFLocalizations.of(context).getText('cancel'),
-                  style: TextStyle(color: theme.secondaryText),),),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(FFLocalizations.of(context).getText('cancel'),
+                style: TextStyle(color: colorScheme.onSurfaceVariant),),
+          ),
           ElevatedButton(
             onPressed: () async {
               if (formKey.currentState!.validate()) {
                 Navigator.of(dialogContext).pop();
-                await _bookAppointment(slot,
-                    onBehalfOfName: nameController.text,
-                    onBehalfOfPhone: phoneController.text,);
+                await _bookAppointment(
+                  context,
+                  ref,
+                  slot,
+                  onBehalfOfName: nameController.text,
+                  onBehalfOfPhone: phoneController.text,
+                );
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: theme.primary),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
             child: Text(FFLocalizations.of(context).getText('submitreq')),
           ),
         ],
@@ -651,36 +604,48 @@ class _TimeSlotGridState extends State<_TimeSlotGrid> {
     );
   }
 
-  Future<void> _bookAppointment(TimeSlot slot,
-      {String? onBehalfOfName, String? onBehalfOfPhone,}) async {
+  Future<void> _bookAppointment(
+    BuildContext context,
+    WidgetRef ref,
+    TimeSlot slot, {
+    String? onBehalfOfName,
+    String? onBehalfOfPhone,
+  }) async {
     showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),);
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
 
     try {
-      await Supabase.instance.client.rpc(
-        'book_appointment',
-        params: {
-          'partner_id_arg': widget.partnerId,
-          'appointment_time_arg': slot.time.toIso8601String(),
-          'on_behalf_of_name_arg': onBehalfOfName,
-          'on_behalf_of_phone_arg': onBehalfOfPhone,
-          'is_partner_override': widget.isPartnerBooking,
-          'case_description_arg': null,
-          'patient_location_arg': null,
-        },
+      await ref
+          .read(bookingControllerProvider(partnerId).notifier)
+          .confirmBooking(
+            partnerId: partnerId,
+            appointmentTime: slot.time,
+            onBehalfOfName: onBehalfOfName,
+            onBehalfOfPhone: onBehalfOfPhone,
+            isPartnerOverride: isPartnerBooking,
+            caseDescription: null,
+            patientLocation: null,
+          );
+
+      if (!context.mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(FFLocalizations.of(context).getText('apptcreated')),
+          backgroundColor: Colors.green,
+        ),
       );
 
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(FFLocalizations.of(context).getText('apptcreated')),
-          backgroundColor: Colors.green,),);
-
-      widget.onBookingComplete();
+      // Refresh slots by re-selecting the current date
+      final currentState = ref.read(bookingControllerProvider(partnerId));
+      ref
+          .read(bookingControllerProvider(partnerId).notifier)
+          .onDateSelected(currentState.selectedDate, partnerId);
     } catch (e) {
-      if (!mounted) return;
+      if (!context.mounted) return;
       Navigator.of(context).pop();
       String errorMessage = 'An unexpected error occurred. Please try again.';
       if (e is PostgrestException) {
@@ -703,79 +668,77 @@ class _TimeSlotGridState extends State<_TimeSlotGrid> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<TimeSlot>>(
-      future: _slotsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-              child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                      FlutterFlowTheme.of(context).primary,),),);
-        }
-        if (snapshot.hasError) {
-          return Center(
-              child: Text(
-                  '${FFLocalizations.of(context).getText('loadslotserr')}: ${snapshot.error}',
-                  style: FlutterFlowTheme.of(context).bodyMedium,),);
-        }
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-              child: Text(FFLocalizations.of(context).getText('noslots'),
-                  style: FlutterFlowTheme.of(context).bodyMedium,),);
-        }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bookingState = ref.watch(bookingControllerProvider(partnerId));
 
-        final availableSlots = snapshot.data!;
-        return GridView.builder(
-          padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 10.0,
-            mainAxisSpacing: 10.0,
-            childAspectRatio: 2.5,
+    if (bookingState.isLoadingSlots) {
+      return Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(
+            Theme.of(context).colorScheme.primary,
           ),
-          itemCount: availableSlots.length,
-          itemBuilder: (context, index) {
-            final slot = availableSlots[index];
-            final bool isTappable = slot.status == SlotStatus.available;
-            Color buttonColor;
-            switch (slot.status) {
-              case SlotStatus.available:
-                buttonColor = FlutterFlowTheme.of(context).primary;
-                break;
-              case SlotStatus.booked:
-                buttonColor = FlutterFlowTheme.of(context).alternate;
-                break;
-              case SlotStatus.inPast:
-                buttonColor = FlutterFlowTheme.of(context).secondaryText;
-                break;
-            }
+        ),
+      );
+    }
 
-            return FFButtonWidget(
-              onPressed: isTappable
-                  ? () async {
-                      if (widget.isPartnerBooking) {
-                        _showBookForPatientDialog(context, slot);
-                      } else {
-                        await _bookAppointment(slot);
-                      }
-                    }
-                  : null,
-              text: DateFormat('HH:mm').format(slot.time.toLocal()),
-              options: FFButtonOptions(
-                height: 40.0,
-                padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
-                iconPadding: const EdgeInsets.all(0),
-                color: buttonColor,
-                textStyle: FlutterFlowTheme.of(context)
-                    .titleSmall
-                    .override(fontFamily: 'Inter', color: Colors.white),
-                elevation: 2.0,
-                borderRadius: BorderRadius.circular(8.0),
-                disabledColor: buttonColor,
-              ),
-            );
-          },
+    if (bookingState.availableSlots.isEmpty) {
+      return Center(
+        child: Text(FFLocalizations.of(context).getText('noslots'),
+            style: Theme.of(context).textTheme.bodyMedium,),
+      );
+    }
+
+    final availableSlots = bookingState.availableSlots;
+    return GridView.builder(
+      padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 10.0,
+        mainAxisSpacing: 10.0,
+        childAspectRatio: 2.5,
+      ),
+      itemCount: availableSlots.length,
+      itemBuilder: (context, index) {
+        final slot = availableSlots[index];
+        final bool isTappable = slot.status == SlotStatus.available;
+        final colorScheme = Theme.of(context).colorScheme;
+        Color buttonColor;
+        switch (slot.status) {
+          case SlotStatus.available:
+            buttonColor = colorScheme.primary;
+            break;
+          case SlotStatus.booked:
+            buttonColor = colorScheme.surfaceContainerHighest;
+            break;
+          case SlotStatus.inPast:
+            buttonColor = colorScheme.onSurfaceVariant;
+            break;
+        }
+
+        return FFButtonWidget(
+          onPressed: isTappable
+              ? () async {
+                  if (isPartnerBooking) {
+                    _showBookForPatientDialog(context, ref, slot);
+                  } else {
+                    await _bookAppointment(context, ref, slot);
+                  }
+                }
+              : null,
+          text: DateFormat('HH:mm').format(slot.time.toLocal()),
+          options: FFButtonOptions(
+            height: 40.0,
+            padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+            iconPadding: const EdgeInsets.all(0),
+            color: buttonColor,
+            textStyle: Theme.of(context)
+                .textTheme
+                .titleSmall
+                ?.copyWith(fontFamily: 'Inter', color: Colors.white),
+            elevation: 2.0,
+            borderRadius: BorderRadius.circular(8.0),
+            disabledColor: buttonColor,
+          ),
         );
       },
     );

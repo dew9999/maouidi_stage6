@@ -10,20 +10,17 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 
-import '../main.dart';
-import 'nav/nav.dart';
+import '../core/utils/app_helpers.dart' as app_utils;
 
 export 'lat_lng.dart';
 export 'place.dart';
 export 'uploaded_file.dart';
-export 'flutter_flow_model.dart';
 export 'dart:math' show min, max;
 export 'dart:typed_data' show Uint8List;
 export 'dart:convert' show jsonEncode, jsonDecode;
 export 'package:intl/intl.dart';
 export 'package:page_transition/page_transition.dart';
 export 'internationalization.dart' show FFLocalizations;
-export 'nav/nav.dart';
 
 T valueOrDefault<T>(T? value, T defaultValue) =>
     (value is String && value.isEmpty) || value == null ? defaultValue : value;
@@ -49,7 +46,7 @@ String dateTimeFormat(String format, DateTime? dateTime, {String? locale}) {
 }
 
 Future launchURL(String url) async {
-  var uri = Uri.parse(url);
+  final uri = Uri.parse(url);
   try {
     await launchUrl(uri);
   } catch (e) {
@@ -215,10 +212,10 @@ bool get isiOS => !kIsWeb && Platform.isIOS;
 bool get isWeb => kIsWeb;
 
 void setAppLanguage(BuildContext context, String language) =>
-    MyApp.of(context).setLocale(language);
+    app_utils.setAppLanguage(context, language);
 
 void setDarkModeSetting(BuildContext context, ThemeMode themeMode) =>
-    MyApp.of(context).setThemeMode(themeMode);
+    app_utils.setDarkModeSetting(context, themeMode);
 
 void showSnackbar(
   BuildContext context,

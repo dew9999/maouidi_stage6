@@ -1,118 +1,79 @@
-// lib/settings_page/components/settings_dialogs.dart
-
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:maouidi/auth/supabase_auth/auth_util.dart';
-import 'package:maouidi/flutter_flow/flutter_flow_theme.dart';
-import 'package:maouidi/flutter_flow/flutter_flow_util.dart';
-import 'package:maouidi/ui/welcome_screen/welcome_screen_widget.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '/flutter_flow/flutter_flow_theme.dart';
+import '/ui/welcome_screen/welcome_screen_widget.dart';
 
-void showContactUsDialog(BuildContext context) {
+Future<void> showSignOutDialog(BuildContext context) async {
   final theme = FlutterFlowTheme.of(context);
-  final contactInfo = {
-    'Email': 'Maouidi06@gmail.com',
-    'Phone': '+213658846728',
-    'Address':
-        'Wilaya de Tebessa, Tebessa ville, devant la wilaya à côté de stade bestanji',
-  };
 
-  showDialog(
+  return showDialog(
     context: context,
-    builder: (dialogContext) => AlertDialog(
-      backgroundColor: theme.secondaryBackground,
-      title: Text(FFLocalizations.of(context).getText('contactus'),
-          style: theme.headlineSmall,),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _ContactRow(
-            icon: Icons.email_outlined,
-            text: contactInfo['Email']!,
-            onTap: () => launchUrl(Uri.parse('mailto:${contactInfo['Email']}')),
-          ),
-          const SizedBox(height: 12),
-          _ContactRow(
-            icon: Icons.phone_outlined,
-            text: contactInfo['Phone']!,
-            onTap: () => launchUrl(Uri.parse('tel:${contactInfo['Phone']}')),
-          ),
-          const SizedBox(height: 12),
-          _ContactRow(
-            icon: Icons.location_on_outlined,
-            text: contactInfo['Address']!,
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(),
-          child: Text('Close', style: TextStyle(color: theme.primaryText)),
+    builder: (alertDialogContext) {
+      return AlertDialog(
+        backgroundColor: theme.secondaryBackground,
+        title: Text('Sign Out', style: theme.titleLarge),
+        content: Text(
+          'Are you sure you want to sign out?',
+          style: theme.bodyMedium,
         ),
-      ],
-    ),
-  );
-}
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(alertDialogContext),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: theme.secondaryText),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(alertDialogContext); // Close dialog
 
-void showDeleteAccountDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(FFLocalizations.of(context).getText('delacct')),
-      content: const Text(
-          'Are you sure? This action is permanent and cannot be undone.',),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(),
-          child: Text(FFLocalizations.of(context).getText('cancel')),
-        ),
-        TextButton(
-          onPressed: () async {
-            try {
-              await Supabase.instance.client.rpc('delete_user_account');
+              // FIX: Use Supabase directly
+              await Supabase.instance.client.auth.signOut();
+
               if (context.mounted) {
-                await authManager.signOut();
                 context.go(WelcomeScreenWidget.routePath);
               }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text('Error deleting account: ${e.toString()}'),
-                      backgroundColor: Colors.red,),
-                );
-              }
-            }
-          },
-          child: Text(FFLocalizations.of(context).getText('delacct'),
-              style: const TextStyle(color: Colors.red),),
-        ),
-      ],
-    ),
+            },
+            child: Text(
+              'Sign Out',
+              style: TextStyle(color: theme.error),
+            ),
+          ),
+        ],
+      );
+    },
   );
 }
 
-class _ContactRow extends StatelessWidget {
-  const _ContactRow({required this.icon, required this.text, this.onTap});
-  final IconData icon;
-  final String text;
-  final VoidCallback? onTap;
+Future<void> showDeleteAccountDialog(BuildContext context) async {
+  final theme = FlutterFlowTheme.of(context);
 
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: FlutterFlowTheme.of(context).primary, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-              child: SelectableText(text,
-                  style: FlutterFlowTheme.of(context).bodyMedium,),),
+  return showDialog(
+    context: context,
+    builder: (alertDialogContext) {
+      return AlertDialog(
+        backgroundColor: theme.secondaryBackground,
+        title: Text('Delete Account', style: theme.titleLarge),
+        content: Text(
+          'This action is irreversible. Are you sure?',
+          style: theme.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(alertDialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              // Add delete logic here
+              Navigator.pop(alertDialogContext);
+            },
+            child: Text('Delete', style: TextStyle(color: theme.error)),
+          ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  );
 }

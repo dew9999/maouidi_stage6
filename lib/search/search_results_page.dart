@@ -1,14 +1,15 @@
 // lib/search/search_results_page.dart
 
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:maouidi/backend/supabase/supabase.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maouidi/components/partner_card_widget.dart';
 import 'package:maouidi/components/empty_state_widget.dart';
 import 'package:maouidi/flutter_flow/flutter_flow_theme.dart';
 import 'package:maouidi/flutter_flow/flutter_flow_util.dart';
+import 'package:maouidi/features/search/presentation/partner_search_controller.dart';
+import 'package:maouidi/features/search/presentation/search_state.dart';
 
-class SearchResultsPage extends StatefulWidget {
+class SearchResultsPage extends ConsumerStatefulWidget {
   const SearchResultsPage({
     super.key,
     required this.searchTerm,
@@ -20,68 +21,44 @@ class SearchResultsPage extends StatefulWidget {
   static String routePath = '/searchResults';
 
   @override
-  State<SearchResultsPage> createState() => _SearchResultsPageState();
+  ConsumerState<SearchResultsPage> createState() => _SearchResultsPageState();
 }
 
-class _SearchResultsPageState extends State<SearchResultsPage> {
-  bool _isLoading = true;
-  List<MedicalPartnersRow> _partners = [];
+class _SearchResultsPageState extends ConsumerState<SearchResultsPage> {
   late TextEditingController _searchController;
-  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController(text: widget.searchTerm);
-    _fetchResults(widget.searchTerm);
+
+    // Initialize search with the provided search term
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(partnerSearchControllerProvider.notifier)
+          .initializeWithQuery(widget.searchTerm);
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _debounce?.cancel();
     super.dispose();
-  }
-
-  Future<void> _fetchResults(String term) async {
-    if (!mounted) return;
-    setState(() => _isLoading = true);
-
-    try {
-      final response = await Supabase.instance.client.rpc(
-        'search_partners',
-        params: {'search_term': term},
-      );
-      final partners =
-          (response as List).map((data) => MedicalPartnersRow(data)).toList();
-
-      if (mounted) {
-        setState(() {
-          _partners = partners;
-        });
-      }
-    } catch (e) {
-      debugPrint('Search failed: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Search failed: ${e.toString()}')),);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
+    final searchState = ref.watch(partnerSearchControllerProvider);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.primaryBackground,
         iconTheme: IconThemeData(color: theme.primaryText),
-        title: Text(FFLocalizations.of(context).getText('srchptr'),
-            style: theme.headlineSmall,),
+        title: Text(
+          FFLocalizations.of(context).getText('srchptr'),
+          style: theme.headlineSmall,
+        ),
         elevation: 2,
       ),
       body: Column(
@@ -91,14 +68,24 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
             child: TextFormField(
               controller: _searchController,
               onChanged: (value) {
-                if (_debounce?.isActive ?? false) _debounce!.cancel();
-                _debounce = Timer(const Duration(milliseconds: 500), () {
-                  _fetchResults(value.trim());
-                });
+                ref
+                    .read(partnerSearchControllerProvider.notifier)
+                    .updateQuery(value.trim());
               },
               decoration: InputDecoration(
                 hintText: FFLocalizations.of(context).getText('refinesrch'),
                 prefixIcon: Icon(Icons.search, color: theme.secondaryText),
+                suffixIcon: searchState.query.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear, color: theme.secondaryText),
+                        onPressed: () {
+                          _searchController.clear();
+                          ref
+                              .read(partnerSearchControllerProvider.notifier)
+                              .updateQuery('');
+                        },
+                      )
+                    : null,
                 filled: true,
                 fillColor: theme.secondaryBackground,
                 border: OutlineInputBorder(
@@ -108,26 +95,85 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
               ),
             ),
           ),
+
+          // Optional: Add filter chips here (category, location)
+          if (searchState.categoryFilter != null ||
+              searchState.locationFilter != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  if (searchState.categoryFilter != null)
+                    FilterChip(
+                      label: Text(searchState.categoryFilter!),
+                      onDeleted: () {
+                        ref
+                            .read(partnerSearchControllerProvider.notifier)
+                            .updateCategoryFilter(null);
+                      },
+                      deleteIcon: const Icon(Icons.close, size: 16),
+                      onSelected: (bool selected) {},
+                    ),
+                  if (searchState.locationFilter != null)
+                    FilterChip(
+                      label: Text(searchState.locationFilter!),
+                      onDeleted: () {
+                        ref
+                            .read(partnerSearchControllerProvider.notifier)
+                            .updateLocationFilter(null);
+                      },
+                      deleteIcon: const Icon(Icons.close, size: 16),
+                      onSelected: (bool selected) {},
+                    ),
+                ],
+              ),
+            ),
+
           Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _partners.isEmpty
-                    ? EmptyStateWidget(
-                        icon: Icons.search_off_rounded,
-                        title: FFLocalizations.of(context).getText('noresults'),
-                        message:
-                            FFLocalizations.of(context).getText('noresultsmsg'),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        itemCount: _partners.length,
-                        itemBuilder: (context, index) {
-                          return PartnerCardWidget(partner: _partners[index]);
-                        },
-                      ),
+            child: _buildSearchResults(searchState, theme),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSearchResults(SearchState searchState, FlutterFlowTheme theme) {
+    if (searchState.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (searchState.errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: theme.error),
+            const SizedBox(height: 16),
+            Text(
+              'Error: ${searchState.errorMessage}',
+              style: theme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (searchState.results.isEmpty) {
+      return EmptyStateWidget(
+        icon: Icons.search_off_rounded,
+        title: FFLocalizations.of(context).getText('noresults'),
+        message: FFLocalizations.of(context).getText('noresultsmsg'),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 16),
+      itemCount: searchState.results.length,
+      itemBuilder: (context, index) {
+        return PartnerCardWidget(partner: searchState.results[index]);
+      },
     );
   }
 }

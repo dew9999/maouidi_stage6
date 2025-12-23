@@ -376,7 +376,7 @@ extension TextStyleHelper on TextStyle {
     if (useGoogleFonts && fontFamily != null) {
       font = GoogleFonts.getFont(fontFamily,
           fontWeight: fontWeight ?? this.fontWeight,
-          fontStyle: fontStyle ?? this.fontStyle);
+          fontStyle: fontStyle ?? this.fontStyle,);
     }
 
     return font != null

@@ -1,0 +1,30 @@
+[33mcf1a9f8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to HEAD~1
+[33md1d7374[m HEAD@{1}: Branch: renamed refs/heads/main to refs/heads/main
+[33md1d7374[m HEAD@{3}: commit: stage 5
+[33mcf1a9f8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{4}: reset: moving to HEAD
+[33mcf1a9f8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{5}: commit: hjhjh
+[33m4e0ec00[m HEAD@{6}: commit: 5577878788
+[33md5576df[m HEAD@{7}: commit: 652656
+[33m17578aa[m HEAD@{8}: commit: hjhjhj
+[33m4527991[m HEAD@{9}: commit: hjbjhjj
+[33mc4bb52a[m HEAD@{10}: commit: dfsdgs
+[33mc744938[m HEAD@{11}: commit: build
+[33m884fc02[m HEAD@{12}: commit: Overwriting remote with latest local version555849
+[33m69e3d4e[m HEAD@{13}: commit: Overwriting remote with latest local version8888
+[33m067ffa3[m HEAD@{14}: commit: 888888888888888
+[33m1ba7581[m HEAD@{15}: commit: 55555555555
+[33m5f53390[m HEAD@{16}: commit: update
+[33m05f520c[m HEAD@{17}: commit: pre ios
+[33m1c10b3c[m HEAD@{18}: commit: Initial commit of the Maouidi application
+[33m1da5621[m HEAD@{19}: commit: Overwriting remote with latest local version77
+[33mcc6dbff[m HEAD@{20}: commit: Overwriting remote with latest local version7
+[33mc3a15f7[m HEAD@{21}: commit: Overwriting remote with latest local version666666666666
+[33mb932243[m HEAD@{22}: commit: Overwriting remote with latest local version66666
+[33mbdefab7[m HEAD@{23}: commit: Overwriting remote with latest local version55
+[33ma90caa6[m HEAD@{24}: commit: Overwriting remote with latest local version4
+[33m397b009[m HEAD@{25}: commit: Overwriting remote with latest local version3
+[33m88eb0c9[m HEAD@{26}: commit: Overwriting remote with latest local version2
+[33mec26935[m HEAD@{27}: commit: Overwriting remote with latest local version
+[33m81fffb8[m HEAD@{28}: commit: Overwriting remote with latest local version
+[33m64ffe57[m HEAD@{29}: Branch: renamed refs/heads/master to refs/heads/main
+[33m64ffe57[m HEAD@{31}: commit (initial): Initial commit

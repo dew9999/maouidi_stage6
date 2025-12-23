@@ -9,49 +9,60 @@
 .history
 .svn/
 
-# IntelliJ related
+# IntelliJ / IDE related
 *.iml
 *.ipr
 *.iws
 .idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
-**/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
-/build/
-
-# IDE specific files
-.idea
-.vscode/
-
-# Sensitive files - ADD THIS
-.env
-
-# Firebase – this is necessary if you use Firebase since it could otherwise 
-# lead to leaking of private certificates to your repository, which is no bueno.
-.firebase/
+build/
 
 # Web related
 lib/generated_plugin_registrant.dart
 
-# Symbolication related
+# Symbolication & Obfuscation
 app.*.symbols
-
-# Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# --- Android ---
+# CRITICAL: Never commit local.properties (contains SDK path & keys)
+android/local.properties
+android/.gradle
+android/gradle/
+android/app/libs/
+# Build outputs
+android/app/build/
+android/app/release/
+android/app/debug/
+android/app/profile/
+
+# --- iOS ---
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.flx
+ios/Flutter/gen_snapshot
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
+
+# --- macOS ---
+macos/Flutter/ephemeral
+
+# --- Windows ---
+windows/flutter/ephemeral
+
+# --- Linux ---
+linux/flutter/ephemeral
+
+# --- Sensitive Data ---
+.env
+supabase/config.toml

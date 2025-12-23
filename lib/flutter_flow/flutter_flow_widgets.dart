@@ -85,7 +85,7 @@ class _FFButtonWidgetState extends State<FFButtonWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Widget textWidget = loading
+    final Widget textWidget = loading
         ? SizedBox(
             width: widget.options.width == null ? 23 : null,
             child: Center(
@@ -127,7 +127,7 @@ class _FFButtonWidgetState extends State<FFButtonWidget> {
             : () => widget.onPressed!())
         : null;
 
-    ButtonStyle style = ButtonStyle(
+    final ButtonStyle style = ButtonStyle(
       shape: WidgetStateProperty.resolveWith<OutlinedBorder>((states) {
         if (states.contains(WidgetState.hovered) &&
             widget.options.hoverBorderSide != null) {
@@ -204,7 +204,7 @@ class _FFButtonWidgetState extends State<FFButtonWidget> {
     );
 
     if ((widget.icon != null || widget.iconData != null) && !loading) {
-      Widget icon = widget.icon ??
+      final Widget icon = widget.icon ??
           FaIcon(
             widget.iconData!,
             size: widget.options.iconSize,

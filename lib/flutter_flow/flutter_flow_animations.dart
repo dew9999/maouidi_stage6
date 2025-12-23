@@ -37,7 +37,7 @@ void createAnimation(AnimationInfo animation, TickerProvider vsync) {
 }
 
 void setupAnimations(Iterable<AnimationInfo> animations, TickerProvider vsync) {
-  for (var animation in animations) {
+  for (final animation in animations) {
     createAnimation(animation, vsync);
   }
 }
@@ -71,7 +71,7 @@ extension AnimatedWidgetExtension on Widget {
             controller: animationInfo.controller,
             autoPlay: false,
             effects: animationInfo.effects,
-            child: this)
+            child: this,)
         : this;
   }
 }
@@ -95,7 +95,7 @@ class TiltEffect extends Effect<Offset> {
     AnimationController controller,
     EffectEntry entry,
   ) {
-    Animation<Offset> animation = buildAnimation(controller, entry);
+    final Animation<Offset> animation = buildAnimation(controller, entry);
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) => Transform(

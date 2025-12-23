@@ -1,168 +1,108 @@
-// lib/auth/supabase_auth/supabase_auth_manager.dart
-
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../backend/supabase/supabase.dart';
-import '../auth_manager.dart';
-import '../base_auth_user_provider.dart' as base_auth_user_provider;
-import 'auth_util.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../auth/base_auth_user_provider.dart';
+// Imports our new clean auth utils
 
-class MaouidiSupabaseUser extends base_auth_user_provider.BaseAuthUser {
-  MaouidiSupabaseUser(this.user);
-  final User user;
+class SupabaseAuthManager {
+  // Singleton instance
+  static final SupabaseAuthManager _instance = SupabaseAuthManager._internal();
+  factory SupabaseAuthManager() => _instance;
+  SupabaseAuthManager._internal();
 
-  @override
-  bool get loggedIn => true;
+  // Helper to get the client
+  SupabaseClient get _client => Supabase.instance.client;
 
-  @override
-  base_auth_user_provider.AuthUserInfo get authUserInfo =>
-      base_auth_user_provider.AuthUserInfo(
-        id: user.id,
-        email: user.email,
-        displayName: user.userMetadata?['full_name'],
-        photoUrl: user.userMetadata?['avatar_url'],
-        phoneNumber: user.phone,
+  // Stream of auth state changes
+  Stream<BaseAuthUser?> get authStateChanges =>
+      _client.auth.onAuthStateChange.map(
+        (data) => _createAuthUser(data.session?.user),
       );
 
-  @override
-  bool get emailVerified => user.emailConfirmedAt != null;
+  // Current user accessor
+  BaseAuthUser? get user => _createAuthUser(_client.auth.currentUser);
 
-  String? get jwtToken => SupaFlow.client.auth.currentSession?.accessToken;
-
-  @override
-  Future<void> updatePassword(String newPassword) =>
-      SupaFlow.client.auth.updateUser(UserAttributes(password: newPassword));
-
-  @override
-  Future<void> refreshUser() => authManager.refreshUser();
-
-  @override
-  Future<void> sendEmailVerification() async {
-    if (user.email == null) return;
-    await SupaFlow.client.auth.resend(type: OtpType.email, email: user.email!);
+  // Internal helper to map Supabase User to our BaseAuthUser
+  BaseAuthUser? _createAuthUser(User? user) {
+    if (user == null) return null;
+    return AuthUserInfo(
+      uid: user.id,
+      email: user.email ?? '',
+      phoneNumber: user.phone,
+    );
   }
-}
 
-class SupabaseAuthManager implements AuthManager {
-  GoTrueClient get auth => SupaFlow.client.auth;
+  // --- Auth Actions ---
 
-  @override
-  base_auth_user_provider.BaseAuthUser? get currentUser =>
-      base_auth_user_provider.currentUser;
-
-  @override
-  Future<void> refreshUser() async {
-    final response = await auth.refreshSession();
-    if (response.user != null) {
-      base_auth_user_provider.currentUser = MaouidiSupabaseUser(response.user!);
+  Future<BaseAuthUser?> signInWithEmail(
+    BuildContext context,
+    String email,
+    String password,
+  ) async {
+    try {
+      final response = await _client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      return _createAuthUser(response.user);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sign in failed: $e')),
+      );
+      return null;
     }
   }
 
-  @override
-  Future<void> signOut() async {
-    await auth.signOut();
-    base_auth_user_provider.currentUser = null;
+  Future<BaseAuthUser?> createAccountWithEmail(
+    BuildContext context,
+    String email,
+    String password,
+  ) async {
+    try {
+      final response = await _client.auth.signUp(
+        email: email,
+        password: password,
+      );
+      return _createAuthUser(response.user);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sign up failed: $e')),
+      );
+      return null;
+    }
   }
 
-  @override
+  Future<void> signOut(BuildContext? context) async {
+    await _client.auth.signOut();
+  }
+
   Future<void> deleteUser(BuildContext context) async {
     try {
-      if (currentUser?.id == null) {
-        throw Exception('User is not signed in.');
-      }
-      await SupaFlow.client.rpc('delete_user_account');
-      await signOut();
+      // Note: Delete requires admin/backend logic usually, but here is the client call
+      // await _client.functions.invoke('deleteUser');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Contact support to delete account')),
+      );
     } catch (e) {
-      debugPrint('Error deleting user: $e');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error deleting account: ${e.toString()}')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Delete failed: $e')),
+      );
     }
   }
 
-  @override
-  Future<void> updateEmail({
-    required String email,
-    required BuildContext context,
-  }) async {
-    try {
-      await auth.updateUser(UserAttributes(email: email));
-      await refreshUser();
-    } on AuthException catch (e) {
-      debugPrint('Error updating email: ${e.message}');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.message)));
-      }
-    }
-  }
-
-  @override
   Future<void> resetPassword({
     required String email,
     required BuildContext context,
   }) async {
     try {
-      await auth.resetPasswordForEmail(email);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password reset email sent!')),
-        );
-      }
-    } on AuthException catch (e) {
-      debugPrint('Error sending password reset email: ${e.message}');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.message)));
-      }
+      await _client.auth.resetPasswordForEmail(email);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password reset email sent')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Reset failed: $e')),
+      );
     }
-  }
-
-  @override
-  Future<base_auth_user_provider.BaseAuthUser?> signInWithEmail(
-    BuildContext context,
-    String email,
-    String password,
-  ) async {
-    final authResponse =
-        await auth.signInWithPassword(email: email, password: password);
-    if (authResponse.user != null) {
-      base_auth_user_provider.currentUser =
-          MaouidiSupabaseUser(authResponse.user!);
-      return base_auth_user_provider.currentUser;
-    }
-    return null;
-  }
-
-  @override
-  Future<base_auth_user_provider.BaseAuthUser?> createAccountWithEmail(
-    BuildContext context,
-    String email,
-    String password, {
-    String? firstName,
-    String? lastName,
-  }) async {
-    final authResponse = await auth.signUp(
-      email: email,
-      password: password,
-      data: {
-        'first_name': firstName,
-        'last_name': lastName,
-      },
-    );
-    if (authResponse.user != null) {
-      // The user is created but not logged in. We return the user object
-      // to indicate success, but don't set the global currentUser.
-      return MaouidiSupabaseUser(authResponse.user!);
-    }
-    return null;
-  }
-
-  @override
-  Future<void> sendEmailVerification() async {
-    if (currentUser?.email == null) return;
-    await auth.resend(type: OtpType.email, email: currentUser!.email!);
   }
 }

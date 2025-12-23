@@ -224,7 +224,7 @@ class _FlutterFlowDropDownState<T> extends State<FlutterFlowDropDown<T>> {
             child: Padding(
               padding: _useDropdown2() ? horizontalMargin : EdgeInsets.zero,
               child: Text(optionLabels[option] ?? '', style: widget.textStyle),
-            )),
+            ),),
       )
       .toList();
 
@@ -269,7 +269,7 @@ class _FlutterFlowDropDownState<T> extends State<FlutterFlowDropDown<T>> {
                         ),
                       ],
                     ),
-                  ));
+                  ),);
             },
           ),
         ),
@@ -278,7 +278,7 @@ class _FlutterFlowDropDownState<T> extends State<FlutterFlowDropDown<T>> {
 
   Widget _buildDropdown() {
     final overlayColor = WidgetStateProperty.resolveWith<Color?>((states) =>
-        states.contains(WidgetState.focused) ? Colors.transparent : null);
+        states.contains(WidgetState.focused) ? Colors.transparent : null,);
     final iconStyleData = widget.icon != null
         ? IconStyleData(icon: widget.icon!)
         : const IconStyleData();
@@ -324,7 +324,7 @@ class _FlutterFlowDropDownState<T> extends State<FlutterFlowDropDown<T>> {
                       : optionLabels[item]!,
                   style: widget.textStyle,
                   maxLines: 1,
-                )),
+                ),),
           )
           .toList(),
       dropdownSearchData: widget.isSearchable

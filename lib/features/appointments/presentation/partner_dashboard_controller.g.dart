@@ -7,7 +7,7 @@ part of 'partner_dashboard_controller.dart';
 // **************************************************************************
 
 String _$partnerDashboardControllerHash() =>
-    r'9986b2ed9e085b282efb03f5194944b882d43b97';
+    r'fd592d4ed12e9cdab1b6ae53c1792347ce91ed73';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,10 +31,10 @@ class _SystemHash {
 }
 
 abstract class _$PartnerDashboardController
-    extends BuildlessAutoDisposeNotifier<PartnerDashboardState> {
+    extends BuildlessAutoDisposeAsyncNotifier<PartnerDashboardState> {
   late final String partnerId;
 
-  PartnerDashboardState build(
+  FutureOr<PartnerDashboardState> build(
     String partnerId,
   );
 }
@@ -42,6 +42,7 @@ abstract class _$PartnerDashboardController
 /// Controller for the Partner Dashboard.
 ///
 /// Manages appointment state and provides actions for appointment management.
+/// Uses AsyncNotifier to handle asynchronous state updates.
 ///
 /// Copied from [PartnerDashboardController].
 @ProviderFor(PartnerDashboardController)
@@ -50,12 +51,15 @@ const partnerDashboardControllerProvider = PartnerDashboardControllerFamily();
 /// Controller for the Partner Dashboard.
 ///
 /// Manages appointment state and provides actions for appointment management.
+/// Uses AsyncNotifier to handle asynchronous state updates.
 ///
 /// Copied from [PartnerDashboardController].
-class PartnerDashboardControllerFamily extends Family<PartnerDashboardState> {
+class PartnerDashboardControllerFamily
+    extends Family<AsyncValue<PartnerDashboardState>> {
   /// Controller for the Partner Dashboard.
   ///
   /// Manages appointment state and provides actions for appointment management.
+  /// Uses AsyncNotifier to handle asynchronous state updates.
   ///
   /// Copied from [PartnerDashboardController].
   const PartnerDashboardControllerFamily();
@@ -63,6 +67,7 @@ class PartnerDashboardControllerFamily extends Family<PartnerDashboardState> {
   /// Controller for the Partner Dashboard.
   ///
   /// Manages appointment state and provides actions for appointment management.
+  /// Uses AsyncNotifier to handle asynchronous state updates.
   ///
   /// Copied from [PartnerDashboardController].
   PartnerDashboardControllerProvider call(
@@ -100,14 +105,16 @@ class PartnerDashboardControllerFamily extends Family<PartnerDashboardState> {
 /// Controller for the Partner Dashboard.
 ///
 /// Manages appointment state and provides actions for appointment management.
+/// Uses AsyncNotifier to handle asynchronous state updates.
 ///
 /// Copied from [PartnerDashboardController].
 class PartnerDashboardControllerProvider
-    extends AutoDisposeNotifierProviderImpl<PartnerDashboardController,
+    extends AutoDisposeAsyncNotifierProviderImpl<PartnerDashboardController,
         PartnerDashboardState> {
   /// Controller for the Partner Dashboard.
   ///
   /// Manages appointment state and provides actions for appointment management.
+  /// Uses AsyncNotifier to handle asynchronous state updates.
   ///
   /// Copied from [PartnerDashboardController].
   PartnerDashboardControllerProvider(
@@ -139,7 +146,7 @@ class PartnerDashboardControllerProvider
   final String partnerId;
 
   @override
-  PartnerDashboardState runNotifierBuild(
+  FutureOr<PartnerDashboardState> runNotifierBuild(
     covariant PartnerDashboardController notifier,
   ) {
     return notifier.build(
@@ -164,7 +171,7 @@ class PartnerDashboardControllerProvider
   }
 
   @override
-  AutoDisposeNotifierProviderElement<PartnerDashboardController,
+  AutoDisposeAsyncNotifierProviderElement<PartnerDashboardController,
       PartnerDashboardState> createElement() {
     return _PartnerDashboardControllerProviderElement(this);
   }
@@ -185,13 +192,13 @@ class PartnerDashboardControllerProvider
 }
 
 mixin PartnerDashboardControllerRef
-    on AutoDisposeNotifierProviderRef<PartnerDashboardState> {
+    on AutoDisposeAsyncNotifierProviderRef<PartnerDashboardState> {
   /// The parameter `partnerId` of this provider.
   String get partnerId;
 }
 
 class _PartnerDashboardControllerProviderElement
-    extends AutoDisposeNotifierProviderElement<PartnerDashboardController,
+    extends AutoDisposeAsyncNotifierProviderElement<PartnerDashboardController,
         PartnerDashboardState> with PartnerDashboardControllerRef {
   _PartnerDashboardControllerProviderElement(super.provider);
 

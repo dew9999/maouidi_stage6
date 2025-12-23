@@ -3,17 +3,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../auth/supabase_auth/auth_util.dart';
 import '../../core/constants.dart';
-import '../../backend/supabase/supabase.dart';
 import '../../flutter_flow/flutter_flow_drop_down.dart';
 import '../../flutter_flow/flutter_flow_theme.dart';
-import '../../flutter_flow/flutter_flow_util.dart';
+import 'package:maouidi/flutter_flow/flutter_flow_util.dart';
 import '../../flutter_flow/flutter_flow_widgets.dart';
 import '../../flutter_flow/form_field_controller.dart';
 import '../../features/auth/presentation/user_role_provider.dart';
+import '../../features/settings/presentation/settings_controller.dart';
 import '../../index.dart';
-import '../../main.dart';
 import '../../pages/privacy_policy_page.dart';
 import '../../pages/terms_of_service_page.dart';
 import 'components/settings_group.dart';
@@ -55,8 +55,8 @@ class _SettingsPageWidgetState extends ConsumerState<SettingsPageWidget> {
             return const Center(child: CircularProgressIndicator());
           }
           return userRole == 'Medical Partner'
-              ? _PartnerSettingsView()
-              : _PatientSettingsView();
+              ? const _PartnerSettingsView()
+              : const _PatientSettingsView();
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, __) => const Center(child: Text('Error loading settings')),
@@ -69,141 +69,95 @@ class _SettingsPageWidgetState extends ConsumerState<SettingsPageWidget> {
 //                       PATIENT SETTINGS VIEW
 // =====================================================================
 
-class _PatientSettingsView extends StatefulWidget {
-  @override
-  State<_PatientSettingsView> createState() => _PatientSettingsViewState();
-}
-
-class _PatientSettingsViewState extends State<_PatientSettingsView> {
-  bool _isLoading = true;
-  bool _notificationsEnabled = true;
-  String _displayName = 'User';
-  String _phoneNumber = '';
+class _PatientSettingsView extends ConsumerWidget {
+  const _PatientSettingsView();
 
   @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    if (!mounted) return;
-    setState(() => _isLoading = true);
-    try {
-      final userData = await Supabase.instance.client
-          .from('users')
-          .select('first_name, last_name, phone, notifications_enabled')
-          .eq('id', currentUserId)
-          .single();
-
-      if (mounted) {
-        setState(() {
-          _displayName =
-              '${userData['first_name'] ?? ''} ${userData['last_name'] ?? ''}'
-                  .trim();
-          _phoneNumber = userData['phone'] ?? '';
-          _notificationsEnabled = userData['notifications_enabled'] ?? true;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error loading patient data: $e');
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _updateNotificationPreference(bool isEnabled) async {
-    try {
-      await Supabase.instance.client.from('users').update(
-        {'notifications_enabled': isEnabled},
-      ).eq('id', currentUserId);
-    } catch (e) {
-      debugPrint('Error updating notification preference: $e');
-      if (mounted) {
-        setState(() => _notificationsEnabled = !isEnabled);
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = FlutterFlowTheme.of(context);
+    final settingsAsync = ref.watch(patientSettingsControllerProvider);
 
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          const SizedBox(height: 16),
-          ProfileCard(
-            name: _displayName,
-            email: currentUserEmail,
-            onTap: () => context.pushNamed(UserProfileWidget.routeName),
-          ),
-          SettingsGroup(
-            title: FFLocalizations.of(context).getText('notifications'),
-            children: [
-              SettingsItem(
-                icon: Icons.notifications_active_outlined,
-                title: FFLocalizations.of(context).getText('pushnotif'),
-                subtitle: FFLocalizations.of(context).getText('rcvalerts'),
-                trailing: Switch.adaptive(
-                  value: _notificationsEnabled,
-                  thumbColor: WidgetStateProperty.all(theme.primary),
-                  onChanged: (newValue) {
-                    setState(() => _notificationsEnabled = newValue);
-                    _updateNotificationPreference(newValue);
-                  },
-                ),
-              ),
-            ],
-          ),
-          _GeneralAndLegalSettings(),
-          SettingsGroup(
-            title: FFLocalizations.of(context).getText('acctlegal'),
-            children: [
-              SettingsItem(
-                icon: Icons.work_outline,
-                title: FFLocalizations.of(context).getText('becomeptr'),
-                subtitle: FFLocalizations.of(context).getText('listservices'),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (context) => BecomePartnerDialog(
-                    currentDisplayName: _displayName,
-                    currentPhoneNumber: _phoneNumber,
+    return settingsAsync.when(
+      data: (settings) => SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            ProfileCard(
+              name: settings.displayName,
+              email: settings.email,
+              onTap: () => context.pushNamed(UserProfileWidget.routeName),
+            ),
+            SettingsGroup(
+              title: FFLocalizations.of(context).getText('notifications'),
+              children: [
+                SettingsItem(
+                  icon: Icons.notifications_active_outlined,
+                  title: FFLocalizations.of(context).getText('pushnotif'),
+                  subtitle: FFLocalizations.of(context).getText('rcvalerts'),
+                  trailing: Switch.adaptive(
+                    value: settings.notificationsEnabled,
+                    thumbColor: WidgetStateProperty.all(theme.primary),
+                    onChanged: (newValue) {
+                      ref
+                          .read(patientSettingsControllerProvider.notifier)
+                          .toggleNotifications(newValue);
+                    },
                   ),
                 ),
-              ),
-              SettingsItem(
-                icon: Icons.delete_forever_outlined,
-                title: FFLocalizations.of(context).getText('delacct'),
-                iconColor: theme.error,
-                iconBackgroundColor: theme.error.withAlpha(25),
-                onTap: () => showDeleteAccountDialog(context),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: FFButtonWidget(
-              onPressed: () async {
-                await authManager.signOut();
-                if (context.mounted) {
-                  context.go(WelcomeScreenWidget.routePath);
-                }
-              },
-              text: FFLocalizations.of(context).getText('logout'),
-              options: FFButtonOptions(
-                width: double.infinity,
-                height: 50,
-                color: theme.error,
-                textStyle: theme.titleSmall.copyWith(color: Colors.white),
+              ],
+            ),
+            const _GeneralAndLegalSettings(),
+            SettingsGroup(
+              title: FFLocalizations.of(context).getText('acctlegal'),
+              children: [
+                SettingsItem(
+                  icon: Icons.work_outline,
+                  title: FFLocalizations.of(context).getText('becomeptr'),
+                  subtitle: FFLocalizations.of(context).getText('listservices'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (context) => BecomePartnerDialog(
+                      currentDisplayName: settings.displayName,
+                      currentPhoneNumber: settings.phoneNumber,
+                    ),
+                  ),
+                ),
+                SettingsItem(
+                  icon: Icons.delete_forever_outlined,
+                  title: FFLocalizations.of(context).getText('delacct'),
+                  iconColor: theme.error,
+                  iconBackgroundColor: theme.error.withAlpha(25),
+                  onTap: () => showDeleteAccountDialog(context),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: FFButtonWidget(
+                onPressed: () async {
+                  await ref
+                      .read(patientSettingsControllerProvider.notifier)
+                      .signOut();
+                  if (context.mounted) {
+                    context.go(WelcomeScreenWidget.routePath);
+                  }
+                },
+                text: FFLocalizations.of(context).getText('logout'),
+                options: FFButtonOptions(
+                  width: double.infinity,
+                  height: 50,
+                  color: theme.error,
+                  textStyle: theme.titleSmall.copyWith(color: Colors.white),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Center(
+        child: Text('Error loading settings: ${error.toString()}'),
       ),
     );
   }
@@ -213,431 +167,423 @@ class _PatientSettingsViewState extends State<_PatientSettingsView> {
 //                       PARTNER SETTINGS VIEW
 // =====================================================================
 
-class _PartnerSettingsView extends StatefulWidget {
+class _PartnerSettingsView extends ConsumerWidget {
+  const _PartnerSettingsView();
+
   @override
-  State<_PartnerSettingsView> createState() => _PartnerSettingsViewState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = FlutterFlowTheme.of(context);
+    final settingsAsync = ref.watch(partnerSettingsControllerProvider);
+
+    return settingsAsync.when(
+      data: (settings) {
+        final isDoctor =
+            settings.category != 'Clinics' && settings.category != 'Charities';
+
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 16),
+              ProfileCard(
+                name: settings.fullName,
+                email: settings.email,
+                onTap: () => context.pushNamed(
+                  PartnerProfilePageWidget.routeName,
+                  queryParameters: {'partnerId': currentUserId}.withoutNulls,
+                ),
+              ),
+              if (isDoctor)
+                _ProfessionalDetailsSection(
+                  settings: settings,
+                  theme: theme,
+                ),
+              _BookingConfigurationSection(
+                settings: settings,
+                theme: theme,
+              ),
+              _AvailabilitySection(settings: settings),
+              SettingsGroup(
+                title: 'Actions',
+                children: [_EmergencyCard()],
+              ),
+              SettingsGroup(
+                title: FFLocalizations.of(context).getText('notifications'),
+                children: [
+                  SettingsItem(
+                    icon: Icons.notifications_active_outlined,
+                    title: FFLocalizations.of(context).getText('pushnotif'),
+                    subtitle: 'Receive alerts for new bookings',
+                    trailing: Switch.adaptive(
+                      value: settings.notificationsEnabled,
+                      activeTrackColor: theme.primary,
+                      onChanged: (newValue) {
+                        ref
+                            .read(partnerSettingsControllerProvider.notifier)
+                            .toggleNotifications(newValue);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const _GeneralAndLegalSettings(),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16),
+                child: FFButtonWidget(
+                  onPressed: settings.isSaving
+                      ? null
+                      : () async {
+                          try {
+                            await ref
+                                .read(
+                                    partnerSettingsControllerProvider.notifier,)
+                                .saveAllSettings();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Settings saved successfully!'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Failed to save settings: ${e.toString()}',),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                  text: settings.isSaving
+                      ? FFLocalizations.of(context).getText('saving')
+                      : FFLocalizations.of(context).getText('saveall'),
+                  options: FFButtonOptions(
+                    width: double.infinity,
+                    height: 50,
+                    color: theme.primary,
+                    textStyle: theme.titleSmall.copyWith(color: Colors.white),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                child: FFButtonWidget(
+                  onPressed: () async {
+                    await ref
+                        .read(partnerSettingsControllerProvider.notifier)
+                        .signOut();
+                    if (context.mounted) {
+                      context.go(WelcomeScreenWidget.routePath);
+                    }
+                  },
+                  text: FFLocalizations.of(context).getText('logout'),
+                  options: FFButtonOptions(
+                    width: double.infinity,
+                    height: 50,
+                    color: theme.error,
+                    textStyle: theme.titleSmall.copyWith(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Center(
+        child: Text('Error loading settings: ${error.toString()}'),
+      ),
+    );
+  }
 }
 
-class _PartnerSettingsViewState extends State<_PartnerSettingsView> {
-  bool _isLoading = true;
-  bool _isSaving = false;
+// =====================================================================
+//                    PARTNER SUB-SECTIONS
+// =====================================================================
+
+class _ProfessionalDetailsSection extends ConsumerStatefulWidget {
+  final dynamic settings;
+  final FlutterFlowTheme theme;
+
+  const _ProfessionalDetailsSection({
+    required this.settings,
+    required this.theme,
+  });
+
+  @override
+  ConsumerState<_ProfessionalDetailsSection> createState() =>
+      _ProfessionalDetailsSectionState();
+}
+
+class _ProfessionalDetailsSectionState
+    extends ConsumerState<_ProfessionalDetailsSection> {
   late FormFieldController<String> _specialtyController;
   late FormFieldController<String> _clinicController;
-  String _fullName = '';
-  String _category = '';
-  late String _confirmationMode;
-  late String _bookingSystemType;
-  late TextEditingController _limitController;
-  late Map<String, List<String>> _workingHours;
-  late List<DateTime> _closedDays;
-  late bool _isActive;
-  bool _notificationsEnabled = true;
-  List<MedicalPartnersRow> _clinics = [];
 
   @override
   void initState() {
     super.initState();
-    _specialtyController = FormFieldController<String>(null);
-    _clinicController = FormFieldController<String>(null);
-    _confirmationMode = 'auto';
-    _bookingSystemType = 'time_based';
-    _limitController = TextEditingController(text: '20');
-    _workingHours = {};
-    _closedDays = [];
-    _isActive = true;
-    _loadPartnerData();
-    _fetchClinics();
-  }
-
-  Future<void> _fetchClinics() async {
-    try {
-      final clinicsData = await MedicalPartnersTable().queryRows(
-        queryFn: (q) => q.eq('category', 'Clinics').select('id, full_name'),
-      );
-      if (mounted) {
-        setState(() {
-          _clinics = clinicsData;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error fetching clinics: $e');
-    }
+    _specialtyController =
+        FormFieldController<String>(widget.settings.specialty);
+    _clinicController =
+        FormFieldController<String>(widget.settings.parentClinicId);
   }
 
   @override
   void dispose() {
-    _limitController.dispose();
     _specialtyController.dispose();
     _clinicController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadPartnerData() async {
-    if (!mounted) return;
-    setState(() => _isLoading = true);
-    try {
-      final data = await Supabase.instance.client
-          .from('medical_partners')
-          .select(
-            'full_name, specialty, category, parent_clinic_id, confirmation_mode, booking_system_type, daily_booking_limit, working_hours, closed_days, is_active, notifications_enabled',
-          )
-          .eq('id', currentUserId)
-          .single();
-      if (mounted) {
-        setState(() {
-          _fullName = data['full_name'] ?? '';
-          _specialtyController.value = data['specialty'];
-          _category = data['category'] ?? '';
-          _clinicController.value = data['parent_clinic_id'];
-          _confirmationMode = data['confirmation_mode'] ?? 'auto';
+  @override
+  Widget build(BuildContext context) {
+    return SettingsGroup(
+      title: 'Professional Details',
+      children: [
+        SettingsItem(
+          icon: Icons.medical_services_outlined,
+          title: 'Specialty',
+          trailing: SizedBox(
+            width: 180,
+            child: FlutterFlowDropDown<String>(
+              controller: _specialtyController,
+              options: medicalSpecialties,
+              onChanged: (val) {
+                setState(() => _specialtyController.value = val);
+                ref
+                    .read(partnerSettingsControllerProvider.notifier)
+                    .updateSpecialty(val);
+              },
+              textStyle: widget.theme.bodyMedium
+                  .copyWith(overflow: TextOverflow.ellipsis),
+              hintText: 'Select...',
+              fillColor: widget.theme.secondaryBackground,
+              elevation: 2,
+              borderColor: Colors.transparent,
+              borderWidth: 0,
+              borderRadius: 8,
+              margin: const EdgeInsets.fromLTRB(12, 4, 0, 4),
+              hidesUnderline: true,
+            ),
+          ),
+        ),
+        SettingsItem(
+          icon: Icons.apartment_outlined,
+          title: 'Clinic',
+          trailing: SizedBox(
+            width: 180,
+            child: FlutterFlowDropDown<String>(
+              controller: _clinicController,
+              options: [
+                'None',
+                ...widget.settings.availableClinics.map((c) => c.id),
+              ],
+              optionLabels: [
+                'None',
+                ...widget.settings.availableClinics
+                    .map((c) => c.fullName ?? 'Unnamed Clinic'),
+              ],
+              onChanged: (val) {
+                setState(
+                    () => _clinicController.value = val == 'None' ? null : val,);
+                ref
+                    .read(partnerSettingsControllerProvider.notifier)
+                    .updateClinic(val == 'None' ? null : val);
+              },
+              textStyle: widget.theme.bodyMedium
+                  .copyWith(overflow: TextOverflow.ellipsis),
+              hintText: 'Select...',
+              fillColor: widget.theme.secondaryBackground,
+              elevation: 2,
+              borderColor: Colors.transparent,
+              borderWidth: 0,
+              borderRadius: 8,
+              margin: const EdgeInsets.fromLTRB(12, 4, 0, 4),
+              hidesUnderline: true,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
-          if (_category == 'Homecare') {
-            _bookingSystemType = 'number_based';
-          } else {
-            _bookingSystemType = data['booking_system_type'] ?? 'time_based';
-          }
+class _BookingConfigurationSection extends ConsumerStatefulWidget {
+  final dynamic settings;
+  final FlutterFlowTheme theme;
 
-          _limitController.text =
-              (data['daily_booking_limit'] ?? 20).toString();
-          _isActive = data['is_active'] ?? true;
-          _notificationsEnabled = data['notifications_enabled'] ?? true;
-          if (data['working_hours'] != null) {
-            final initialData = data['working_hours'];
-            final Map<String, List<String>> cleanedData = {};
-            final Map<String, String> dayNameToKey = {
-              'Monday': '1',
-              'Tuesday': '2',
-              'Wednesday': '3',
-              'Thursday': '4',
-              'Friday': '5',
-              'Saturday': '6',
-              'Sunday': '7',
-            };
-            (initialData as Map).forEach((key, value) {
-              if (dayNameToKey.containsValue(key)) {
-                cleanedData[key] = List<String>.from(value);
-              } else if (dayNameToKey.containsKey(key)) {
-                cleanedData[dayNameToKey[key]!] = List<String>.from(value);
-              }
-            });
-            _workingHours = cleanedData;
-          }
-          if (data['closed_days'] != null) {
-            _closedDays = (data['closed_days'] as List)
-                .map((d) => DateTime.parse(d.toString()))
-                .toList();
-          }
-        });
-      }
-    } catch (e) {
-      debugPrint('Error loading partner data: $e');
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+  const _BookingConfigurationSection({
+    required this.settings,
+    required this.theme,
+  });
+
+  @override
+  ConsumerState<_BookingConfigurationSection> createState() =>
+      _BookingConfigurationSectionState();
+}
+
+class _BookingConfigurationSectionState
+    extends ConsumerState<_BookingConfigurationSection> {
+  late TextEditingController _limitController;
+
+  @override
+  void initState() {
+    super.initState();
+    _limitController = TextEditingController(
+      text: widget.settings.dailyBookingLimit.toString(),
+    );
   }
 
-  Future<void> _updateNotificationPreference(bool isEnabled) async {
-    try {
-      await Supabase.instance.client.from('medical_partners').update(
-        {'notifications_enabled': isEnabled},
-      ).eq('id', currentUserId);
-    } catch (e) {
-      debugPrint('Error updating notification preference: $e');
-      if (mounted) {
-        setState(() => _notificationsEnabled = !isEnabled);
-      }
-    }
-  }
-
-  Future<void> _saveAllSettings() async {
-    if (!mounted) return;
-    setState(() => _isSaving = true);
-    try {
-      final formattedClosedDays =
-          _closedDays.map((d) => DateFormat('yyyy-MM-dd').format(d)).toList();
-
-      final finalBookingSystemType =
-          _category == 'Homecare' ? 'number_based' : _bookingSystemType;
-
-      final dynamic finalWorkingHours =
-          _workingHours.isEmpty ? null : _workingHours;
-
-      await Supabase.instance.client.from('medical_partners').update({
-        'specialty': _specialtyController.value,
-        'parent_clinic_id': _clinicController.value,
-        'confirmation_mode': _confirmationMode,
-        'booking_system_type': finalBookingSystemType,
-        'daily_booking_limit': int.tryParse(_limitController.text) ?? 20,
-        'working_hours': finalWorkingHours,
-        'closed_days': formattedClosedDays,
-        'is_active': _isActive,
-      }).eq('id', currentUserId);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Settings saved successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to save settings: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
-    }
+  @override
+  void dispose() {
+    _limitController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    final isDoctor = _category != 'Clinics' && _category != 'Charities';
-
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          const SizedBox(height: 16),
-          ProfileCard(
-            name: _fullName,
-            email: currentUserEmail,
-            onTap: () => context.pushNamed(
-              PartnerProfilePageWidget.routeName,
-              queryParameters: {'partnerId': currentUserId}.withoutNulls,
-            ),
+    return SettingsGroup(
+      title: 'Booking Configuration',
+      children: [
+        SettingsItem(
+          icon: Icons.toggle_on_outlined,
+          title: 'Accepting Appointments',
+          subtitle:
+              widget.settings.isActive ? 'You are open' : 'You are closed',
+          trailing: Switch.adaptive(
+            value: widget.settings.isActive,
+            activeTrackColor: widget.theme.primary,
+            onChanged: (newValue) {
+              ref
+                  .read(partnerSettingsControllerProvider.notifier)
+                  .updateIsActive(newValue);
+            },
           ),
-          if (isDoctor)
-            SettingsGroup(
-              title: 'Professional Details',
-              children: [
-                SettingsItem(
-                  icon: Icons.medical_services_outlined,
-                  title: 'Specialty',
-                  trailing: SizedBox(
-                    width: 180,
-                    child: FlutterFlowDropDown<String>(
-                      controller: _specialtyController,
-                      options: medicalSpecialties,
-                      onChanged: (val) =>
-                          setState(() => _specialtyController.value = val),
-                      textStyle: theme.bodyMedium
-                          .copyWith(overflow: TextOverflow.ellipsis),
-                      hintText: 'Select...',
-                      fillColor: theme.secondaryBackground,
-                      elevation: 2,
-                      borderColor: Colors.transparent,
-                      borderWidth: 0,
-                      borderRadius: 8,
-                      margin: const EdgeInsets.fromLTRB(12, 4, 0, 4),
-                      hidesUnderline: true,
-                    ),
-                  ),
-                ),
-                SettingsItem(
-                  icon: Icons.apartment_outlined,
-                  title: 'Clinic',
-                  trailing: SizedBox(
-                    width: 180,
-                    child: FlutterFlowDropDown<String>(
-                      controller: _clinicController,
-                      options: ['None', ..._clinics.map((c) => c.id)],
-                      optionLabels: [
-                        'None',
-                        ..._clinics.map((c) => c.fullName ?? 'Unnamed Clinic'),
-                      ],
-                      onChanged: (val) => setState(
-                        () => _clinicController.value =
-                            val == 'None' ? null : val,
-                      ),
-                      textStyle: theme.bodyMedium
-                          .copyWith(overflow: TextOverflow.ellipsis),
-                      hintText: 'Select...',
-                      fillColor: theme.secondaryBackground,
-                      elevation: 2,
-                      borderColor: Colors.transparent,
-                      borderWidth: 0,
-                      borderRadius: 8,
-                      margin: const EdgeInsets.fromLTRB(12, 4, 0, 4),
-                      hidesUnderline: true,
-                    ),
-                  ),
-                ),
-              ],
+        ),
+        SettingsItem(
+          icon: Icons.approval_outlined,
+          title: 'Confirmation Mode',
+          subtitle: widget.settings.confirmationMode == 'auto'
+              ? 'Auto-Confirm'
+              : 'Manual Confirm',
+          trailing: SegmentedButton<String>(
+            style: SegmentedButton.styleFrom(
+              backgroundColor: widget.theme.primaryBackground,
             ),
-          SettingsGroup(
-            title: 'Booking Configuration',
-            children: [
-              SettingsItem(
-                icon: Icons.toggle_on_outlined,
-                title: 'Accepting Appointments',
-                subtitle: _isActive ? 'You are open' : 'You are closed',
-                trailing: Switch.adaptive(
-                  value: _isActive,
-                  activeTrackColor: theme.primary,
-                  onChanged: (newValue) => setState(() => _isActive = newValue),
-                ),
-              ),
-              SettingsItem(
-                icon: Icons.approval_outlined,
-                title: 'Confirmation Mode',
-                subtitle: _confirmationMode == 'auto'
-                    ? 'Auto-Confirm'
-                    : 'Manual Confirm',
-                trailing: SegmentedButton<String>(
+            segments: const [
+              ButtonSegment(value: 'auto', label: Text('Auto')),
+              ButtonSegment(value: 'manual', label: Text('Manual')),
+            ],
+            selected: {widget.settings.confirmationMode},
+            onSelectionChanged: (newSelection) {
+              ref
+                  .read(partnerSettingsControllerProvider.notifier)
+                  .updateConfirmationMode(newSelection.first);
+            },
+          ),
+        ),
+        SettingsItem(
+          icon: Icons.people_outline,
+          title: 'Booking System',
+          subtitle: widget.settings.bookingSystemType == 'time_based'
+              ? 'Time Slots'
+              : 'Queue Numbers',
+          trailing: widget.settings.category == 'Homecare'
+              ? Text(
+                  'Queue (Required)',
+                  style: widget.theme.bodyMedium
+                      .copyWith(color: widget.theme.secondaryText),
+                )
+              : SegmentedButton<String>(
                   style: SegmentedButton.styleFrom(
-                    backgroundColor: theme.primaryBackground,
+                    backgroundColor: widget.theme.primaryBackground,
                   ),
                   segments: const [
-                    ButtonSegment(value: 'auto', label: Text('Auto')),
-                    ButtonSegment(value: 'manual', label: Text('Manual')),
-                  ],
-                  selected: {_confirmationMode},
-                  onSelectionChanged: (newSelection) =>
-                      setState(() => _confirmationMode = newSelection.first),
-                ),
-              ),
-              SettingsItem(
-                icon: Icons.people_outline,
-                title: 'Booking System',
-                subtitle: _bookingSystemType == 'time_based'
-                    ? 'Time Slots'
-                    : 'Queue Numbers',
-                trailing: _category == 'Homecare'
-                    ? Text(
-                        'Queue (Required)',
-                        style: theme.bodyMedium
-                            .copyWith(color: theme.secondaryText),
-                      )
-                    : SegmentedButton<String>(
-                        style: SegmentedButton.styleFrom(
-                          backgroundColor: theme.primaryBackground,
-                        ),
-                        segments: const [
-                          ButtonSegment(
-                            value: 'time_based',
-                            label: Text('Slots'),
-                          ),
-                          ButtonSegment(
-                            value: 'number_based',
-                            label: Text('Queue'),
-                          ),
-                        ],
-                        selected: {_bookingSystemType},
-                        onSelectionChanged: (newSelection) => setState(
-                          () => _bookingSystemType = newSelection.first,
-                        ),
-                      ),
-              ),
-              if (_bookingSystemType == 'number_based')
-                SettingsItem(
-                  icon: Icons.pin_outlined,
-                  title: 'Daily Patient Limit',
-                  trailing: SizedBox(
-                    width: 80,
-                    child: TextFormField(
-                      controller: _limitController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      validator: (val) {
-                        if (val == null || val.isEmpty) {
-                          return 'Required';
-                        }
-                        if ((int.tryParse(val) ?? 0) <= 0) {
-                          return ' > 0';
-                        }
-                        return null;
-                      },
-                      textAlign: TextAlign.end,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'e.g., 20',
-                        hintStyle: theme.labelMedium,
-                      ),
+                    ButtonSegment(
+                      value: 'time_based',
+                      label: Text('Slots'),
                     ),
-                  ),
-                ),
-            ],
-          ),
-          SettingsGroup(
-            title: 'Your Availability',
-            children: [
-              _WorkingHoursEditor(
-                initialHours: _workingHours,
-                onChanged: (newHours) =>
-                    setState(() => _workingHours = newHours),
-              ),
-              _ClosedDaysEditor(
-                initialDays: _closedDays,
-                onChanged: (newDays) => setState(() => _closedDays = newDays),
-              ),
-            ],
-          ),
-          SettingsGroup(
-            title: 'Actions',
-            children: [_EmergencyCard()],
-          ),
-          SettingsGroup(
-            title: FFLocalizations.of(context).getText('notifications'),
-            children: [
-              SettingsItem(
-                icon: Icons.notifications_active_outlined,
-                title: FFLocalizations.of(context).getText('pushnotif'),
-                subtitle: 'Receive alerts for new bookings',
-                trailing: Switch.adaptive(
-                  value: _notificationsEnabled,
-                  activeTrackColor: theme.primary,
-                  onChanged: (newValue) {
-                    setState(() => _notificationsEnabled = newValue);
-                    _updateNotificationPreference(newValue);
+                    ButtonSegment(
+                      value: 'number_based',
+                      label: Text('Queue'),
+                    ),
+                  ],
+                  selected: {widget.settings.bookingSystemType},
+                  onSelectionChanged: (newSelection) {
+                    ref
+                        .read(partnerSettingsControllerProvider.notifier)
+                        .updateBookingSystem(newSelection.first);
                   },
                 ),
-              ),
-            ],
-          ),
-          _GeneralAndLegalSettings(),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16),
-            child: FFButtonWidget(
-              onPressed: _isSaving ? null : _saveAllSettings,
-              text: _isSaving
-                  ? FFLocalizations.of(context).getText('saving')
-                  : FFLocalizations.of(context).getText('saveall'),
-              options: FFButtonOptions(
-                width: double.infinity,
-                height: 50,
-                color: theme.primary,
-                textStyle: theme.titleSmall.copyWith(color: Colors.white),
+        ),
+        if (widget.settings.bookingSystemType == 'number_based')
+          SettingsItem(
+            icon: Icons.pin_outlined,
+            title: 'Daily Patient Limit',
+            trailing: SizedBox(
+              width: 80,
+              child: TextFormField(
+                controller: _limitController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return 'Required';
+                  }
+                  if ((int.tryParse(val) ?? 0) <= 0) {
+                    return ' > 0';
+                  }
+                  return null;
+                },
+                onChanged: (val) {
+                  final limit = int.tryParse(val);
+                  if (limit != null && limit > 0) {
+                    ref
+                        .read(partnerSettingsControllerProvider.notifier)
+                        .updateDailyLimit(limit);
+                  }
+                },
+                textAlign: TextAlign.end,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'e.g., 20',
+                  hintStyle: widget.theme.labelMedium,
+                ),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            child: FFButtonWidget(
-              onPressed: () async {
-                await authManager.signOut();
-                if (context.mounted) {
-                  context.go(WelcomeScreenWidget.routePath);
-                }
-              },
-              text: FFLocalizations.of(context).getText('logout'),
-              options: FFButtonOptions(
-                width: double.infinity,
-                height: 50,
-                color: theme.error,
-                textStyle: theme.titleSmall.copyWith(color: Colors.white),
-              ),
-            ),
-          ),
-        ],
-      ),
+      ],
+    );
+  }
+}
+
+class _AvailabilitySection extends ConsumerWidget {
+  final dynamic settings;
+
+  const _AvailabilitySection({required this.settings});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SettingsGroup(
+      title: 'Your Availability',
+      children: [
+        _WorkingHoursEditor(
+          initialHours: settings.workingHours,
+          onChanged: (newHours) {
+            ref
+                .read(partnerSettingsControllerProvider.notifier)
+                .updateWorkingHours(newHours);
+          },
+        ),
+        _ClosedDaysEditor(
+          closedDays: settings.closedDays,
+        ),
+      ],
     );
   }
 }
@@ -647,6 +593,8 @@ class _PartnerSettingsViewState extends State<_PartnerSettingsView> {
 // =====================================================================
 
 class _GeneralAndLegalSettings extends StatelessWidget {
+  const _GeneralAndLegalSettings();
+
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
@@ -669,7 +617,7 @@ class _GeneralAndLegalSettings extends StatelessWidget {
                 ],
                 onChanged: (String? languageCode) {
                   if (languageCode != null) {
-                    MyApp.of(context).setLocale(languageCode);
+                    setAppLanguage(context, languageCode);
                   }
                 },
                 underline: const SizedBox.shrink(),
@@ -686,7 +634,7 @@ class _GeneralAndLegalSettings extends StatelessWidget {
                 thumbColor: WidgetStateProperty.all(theme.primary),
                 onChanged: (isDarkMode) {
                   final newMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
-                  MyApp.of(context).setThemeMode(newMode);
+                  setDarkModeSetting(context, newMode);
                 },
               ),
             ),
@@ -965,26 +913,17 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
   }
 }
 
-class _ClosedDaysEditor extends StatefulWidget {
-  final List<DateTime> initialDays;
-  final ValueChanged<List<DateTime>> onChanged;
+class _ClosedDaysEditor extends ConsumerStatefulWidget {
+  final List<DateTime> closedDays;
 
-  const _ClosedDaysEditor({required this.initialDays, required this.onChanged});
+  const _ClosedDaysEditor({required this.closedDays});
 
   @override
-  State<_ClosedDaysEditor> createState() => _ClosedDaysEditorState();
+  ConsumerState<_ClosedDaysEditor> createState() => _ClosedDaysEditorState();
 }
 
-class _ClosedDaysEditorState extends State<_ClosedDaysEditor> {
-  late List<DateTime> _days;
-  bool _isCancelling = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _days = List<DateTime>.from(widget.initialDays);
-    _days.sort();
-  }
+class _ClosedDaysEditorState extends ConsumerState<_ClosedDaysEditor> {
+  bool _isAdding = false;
 
   Future<void> _addDay() async {
     final newDay = await showDatePicker(
@@ -994,20 +933,14 @@ class _ClosedDaysEditorState extends State<_ClosedDaysEditor> {
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
 
-    if (newDay != null && !_days.any((d) => d.isAtSameMomentAs(newDay))) {
-      setState(() => _isCancelling = true);
+    if (newDay != null &&
+        !widget.closedDays.any((d) => d.isAtSameMomentAs(newDay))) {
+      setState(() => _isAdding = true);
       try {
-        await Supabase.instance.client.rpc(
-          'close_day_and_cancel_appointments',
-          params: {'closed_day_arg': DateFormat('yyyy-MM-dd').format(newDay)},
-        );
-
+        await ref
+            .read(partnerSettingsControllerProvider.notifier)
+            .addClosedDay(newDay);
         if (mounted) {
-          setState(() {
-            _days.add(newDay);
-            _days.sort();
-          });
-          widget.onChanged(_days);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Day closed and patients have been notified.'),
@@ -1026,17 +959,14 @@ class _ClosedDaysEditorState extends State<_ClosedDaysEditor> {
         }
       } finally {
         if (mounted) {
-          setState(() => _isCancelling = false);
+          setState(() => _isAdding = false);
         }
       }
     }
   }
 
   void _removeDay(DateTime day) {
-    setState(() {
-      _days.remove(day);
-    });
-    widget.onChanged(_days);
+    ref.read(partnerSettingsControllerProvider.notifier).removeClosedDay(day);
   }
 
   @override
@@ -1049,7 +979,7 @@ class _ClosedDaysEditorState extends State<_ClosedDaysEditor> {
         children: [
           Text('Specific Closed Days', style: theme.titleMedium),
           const SizedBox(height: 16),
-          _days.isEmpty
+          widget.closedDays.isEmpty
               ? const Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -1059,7 +989,7 @@ class _ClosedDaysEditorState extends State<_ClosedDaysEditor> {
               : Wrap(
                   spacing: 8.0,
                   runSpacing: 8.0,
-                  children: _days
+                  children: widget.closedDays
                       .map(
                         (day) => Chip(
                           label: Text(DateFormat.yMMMd().format(day)),
@@ -1076,7 +1006,7 @@ class _ClosedDaysEditorState extends State<_ClosedDaysEditor> {
             width: double.infinity,
             child: OutlinedButton.icon(
               style: OutlinedButton.styleFrom(foregroundColor: theme.primary),
-              icon: _isCancelling
+              icon: _isAdding
                   ? Container(
                       width: 24,
                       height: 24,
@@ -1084,8 +1014,8 @@ class _ClosedDaysEditorState extends State<_ClosedDaysEditor> {
                       child: const CircularProgressIndicator(strokeWidth: 3),
                     )
                   : const Icon(Icons.add),
-              label: Text(_isCancelling ? 'Processing...' : 'Add a Closed Day'),
-              onPressed: _isCancelling ? null : _addDay,
+              label: Text(_isAdding ? 'Processing...' : 'Add a Closed Day'),
+              onPressed: _isAdding ? null : _addDay,
             ),
           ),
         ],
@@ -1094,20 +1024,20 @@ class _ClosedDaysEditorState extends State<_ClosedDaysEditor> {
   }
 }
 
-class _EmergencyCard extends StatelessWidget {
+class _EmergencyCard extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SettingsItem(
       icon: Icons.warning_amber_rounded,
       iconColor: Colors.orange,
       iconBackgroundColor: Colors.orange.withAlpha(25),
       title: 'Emergency',
       subtitle: 'Notify patients of an urgent cancellation',
-      onTap: () => _showEmergencyConfirmation(context),
+      onTap: () => _showEmergencyConfirmation(context, ref),
     );
   }
 
-  void _showEmergencyConfirmation(BuildContext context) {
+  void _showEmergencyConfirmation(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -1123,22 +1053,28 @@ class _EmergencyCard extends StatelessWidget {
           TextButton(
             onPressed: () async {
               try {
-                await Supabase.instance.client.rpc('handle_partner_emergency');
+                await ref
+                    .read(partnerSettingsControllerProvider.notifier)
+                    .handleEmergency();
                 Navigator.of(dialogContext).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Emergency alert sent successfully.'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Emergency alert sent successfully.'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
               } catch (e) {
                 Navigator.of(dialogContext).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Error: ${e.toString()}'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error: ${e.toString()}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
               }
             },
             child: const Text('Confirm', style: TextStyle(color: Colors.red)),
@@ -1147,4 +1083,20 @@ class _EmergencyCard extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> showContactUsDialog(BuildContext context) async {
+  await showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Contact Us'),
+      content: const Text('Support email: support@maouidi.com'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+      ],
+    ),
+  );
 }

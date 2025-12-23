@@ -1,591 +1,202 @@
-// lib/ui/create/create_widget.dart
-
-import 'package:flutter/gestures.dart';
-import '../../auth/supabase_auth/auth_util.dart';
-import '../../flutter_flow/flutter_flow_animations.dart';
-import '../../flutter_flow/flutter_flow_icon_button.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
-import '../../flutter_flow/flutter_flow_util.dart';
-import '../../flutter_flow/flutter_flow_widgets.dart';
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
-import 'create_model.dart';
-export 'create_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '/flutter_flow/flutter_flow_theme.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
 
-class CreateWidget extends StatefulWidget {
+class CreateWidget extends ConsumerStatefulWidget {
   const CreateWidget({super.key});
 
   static String routeName = 'Create';
   static String routePath = '/create';
 
   @override
-  State<CreateWidget> createState() => _CreateWidgetState();
+  ConsumerState<CreateWidget> createState() => _CreateWidgetState();
 }
 
-class _CreateWidgetState extends State<CreateWidget>
-    with TickerProviderStateMixin {
-  late CreateModel _model;
-
+class _CreateWidgetState extends ConsumerState<CreateWidget> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  bool _passwordVisibility = false;
+  bool _confirmPasswordVisibility = false;
+  bool _isLoading = false;
   final scaffoldKey = GlobalKey<ScaffoldState>();
-  late StreamSubscription<bool> _keyboardVisibilitySubscription;
-  bool _isKeyboardVisible = false;
-  final _formKey = GlobalKey<FormState>();
-  bool _agreedToTerms = false;
-
-  final animationsMap = <String, AnimationInfo>{};
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => CreateModel());
-
-    if (!isWeb) {
-      _keyboardVisibilitySubscription =
-          KeyboardVisibilityController().onChange.listen((bool visible) {
-        setState(() {
-          _isKeyboardVisible = visible;
-        });
-      });
-    }
-
-    _model.firstNameTextController ??= TextEditingController();
-    _model.firstNameFocusNode ??= FocusNode();
-    _model.lastNameTextController ??= TextEditingController();
-    _model.lastNameFocusNode ??= FocusNode();
-    _model.emailAddressTextController ??= TextEditingController();
-    _model.emailAddressFocusNode ??= FocusNode();
-    _model.passwordTextController ??= TextEditingController();
-    _model.passwordFocusNode ??= FocusNode();
-    _model.confirmpasswordTextController ??= TextEditingController();
-    _model.confirmpasswordFocusNode ??= FocusNode();
-
-    animationsMap.addAll({
-      'columnOnPageLoadAnimation': AnimationInfo(
-        trigger: AnimationTrigger.onPageLoad,
-        effectsBuilder: () => [
-          FadeEffect(
-            curve: Curves.easeInOut,
-            delay: 200.0.ms,
-            duration: 400.0.ms,
-            begin: 0.0,
-            end: 1.0,
-          ),
-          MoveEffect(
-            curve: Curves.easeInOut,
-            delay: 200.0.ms,
-            duration: 400.0.ms,
-            begin: const Offset(0.0, 60.0),
-            end: const Offset(0.0, 0.0),
-          ),
-        ],
-      ),
-    });
-  }
 
   @override
   void dispose() {
-    _model.dispose();
-    if (!isWeb) {
-      _keyboardVisibilitySubscription.cancel();
-    }
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _showInfoDialog(
-    BuildContext context,
-    String title,
-    Widget content,
-  ) {
-    final theme = FlutterFlowTheme.of(context);
-    return showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return Dialog(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.7,
-            decoration: BoxDecoration(
-              color: theme.secondaryBackground,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Column(
-              children: [
-                // Header
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 16, 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(title, style: theme.headlineSmall),
-                      FlutterFlowIconButton(
-                        icon: Icon(
-                          Icons.close_rounded,
-                          color: theme.secondaryText,
-                          size: 24,
-                        ),
-                        onPressed: () => Navigator.of(dialogContext).pop(),
-                        borderRadius: 30,
-                        buttonSize: 48,
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                // Scrollable Content
-                Expanded(
-                  child: content,
-                ),
-              ],
-            ),
+  Future<void> _handleSignUp() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await Supabase.instance.client.auth.signUp(
+        email: email,
+        password: password,
+      );
+      if (mounted) {
+        context.goNamed('HomePage');
+      }
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: FlutterFlowTheme.of(context).error,
           ),
         );
-      },
-    );
-  }
-
-  // MODIFICATION: Now uses translations
-  Widget _getPrivacyPolicyContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
-      child: Text(
-        FFLocalizations.of(context).getText('privacy_policy_content'),
-      ),
-    );
-  }
-
-  // MODIFICATION: Now uses translations
-  Widget _getTermsOfServiceContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
-      child: Text(
-        FFLocalizations.of(context).getText('terms_of_service_content'),
-      ),
-    );
-  }
-
-  // MODIFICATION: Now uses translations
-  Widget _buildTermsAndPrivacyRow() {
-    final theme = FlutterFlowTheme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 12.0, left: 4.0),
-      child: Row(
-        children: [
-          Checkbox(
-            value: _agreedToTerms,
-            onChanged: (newValue) {
-              setState(() {
-                _agreedToTerms = newValue!;
-              });
-            },
-            fillColor: WidgetStateProperty.all(theme.primary),
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('An unexpected error occurred'),
+            backgroundColor: FlutterFlowTheme.of(context).error,
           ),
-          Expanded(
-            child: RichText(
-              text: TextSpan(
-                style: theme.bodySmall,
-                children: [
-                  TextSpan(
-                    text: FFLocalizations.of(context).getText('i_agree_to'),
-                    style: TextStyle(color: theme.secondaryText),
-                  ),
-                  TextSpan(
-                    text: FFLocalizations.of(context).getText('privpolicy'),
-                    style: TextStyle(
-                      color: theme.primary,
-                      decoration: TextDecoration.underline,
-                    ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () => _showInfoDialog(
-                            context,
-                            FFLocalizations.of(context).getText('privpolicy'),
-                            _getPrivacyPolicyContent(),
-                          ),
-                  ),
-                  TextSpan(
-                    text: FFLocalizations.of(context).getText('and'),
-                    style: TextStyle(color: theme.secondaryText),
-                  ),
-                  TextSpan(
-                    text: FFLocalizations.of(context).getText('termsserv'),
-                    style: TextStyle(
-                      color: theme.primary,
-                      decoration: TextDecoration.underline,
-                    ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () => _showInfoDialog(
-                            context,
-                            FFLocalizations.of(context).getText('termsserv'),
-                            _getTermsOfServiceContent(),
-                          ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-          automaticallyImplyLeading: false,
-          leading: FlutterFlowIconButton(
-            borderColor: Colors.transparent,
-            borderRadius: 30.0,
-            borderWidth: 1.0,
-            buttonSize: 60.0,
+          backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+          automaticallyImplyLeading: true,
+          elevation: 0.0,
+          leading: IconButton(
             icon: Icon(
               Icons.arrow_back_rounded,
               color: FlutterFlowTheme.of(context).primaryText,
-              size: 30.0,
+              size: 24.0,
             ),
-            onPressed: () async {
-              context.safePop();
-            },
+            onPressed: () => context.pop(),
           ),
-          elevation: 0.0,
         ),
         body: SafeArea(
           top: true,
-          child: Align(
-            alignment: const AlignmentDirectional(0.0, 0.0),
-            child: Container(
-              width: double.infinity,
-              constraints: const BoxConstraints(
-                maxWidth: 670.0,
-              ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: SingleChildScrollView(
               child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Form(
-                        key: _formKey,
-                        child: SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 32.0,
-                                  bottom: 8.0,
-                                ),
-                                child: Text(
-                                  FFLocalizations.of(context).getText(
-                                    'za064viu' /* Welcome to Maouidi */,
-                                  ),
-                                  textAlign: TextAlign.start,
-                                  style: FlutterFlowTheme.of(context)
-                                      .displayMedium
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0.0,
-                                      ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 12.0),
-                                child: TextFormField(
-                                  controller: _model.firstNameTextController,
-                                  focusNode: _model.firstNameFocusNode,
-                                  decoration: InputDecoration(
-                                    labelText:
-                                        FFLocalizations.of(context).getText(
-                                      '849zhxnf' /* First Name */,
-                                    ),
-                                    labelStyle: FlutterFlowTheme.of(context)
-                                        .labelLarge
-                                        .override(
-                                          fontFamily: 'Inter',
-                                          letterSpacing: 0.0,
-                                        ),
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyLarge
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0.0,
-                                      ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'First name is required.';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 12.0),
-                                child: TextFormField(
-                                  controller: _model.lastNameTextController,
-                                  focusNode: _model.lastNameFocusNode,
-                                  decoration: InputDecoration(
-                                    labelText:
-                                        FFLocalizations.of(context).getText(
-                                      'nzslchkp' /* Last Name */,
-                                    ),
-                                    labelStyle: FlutterFlowTheme.of(context)
-                                        .labelLarge
-                                        .override(
-                                          fontFamily: 'Inter',
-                                          letterSpacing: 0.0,
-                                        ),
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyLarge
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0.0,
-                                      ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Last name is required.';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 12.0),
-                                child: TextFormField(
-                                  controller: _model.emailAddressTextController,
-                                  focusNode: _model.emailAddressFocusNode,
-                                  keyboardType: TextInputType.emailAddress,
-                                  decoration: InputDecoration(
-                                    labelText:
-                                        FFLocalizations.of(context).getText(
-                                      'mwny79n8' /* Email Address */,
-                                    ),
-                                    labelStyle: FlutterFlowTheme.of(context)
-                                        .labelLarge
-                                        .override(
-                                          fontFamily: 'Inter',
-                                          letterSpacing: 0.0,
-                                        ),
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyLarge
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0.0,
-                                      ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Email is required.';
-                                    }
-                                    final emailRegex = RegExp(
-                                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-                                    );
-                                    if (!emailRegex.hasMatch(value)) {
-                                      return 'Please enter a valid email address.';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 12.0),
-                                child: TextFormField(
-                                  controller: _model.passwordTextController,
-                                  focusNode: _model.passwordFocusNode,
-                                  obscureText: !_model.passwordVisibility,
-                                  decoration: InputDecoration(
-                                    labelText:
-                                        FFLocalizations.of(context).getText(
-                                      'rfkbeomw' /* Password */,
-                                    ),
-                                    labelStyle: FlutterFlowTheme.of(context)
-                                        .labelLarge
-                                        .override(
-                                          fontFamily: 'Inter',
-                                          letterSpacing: 0.0,
-                                        ),
-                                    suffixIcon: InkWell(
-                                      onTap: () => setState(
-                                        () => _model.passwordVisibility =
-                                            !_model.passwordVisibility,
-                                      ),
-                                      focusNode: FocusNode(skipTraversal: true),
-                                      child: Icon(
-                                        _model.passwordVisibility
-                                            ? Icons.visibility_outlined
-                                            : Icons.visibility_off_outlined,
-                                        size: 24.0,
-                                      ),
-                                    ),
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyLarge
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0.0,
-                                      ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Password is required.';
-                                    }
-                                    if (value.length < 8) {
-                                      return 'Password must be at least 8 characters long.';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 12.0),
-                                child: TextFormField(
-                                  controller:
-                                      _model.confirmpasswordTextController,
-                                  focusNode: _model.confirmpasswordFocusNode,
-                                  obscureText:
-                                      !_model.confirmpasswordVisibility,
-                                  decoration: InputDecoration(
-                                    labelText:
-                                        FFLocalizations.of(context).getText(
-                                      'o1s0s1ma' /* Confirm Password */,
-                                    ),
-                                    labelStyle: FlutterFlowTheme.of(context)
-                                        .labelLarge
-                                        .override(
-                                          fontFamily: 'Inter',
-                                          letterSpacing: 0.0,
-                                        ),
-                                    suffixIcon: InkWell(
-                                      onTap: () => setState(
-                                        () => _model.confirmpasswordVisibility =
-                                            !_model.confirmpasswordVisibility,
-                                      ),
-                                      focusNode: FocusNode(skipTraversal: true),
-                                      child: Icon(
-                                        _model.confirmpasswordVisibility
-                                            ? Icons.visibility_outlined
-                                            : Icons.visibility_off_outlined,
-                                        size: 24.0,
-                                      ),
-                                    ),
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyLarge
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0.0,
-                                      ),
-                                  validator: (value) {
-                                    if (value !=
-                                        _model.passwordTextController!.text) {
-                                      return 'Passwords don\'t match!';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              _buildTermsAndPrivacyRow(),
-                            ],
-                          ).animateOnPageLoad(
-                            animationsMap['columnOnPageLoadAnimation']!,
-                          ),
+                  Text(
+                    'Create Account',
+                    style: FlutterFlowTheme.of(context).headlineMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32.0),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email Address',
+                      hintText: 'Enter your email...',
+                      filled: true,
+                      fillColor:
+                          FlutterFlowTheme.of(context).secondaryBackground,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: !_passwordVisibility,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      filled: true,
+                      fillColor:
+                          FlutterFlowTheme.of(context).secondaryBackground,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _passwordVisibility
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                        ),
+                        onPressed: () => setState(
+                          () => _passwordVisibility = !_passwordVisibility,
                         ),
                       ),
                     ),
                   ),
-                  if (!(isWeb
-                      ? MediaQuery.viewInsetsOf(context).bottom > 0
-                      : _isKeyboardVisible))
-                    Padding(
-                      padding:
-                          const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 24.0),
-                      child: FFButtonWidget(
-                        onPressed: !_agreedToTerms
-                            ? null
-                            : () async {
-                                if (!(_formKey.currentState?.validate() ??
-                                    false)) {
-                                  return;
-                                }
-                                try {
-                                  final user =
-                                      await authManager.createAccountWithEmail(
-                                    context,
-                                    _model.emailAddressTextController!.text,
-                                    _model.passwordTextController!.text,
-                                    firstName:
-                                        _model.firstNameTextController!.text,
-                                    lastName:
-                                        _model.lastNameTextController!.text,
-                                  );
-
-                                  if (user == null) {
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: const Text(
-                                            'Could not create account. Please try again.',
-                                          ),
-                                          backgroundColor:
-                                              FlutterFlowTheme.of(context)
-                                                  .error,
-                                        ),
-                                      );
-                                    }
-                                    return;
-                                  }
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Account created! Please check your email to verify your account.',
-                                        ),
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    );
-                                    context.safePop();
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(e.toString()),
-                                        backgroundColor:
-                                            FlutterFlowTheme.of(context).error,
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                        text: FFLocalizations.of(context).getText(
-                          'hr7g0yzr' /* Create Account */,
+                  const SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: !_confirmPasswordVisibility,
+                    decoration: InputDecoration(
+                      labelText: 'Confirm Password',
+                      filled: true,
+                      fillColor:
+                          FlutterFlowTheme.of(context).secondaryBackground,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _confirmPasswordVisibility
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                         ),
-                        options: FFButtonOptions(
-                          width: double.infinity,
-                          height: 50.0,
-                          color: FlutterFlowTheme.of(context).primary,
-                          textStyle:
-                              FlutterFlowTheme.of(context).titleSmall.override(
-                                    fontFamily: 'Inter',
-                                    color: Colors.white,
-                                    letterSpacing: 0.0,
-                                  ),
-                          elevation: 4.0,
-                          borderRadius: BorderRadius.circular(12.0),
-                          disabledColor: FlutterFlowTheme.of(context).alternate,
+                        onPressed: () => setState(
+                          () => _confirmPasswordVisibility =
+                              !_confirmPasswordVisibility,
                         ),
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 24.0),
+                  FFButtonWidget(
+                    onPressed: _isLoading ? null : _handleSignUp,
+                    text: _isLoading ? 'Creating Account...' : 'Create Account',
+                    options: FFButtonOptions(
+                      height: 50.0,
+                      color: FlutterFlowTheme.of(context).primary,
+                      textStyle:
+                          FlutterFlowTheme.of(context).titleSmall.override(
+                                fontFamily: 'Inter',
+                                color: Colors.white,
+                              ),
+                      elevation: 2.0,
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
                 ],
               ),
             ),

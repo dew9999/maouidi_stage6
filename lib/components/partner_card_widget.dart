@@ -2,6 +2,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:maouidi/backend/supabase/supabase.dart';
 import 'package:maouidi/flutter_flow/flutter_flow_theme.dart';
 import 'package:maouidi/flutter_flow/flutter_flow_util.dart';
@@ -64,8 +65,11 @@ class PartnerCardWidget extends StatelessWidget {
                         width: 90,
                         height: 90,
                         color: theme.alternate,
-                        child: Icon(Icons.person,
-                            size: 40, color: theme.secondaryText,),
+                        child: Icon(
+                          Icons.person,
+                          size: 40,
+                          color: theme.secondaryText,
+                        ),
                       ),
                     ),
                   ),
@@ -95,8 +99,11 @@ class PartnerCardWidget extends StatelessWidget {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Icon(Icons.star_rounded,
-                                color: theme.warning, size: 18,),
+                            Icon(
+                              Icons.star_rounded,
+                              color: theme.warning,
+                              size: 18,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               partner.averageRating?.toStringAsFixed(1) ??

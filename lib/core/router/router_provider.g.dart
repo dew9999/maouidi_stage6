@@ -6,7 +6,7 @@ part of 'router_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$routerHash() => r'345989e5e31a6448837e036e42eaa6e9d24d5e9d';
+String _$routerHash() => r'f2669c0e610a4bf4c478f5b4c11ba30e0e7f353a';
 
 /// Riverpod-managed GoRouter with auth guards and role-based redirects.
 ///

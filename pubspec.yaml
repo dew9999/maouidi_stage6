@@ -22,7 +22,6 @@ dependencies:
   # --- State Management & Logic ---
   flutter_riverpod: ^2.5.1
   riverpod_annotation: ^2.3.5
-  provider: ^6.1.2 # Keep if needed for legacy/specific package requirements
   collection: ^1.18.0
 
   # --- Navigation & Deep Linking ---
@@ -46,7 +45,6 @@ dependencies:
   cached_network_image: ^3.3.1
   flutter_cache_manager: ^3.3.2
   from_css_color: ^2.0.0
-  google_nav_bar: ^5.0.6
   dropdown_button2: ^2.3.9
 
   # --- Forms & Components ---
@@ -72,6 +70,8 @@ dependencies:
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   # Code Generation
   build_runner: ^2.4.8

@@ -47,6 +47,96 @@ class AppointmentRepository {
     }
   }
 
+  /// Fetches today's appointments for a specific partner.
+  ///
+  /// Filters appointments to only return those scheduled for today.
+  Future<List<AppointmentModel>> fetchTodayAppointments(
+    String partnerId,
+  ) async {
+    try {
+      final now = DateTime.now();
+      final startOfDay = DateTime(now.year, now.month, now.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+
+      final allAppointments = await getPartnerDashboardAppointments(partnerId);
+
+      // Filter to today's appointments only
+      final todayAppointments = allAppointments.where((appt) {
+        final apptTime = appt.appointmentTime.toLocal();
+        return apptTime.isAfter(startOfDay) && apptTime.isBefore(endOfDay);
+      }).toList();
+
+      // Sort by appointment number (for queue-based) or time
+      todayAppointments.sort((a, b) {
+        if (a.appointmentNumber != null && b.appointmentNumber != null) {
+          return a.appointmentNumber!.compareTo(b.appointmentNumber!);
+        }
+        return a.appointmentTime.compareTo(b.appointmentTime);
+      });
+
+      return todayAppointments;
+    } catch (e) {
+      throw AppointmentException('Failed to fetch today appointments: $e');
+    }
+  }
+
+  /// Fetches dashboard statistics for a specific partner.
+  ///
+  /// Returns counts for different appointment statuses.
+  Future<Map<String, int>> fetchDashboardStats(String partnerId) async {
+    try {
+      final appointments = await getPartnerDashboardAppointments(partnerId);
+
+      final stats = {
+        'total': appointments.length,
+        'pending': appointments.where((a) => a.status == 'Pending').length,
+        'confirmed': appointments.where((a) => a.status == 'Confirmed').length,
+        'completed': appointments.where((a) => a.status == 'Completed').length,
+        'canceled': appointments
+            .where((a) =>
+                a.status == 'Cancelled_ByUser' ||
+                a.status == 'Cancelled_ByPartner' ||
+                a.status == 'NoShow',)
+            .length,
+      };
+
+      return stats;
+    } catch (e) {
+      throw AppointmentException('Failed to fetch dashboard stats: $e');
+    }
+  }
+
+  /// Updates the status of an appointment.
+  ///
+  /// Generic method to update appointment status to any valid value.
+  Future<void> updateAppointmentStatus(int id, String status) async {
+    try {
+      final updateData = <String, dynamic>{'status': status};
+
+      // If marking as completed, set completed_at timestamp
+      if (status == 'Completed') {
+        updateData['completed_at'] = DateTime.now().toUtc().toIso8601String();
+      }
+
+      await _supabase.from('appointments').update(updateData).eq('id', id);
+    } catch (e) {
+      throw AppointmentException('Failed to update appointment status: $e');
+    }
+  }
+
+  /// Calls the next patient by updating their status to 'Confirmed'.
+  ///
+  /// This triggers the "Now Serving" notification logic.
+  Future<void> callPatient(int id) async {
+    try {
+      await _supabase.from('appointments').update({
+        'status': 'Confirmed',
+      }).eq('id', id);
+    } catch (e) {
+      throw AppointmentException('Failed to call patient: $e');
+    }
+  }
+
   /// Cancels an appointment and reorders the queue if applicable.
   ///
   /// Calls the `cancel_and_reorder_queue` RPC function.
@@ -72,6 +162,94 @@ class AppointmentRepository {
       }).eq('id', appointmentId);
     } catch (e) {
       throw AppointmentException('Failed to mark appointment as completed: $e');
+    }
+  }
+
+  /// Fetches appointments for a specific patient (user).
+  ///
+  /// Filters by booking_user_id and status, with optional time-based filtering.
+  /// Includes partner details via join.
+  Future<List<Map<String, dynamic>>> fetchPatientAppointments(
+    String userId,
+    List<String> statuses, {
+    bool? isUpcoming,
+  }) async {
+    try {
+      var query = _supabase
+          .from('appointments')
+          .select(
+            '*, appointment_number, has_review, completed_at, medical_partners(full_name, specialty, category)',
+          )
+          .eq('booking_user_id', userId)
+          .inFilter('status', statuses);
+
+      if (isUpcoming != null) {
+        final now = DateTime.now();
+        final startOfToday = DateTime(now.year, now.month, now.day);
+        final filterTime = startOfToday.toUtc().toIso8601String();
+
+        if (isUpcoming) {
+          query = query.gte('appointment_time', filterTime);
+        } else {
+          query = query.lt('appointment_time', now.toUtc().toIso8601String());
+        }
+      }
+
+      final response =
+          await query.order('appointment_time', ascending: isUpcoming ?? false);
+
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      throw AppointmentException('Failed to fetch patient appointments: $e');
+    }
+  }
+
+  /// Watches appointments for a specific patient using Supabase Realtime.
+  ///
+  /// Returns a stream that emits updated appointment lists whenever
+  /// the appointments table changes for this patient.
+  Stream<List<Map<String, dynamic>>> watchPatientAppointments(
+    String userId,
+    List<String> statuses, {
+    bool? isUpcoming,
+  }) async* {
+    // First, yield the initial data
+    final initialData = await fetchPatientAppointments(userId, statuses,
+        isUpcoming: isUpcoming,);
+    yield initialData;
+
+    // Set up realtime subscription
+    final channel = _supabase.channel('patient_appointments_$userId');
+
+    channel
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'appointments',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'booking_user_id',
+            value: userId,
+          ),
+          callback: (payload) async {
+            // Re-fetch data when changes occur
+          },
+        )
+        .subscribe();
+
+    // Stream periodic updates (or use a StreamController triggered by callback)
+    await for (final _ in Stream.periodic(const Duration(seconds: 2))) {
+      try {
+        final updatedData = await fetchPatientAppointments(
+          userId,
+          statuses,
+          isUpcoming: isUpcoming,
+        );
+        yield updatedData;
+      } catch (e) {
+        // Continue streaming even if one fetch fails
+        continue;
+      }
     }
   }
 

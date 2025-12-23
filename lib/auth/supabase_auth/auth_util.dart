@@ -1,37 +1,57 @@
-// lib/auth/supabase_auth/auth_util.dart
-
 import 'dart:async';
-import 'package:maouidi/backend/supabase/supabase.dart';
-import '../base_auth_user_provider.dart';
-import '../auth_manager.dart';
-import 'supabase_auth_manager.dart';
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:maouidi/auth/base_auth_user_provider.dart';
+import 'package:maouidi/auth/supabase_auth/supabase_auth_manager.dart';
 
-final AuthManager authManager = SupabaseAuthManager();
+// --- Global Accessors for Legacy UI ---
 
-String get currentUserEmail => currentUser?.email ?? '';
-String get currentUserId => currentUser?.id ?? '';
-String get currentUserDisplayName => currentUser?.displayName ?? '';
-String get currentUserPhoto => currentUser?.photoUrl ?? '';
-String get currentPhoneNumber => currentUser?.phoneNumber ?? '';
-bool get currentUserEmailVerified => currentUser?.emailVerified ?? false;
-
-String get currentJwtToken =>
-    (currentUser is MaouidiSupabaseUser
-        ? (currentUser as MaouidiSupabaseUser).jwtToken
-        : null) ??
-    '';
-
-Stream<BaseAuthUser?> maouidiSupabaseUserStream() {
-  final supabaseAuthStream = SupaFlow.client.auth.onAuthStateChange;
-  return supabaseAuthStream.map((authState) {
-    // --- THIS IS THE FIX ---
-    // This is a cleaner way to handle the logic that avoids all warnings.
-    final user = authState.session?.user;
-    currentUser = user == null ? null : MaouidiSupabaseUser(user);
-    return currentUser;
-    // -----------------------
-  });
+/// Get the current logged-in user (Legacy Bridge)
+BaseAuthUser? get currentUser {
+  final user = Supabase.instance.client.auth.currentUser;
+  if (user == null) return null;
+  return AuthUserInfo(
+    uid: user.id,
+    email: user.email ?? '',
+    phoneNumber: user.phone,
+  );
 }
 
-final jwtTokenStream = SupaFlow.client.auth.onAuthStateChange
-    .map((authState) => authState.session?.accessToken);
+/// Helper to access the ID safely
+String get currentUserId => currentUser?.uid ?? '';
+
+/// Helper to check login status
+bool get loggedIn => currentUser != null;
+
+/// Helper to get email
+String get currentUserEmail => currentUser?.email ?? '';
+
+/// Helper to get phone
+String get currentUserPhoneNumber => currentUser?.phoneNumber ?? '';
+
+// --- Auth Actions ---
+
+/// Sign out action
+Future<void> signOut() async {
+  await SupabaseAuthManager().signOut(null);
+  // Pass context as null if not available, Manager should handle it safely
+}
+
+/// Sign in action
+Future<BaseAuthUser?> signInWithEmail(
+  BuildContext context,
+  String email,
+  String password,
+) async {
+  return await SupabaseAuthManager().signInWithEmail(context, email, password);
+}
+
+/// Sign up action
+Future<BaseAuthUser?> createAccountWithEmail(
+  BuildContext context,
+  String email,
+  String password,
+) async {
+  return await SupabaseAuthManager()
+      .createAccountWithEmail(context, email, password);
+}

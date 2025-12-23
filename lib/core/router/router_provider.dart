@@ -9,7 +9,7 @@ import '../../index.dart';
 import '../../pages/privacy_policy_page.dart';
 import '../../pages/terms_of_service_page.dart';
 import '../../search/search_results_page.dart';
-import '../../nav_bar_page.dart';
+import '../../core/layouts/main_layout.dart';
 
 part 'router_provider.g.dart';
 
@@ -120,7 +120,7 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         name: 'HomePage',
         path: '/homePage',
-        builder: (context, state) => const NavBarPage(initialPage: 'HomePage'),
+        builder: (context, state) => const MainLayout(initialPageIndex: 0),
       ),
       GoRoute(
         name: 'user_profile',
@@ -153,8 +153,7 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         name: 'PatientDashboard',
         path: '/patientDashboard',
-        builder: (context, state) =>
-            const NavBarPage(initialPage: 'PatientDashboard'),
+        builder: (context, state) => const MainLayout(initialPageIndex: 1),
       ),
       GoRoute(
         name: 'PartnerDashboardPage',
@@ -166,8 +165,7 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         name: 'SettingsPage',
         path: '/settingsPage',
-        builder: (context, state) =>
-            const NavBarPage(initialPage: 'SettingsPage'),
+        builder: (context, state) => const MainLayout(initialPageIndex: 2),
       ),
       GoRoute(
         name: 'SearchResultsPage',

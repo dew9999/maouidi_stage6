@@ -11,6 +11,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'core/router/router_provider.dart';
 import 'core/theme/app_theme.dart';
+import 'core/providers/locale_provider.dart';
 import 'flutter_flow/internationalization.dart';
 import 'services/notification_service.dart';
 
@@ -30,9 +31,6 @@ void main() async {
     ),
   );
 
-  // Initialize localization
-  await FFLocalizations.initialize();
-
   // Initialize notifications (non-web only)
   if (!kIsWeb) {
     await NotificationService().initialize();
@@ -42,47 +40,15 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends ConsumerStatefulWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  ConsumerState<MyApp> createState() => _MyAppState();
-
-  static _MyAppState of(BuildContext context) =>
-      context.findAncestorStateOfType<_MyAppState>()!;
-}
-
-class MyAppScrollBehavior extends MaterialScrollBehavior {
-  @override
-  Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-      };
-}
-
-class _MyAppState extends ConsumerState<MyApp> {
-  Locale? _locale;
-
-  @override
-  void initState() {
-    super.initState();
-    _locale = FFLocalizations.getStoredLocale();
-  }
-
-  void setLocale(String language) {
-    setState(() => _locale = createLocale(language));
-    FFLocalizations.storeLocale(language);
-  }
-
-  void setThemeMode(ThemeMode mode) async {
-    await ref.read(themeModeNotifierProvider.notifier).setThemeMode(mode);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Get router and theme from Riverpod providers
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Get router, theme, and locale from Riverpod providers
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeNotifierProvider);
+    final locale = ref.watch(localeNotifierProvider);
 
     return MaterialApp.router(
       title: 'Maouidi',
@@ -95,16 +61,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      locale: _locale,
-      localeResolutionCallback: (locale, supportedLocales) {
-        if (_locale != null) return _locale;
-        for (final supportedLocale in supportedLocales) {
-          if (supportedLocale.languageCode == locale?.languageCode) {
-            return supportedLocale;
-          }
-        }
-        return supportedLocales.first;
-      },
+      locale: locale,
       supportedLocales: const [Locale('en'), Locale('ar'), Locale('fr')],
 
       // Material 3 Theme
@@ -119,4 +76,12 @@ class _MyAppState extends ConsumerState<MyApp> {
       scrollBehavior: MyAppScrollBehavior(),
     );
   }
+}
+
+class MyAppScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
 }

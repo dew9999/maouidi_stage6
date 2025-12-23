@@ -9,7 +9,7 @@ abstract class AuthManager {
   Future<void> refreshUser();
   Future<void> signOut();
   Future<BaseAuthUser?> signInWithEmail(
-      BuildContext context, String email, String password);
+      BuildContext context, String email, String password,);
 
   // MODIFIED: Added firstName and lastName to the method signature
   Future<BaseAuthUser?> createAccountWithEmail(
@@ -21,9 +21,9 @@ abstract class AuthManager {
   });
 
   Future<void> resetPassword(
-      {required String email, required BuildContext context});
+      {required String email, required BuildContext context,});
   Future<void> sendEmailVerification();
   Future<void> updateEmail(
-      {required String email, required BuildContext context});
+      {required String email, required BuildContext context,});
   Future<void> deleteUser(BuildContext context);
 }

@@ -7,16 +7,40 @@ part 'partner_dashboard_state.freezed.dart';
 
 /// State for the Partner Dashboard.
 ///
-/// Contains the list of appointments and UI filter states.
+/// Contains all appointment data, statistics, and UI filter states.
 @freezed
 class PartnerDashboardState with _$PartnerDashboardState {
   const factory PartnerDashboardState({
-    required List<AppointmentModel> appointments,
+    /// All appointments for the partner
+    @Default([]) List<AppointmentModel> appointments,
+
+    /// Today's appointments (filtered by date)
+    @Default([]) List<AppointmentModel> todayAppointments,
+
+    /// Dashboard statistics (pending, completed, etc.)
+    @Default({}) Map<String, int> stats,
+
+    /// Current patient being served (for queue-based systems)
+    AppointmentModel? currentPatient,
+
+    /// Loading state
+    @Default(false) bool isLoading,
+
+    /// Current view selection ('schedule' or 'analytics')
     @Default('schedule') String selectedView,
+
+    /// Current status filter ('Pending', 'Confirmed', 'Completed', 'Canceled')
     @Default('Pending') String selectedStatus,
+
+    /// Error message if any operation fails
     String? errorMessage,
   }) = _PartnerDashboardState;
 
-  factory PartnerDashboardState.initial() =>
-      const PartnerDashboardState(appointments: []);
+  /// Factory for initial state
+  factory PartnerDashboardState.initial() => const PartnerDashboardState();
+
+  /// Factory for loading state
+  factory PartnerDashboardState.loading() => const PartnerDashboardState(
+        isLoading: true,
+      );
 }

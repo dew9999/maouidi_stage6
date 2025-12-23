@@ -119,68 +119,68 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
           'Thanks for joining! Access or create your account below, and get started on your journey!',
       'ar': 'شكرًا لانضمامك! سجّل دخولك أو أنشئ حسابك أدناه، وابدأ رحلتك!',
       'fr':
-          'Merci de nous rejoindre ! Accédez ou créez votre compte ci-dessous et commencez votre parcours !'
+          'Merci de nous rejoindre ! Accédez ou créez votre compte ci-dessous et commencez votre parcours !',
     },
     '68x5i214': {'en': 'Sign Up', 'ar': 'إنشاء حساب', 'fr': 'S\'inscrire'},
     'oerhp1hv': {'en': 'Log In', 'ar': 'تسجيل الدخول', 'fr': 'Se connecter'},
     'za064viu': {
       'en': 'Welcome to Maouidi',
       'ar': 'مرحباً بكم في موعدي!',
-      'fr': 'Bienvenue sur Maouidi'
+      'fr': 'Bienvenue sur Maouidi',
     },
     'bw1u9riq': {
       'en': 'Use the account below to sign in.',
       'ar': 'استخدم الحساب أدناه لتسجيل الدخول.',
-      'fr': 'Utilisez le compte ci-dessous pour vous connecter.'
+      'fr': 'Utilisez le compte ci-dessous pour vous connecter.',
     },
     'uhtykqxj': {
       'en': 'Forgot Password?',
       'ar': 'هل نسيت كلمة السر؟',
-      'fr': 'Mot de passe oublié ?'
+      'fr': 'Mot de passe oublié ?',
     },
     'amfoac12': {
       'en': 'We will send you a reset link.',
       'ar': 'سوف نرسل لك رابط إعادة الضبط.',
-      'fr': 'Nous vous enverrons un lien de réinitialisation.'
+      'fr': 'Nous vous enverrons un lien de réinitialisation.',
     },
     '73m8o8df': {
       'en': 'Send Link',
       'ar': 'إرسال الرابط',
-      'fr': 'Envoyer le lien'
+      'fr': 'Envoyer le lien',
     },
     'hr7g0yzr': {
       'en': 'Create Account',
       'ar': 'إنشاء حساب',
-      'fr': 'Créer un compte'
+      'fr': 'Créer un compte',
     },
     'a308pr0q': {
       'en': 'Enter your email here...',
       'ar': 'أدخل بريدك الإلكتروني هنا...',
-      'fr': 'Entrez votre email ici...'
+      'fr': 'Entrez votre email ici...',
     },
     '849zhxnf': {'en': 'First Name', 'ar': 'الاسم الأول', 'fr': 'Prénom'},
     'nzslchkp': {
       'en': 'Last Name',
       'ar': 'اسم العائلة',
-      'fr': 'Nom de famille'
+      'fr': 'Nom de famille',
     },
     'mwny79n8': {
       'en': 'Email Address',
       'ar': 'عنوان البريد الإلكتروني',
-      'fr': 'Adresse e-mail'
+      'fr': 'Adresse e-mail',
     },
     'rfkbeomw': {'en': 'Password', 'ar': 'كلمة المرور', 'fr': 'Mot de passe'},
     'o1s0s1ma': {
       'en': 'Confirm Password',
       'ar': 'تأكيد كلمة المرور',
-      'fr': 'Confirmez le mot de passe'
+      'fr': 'Confirmez le mot de passe',
     },
     'elr6im80': {'en': 'Sign In', 'ar': 'تسجيل الدخول', 'fr': 'Se connecter'},
     'j50kiywl': {'en': 'Sign In', 'ar': 'تسجيل الدخول', 'fr': 'Se connecter'},
     '0simneyn': {
       'en': 'Forgot Password',
       'ar': 'هل نسيت كلمة السر؟',
-      'fr': 'Mot de passe oublié'
+      'fr': 'Mot de passe oublié',
     },
   },
   // Home Page & Search
@@ -188,46 +188,46 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     'zwhxx1yq': {
       'en': 'Search by name...',
       'ar': 'البحث بالاسم...',
-      'fr': 'Rechercher par nom...'
+      'fr': 'Rechercher par nom...',
     },
     't7w8u2b4': {'en': 'Doctors', 'ar': 'أطباء', 'fr': 'Médecins'},
     'fvarzh30': {'en': 'Clinics', 'ar': 'عيادات', 'fr': 'Cliniques'},
     'vzmuomic': {
       'en': 'Homecare',
       'ar': 'رعاية منزلية',
-      'fr': 'Soins à domicile'
+      'fr': 'Soins à domicile',
     },
     '22avau5o': {
       'en': 'Charities',
       'ar': 'جمعيات خيرية',
-      'fr': 'Organismes de bienfaisance'
+      'fr': 'Organismes de bienfaisance',
     },
     'sh600y77': {
       'en': 'Featured Partners',
       'ar': 'الشركاء المميزون',
-      'fr': 'Partenaires en vedette'
+      'fr': 'Partenaires en vedette',
     },
     'wdwcwjyw': {'en': 'Maouidi', 'ar': 'موعدي', 'fr': 'Maouidi'},
     'srchptr': {
       'en': 'Search Partners',
       'ar': 'ابحث عن شركاء',
-      'fr': 'Rechercher des partenaires'
+      'fr': 'Rechercher des partenaires',
     },
     'refinesrch': {
       'en': 'Refine your search...',
       'ar': 'حدد بحثك...',
-      'fr': 'Affinez votre recherche...'
+      'fr': 'Affinez votre recherche...',
     },
     'noresults': {
       'en': 'No Results Found',
       'ar': 'لم يتم العثور على نتائج',
-      'fr': 'Aucun résultat trouvé'
+      'fr': 'Aucun résultat trouvé',
     },
     'noresultsmsg': {
       'en': 'We couldn\'t find any partners matching your search.',
       'ar': 'لم نتمكن من العثور على أي شركاء يطابقون بحثك.',
       'fr':
-          'Nous n\'avons trouvé aucun partenaire correspondant à votre recherche.'
+          'Nous n\'avons trouvé aucun partenaire correspondant à votre recherche.',
     },
   },
   // Partner Pages
@@ -236,64 +236,64 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     'fltrstate': {
       'en': 'Filter by State',
       'ar': 'التصفية حسب الولاية',
-      'fr': 'Filtrer par État'
+      'fr': 'Filtrer par État',
     },
     'allstates': {
       'en': 'All States',
       'ar': 'كل الولايات',
-      'fr': 'Tous les États'
+      'fr': 'Tous les États',
     },
     'fltrspecialty': {
       'en': 'Filter by Specialty',
       'ar': 'التصفية حسب التخصص',
-      'fr': 'Filtrer par Spécialité'
+      'fr': 'Filtrer par Spécialité',
     },
     'allspecialties': {
       'en': 'All Specialties',
       'ar': 'كل التخصصات',
-      'fr': 'Toutes les spécialités'
+      'fr': 'Toutes les spécialités',
     },
     'clrfltrs': {
       'en': 'Clear Filters',
       'ar': 'مسح الفلاتر',
-      'fr': 'Effacer les filtres'
+      'fr': 'Effacer les filtres',
     },
     'nopartners': {
       'en': 'No partners found matching your criteria.',
       'ar': 'لم يتم العثور على شركاء يطابقون معاييرك.',
-      'fr': 'Aucun partenaire ne correspond à vos critères.'
+      'fr': 'Aucun partenaire ne correspond à vos critères.',
     },
     'unnamedptr': {
       'en': 'Unnamed Partner',
       'ar': 'شريك بدون اسم',
-      'fr': 'Partenaire sans nom'
+      'fr': 'Partenaire sans nom',
     },
     'nospecialty': {
       'en': 'No Specialty',
       'ar': 'بدون تخصص',
-      'fr': 'Pas de spécialité'
+      'fr': 'Pas de spécialité',
     },
     'notavail': {'en': 'N/A', 'ar': 'غير متاح', 'fr': 'N/D'},
     'booknow': {
       'en': 'Book Now',
       'ar': 'احجز الآن',
-      'fr': 'Réserver maintenant'
+      'fr': 'Réserver maintenant',
     },
     'ptrerr': {'en': 'Error', 'ar': 'خطأ', 'fr': 'Erreur'},
     'ptridmissing': {
       'en': 'Partner ID is missing or invalid.',
       'ar': 'معرف الشريك مفقود أو غير صالح.',
-      'fr': 'L\'ID du partenaire est manquant ou invalide.'
+      'fr': 'L\'ID du partenaire est manquant ou invalide.',
     },
     'savechgs': {
       'en': 'Save Changes',
       'ar': 'حفظ التغييرات',
-      'fr': 'Sauvegarder'
+      'fr': 'Sauvegarder',
     },
     'editprof': {
       'en': 'Edit Profile',
       'ar': 'تعديل الملف الشخصي',
-      'fr': 'Modifier le profil'
+      'fr': 'Modifier le profil',
     },
     'fullname': {'en': 'Full Name', 'ar': 'الاسم الكامل', 'fr': 'Nom complet'},
     'specialty': {'en': 'Specialty', 'ar': 'التخصص', 'fr': 'Spécialité'},
@@ -301,29 +301,29 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     'bookappt': {
       'en': 'Book Appointment',
       'ar': 'حجز موعد',
-      'fr': 'Prendre rendez-vous'
+      'fr': 'Prendre rendez-vous',
     },
     'viewloc': {
       'en': 'View Location on Map',
       'ar': 'عرض الموقع على الخريطة',
-      'fr': 'Voir sur la carte'
+      'fr': 'Voir sur la carte',
     },
     'aboutptr': {'en': 'About', 'ar': 'حول', 'fr': 'À propos de'},
     'ptrreviews': {
       'en': 'Patient Reviews',
       'ar': 'تقييمات المرضى',
-      'fr': 'Avis des patients'
+      'fr': 'Avis des patients',
     },
     'noreviews': {
       'en': 'No reviews yet.',
       'ar': 'لا توجد تقييمات بعد.',
-      'fr': 'Aucun avis pour le moment.'
+      'fr': 'Aucun avis pour le moment.',
     },
     'ourdocs': {'en': 'Our Doctors', 'ar': 'أطباؤنا', 'fr': 'Nos médecins'},
     'nodocs': {
       'en': 'No doctors listed for this clinic yet.',
       'ar': 'لا يوجد أطباء مدرجون لهذه العيادة بعد.',
-      'fr': 'Aucun médecin n\'est encore répertorié pour cette clinique.'
+      'fr': 'Aucun médecin n\'est encore répertorié pour cette clinique.',
     },
   },
   // Booking Flow
@@ -331,120 +331,120 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     'bookapptbar': {
       'en': 'Book an Appointment',
       'ar': 'حجز موعد',
-      'fr': 'Prendre un rendez-vous'
+      'fr': 'Prendre un rendez-vous',
     },
     'ptrnotconfig': {
       'en': 'This partner is not configured for bookings.',
       'ar': 'هذا الشريك غير مهيأ للحجوزات.',
-      'fr': 'Ce partenaire n\'est pas configuré pour les réservations.'
+      'fr': 'Ce partenaire n\'est pas configuré pour les réservations.',
     },
     'getnumberfor': {
       'en': 'Get a Number for',
       'ar': 'احصل على رقم لـ',
-      'fr': 'Obtenir un numéro pour'
+      'fr': 'Obtenir un numéro pour',
     },
     'requestvisit': {
       'en': 'Request a Visit for',
       'ar': 'اطلب زيارة لـ',
-      'fr': 'Demander une visite pour'
+      'fr': 'Demander une visite pour',
     },
     'atpartner': {'en': 'at', 'ar': 'عند', 'fr': 'chez'},
     'closeddate': {
       'en': 'This partner is closed on the selected date.',
       'ar': 'هذا الشريك مغلق في التاريخ المحدد.',
-      'fr': 'Ce partenaire est fermé à la date sélectionnée.'
+      'fr': 'Ce partenaire est fermé à la date sélectionnée.',
     },
     'notworkingday': {
       'en': 'This partner does not work on the selected day.',
       'ar': 'هذا الشريك لا يعمل في اليوم المحدد.',
-      'fr': 'Ce partenaire ne travaille pas le jour sélectionné.'
+      'fr': 'Ce partenaire ne travaille pas le jour sélectionné.',
     },
     'submitting': {
       'en': 'Submitting...',
       'ar': 'جاري الإرسال...',
-      'fr': 'Envoi en cours...'
+      'fr': 'Envoi en cours...',
     },
     'bookforpatient': {
       'en': 'Book for Patient',
       'ar': 'حجز لمريض',
-      'fr': 'Réserver pour un patient'
+      'fr': 'Réserver pour un patient',
     },
     'submithcreq': {
       'en': 'Submit Homecare Request',
       'ar': 'إرسال طلب رعاية منزلية',
-      'fr': 'Soumettre la demande de soins'
+      'fr': 'Soumettre la demande de soins',
     },
     'getmynum': {
       'en': 'Get My Number',
       'ar': 'احصل على رقمي',
-      'fr': 'Obtenir mon numéro'
+      'fr': 'Obtenir mon numéro',
     },
     'loadslotserr': {
       'en': 'Could not load time slots',
       'ar': 'تعذر تحميل الفترات الزمنية',
-      'fr': 'Impossible de charger les créneaux'
+      'fr': 'Impossible de charger les créneaux',
     },
     'noslots': {
       'en': 'No available slots for this day.',
       'ar': 'لا توجد فترات متاحة لهذا اليوم.',
-      'fr': 'Aucun créneau disponible pour ce jour.'
+      'fr': 'Aucun créneau disponible pour ce jour.',
     },
     'hcdetails': {
       'en': 'Homecare Details',
       'ar': 'تفاصيل الرعاية المنزلية',
-      'fr': 'Détails des soins à domicile'
+      'fr': 'Détails des soins à domicile',
     },
     'casedesc': {
       'en': 'Brief Case Description',
       'ar': 'وصف مختصر للحالة',
-      'fr': 'Brève description du cas'
+      'fr': 'Brève description du cas',
     },
     'casedescex': {
       'en': 'e.g., Blood pressure check for elderly patient...',
       'ar': 'مثال: فحص ضغط الدم لمريض مسن...',
-      'fr': 'Ex: Vérification de la tension pour un patient âgé...'
+      'fr': 'Ex: Vérification de la tension pour un patient âgé...',
     },
     'fulladdr': {
       'en': 'Your Full Address',
       'ar': 'عنوانك الكامل',
-      'fr': 'Votre adresse complète'
+      'fr': 'Votre adresse complète',
     },
     'fulladdrex': {
       'en': 'Your full address for the home visit...',
       'ar': 'عنوانك الكامل للزيارة المنزلية...',
-      'fr': 'Votre adresse complète pour la visite...'
+      'fr': 'Votre adresse complète pour la visite...',
     },
     'fieldreq': {
       'en': 'This field is required.',
       'ar': 'هذا الحقل مطلوب.',
-      'fr': 'Ce champ est requis.'
+      'fr': 'Ce champ est requis.',
     },
     'submitreq': {
       'en': 'Submit Request',
       'ar': 'إرسال الطلب',
-      'fr': 'Envoyer la demande'
+      'fr': 'Envoyer la demande',
     },
     'cancel': {'en': 'Cancel', 'ar': 'إلغاء', 'fr': 'Annuler'},
     'reqsent': {
       'en': 'Request sent! Waiting for confirmation.',
       'ar': 'تم إرسال الطلب! في انتظار التأكيد.',
-      'fr': 'Demande envoyée ! En attente de confirmation.'
+      'fr': 'Demande envoyée ! En attente de confirmation.',
     },
     'gotnum': {
       'en': 'Successfully got a number!',
       'ar': 'تم الحصول على رقم بنجاح!',
-      'fr': 'Numéro obtenu avec succès !'
+      'fr': 'Numéro obtenu avec succès !',
     },
     'alrdyappt': {
       'en': 'You already have an appointment for this day.',
       'ar': 'لديك بالفعل موعد في هذا اليوم.',
-      'fr': 'Vous avez déjà un rendez-vous pour ce jour.'
+      'fr': 'Vous avez déjà un rendez-vous pour ce jour.',
     },
     'slottaken': {
       'en': 'This slot may have just been taken. Please try another.',
       'ar': 'ربما تم حجز هذه الفترة للتو. يرجى محاولة فترة أخرى.',
       'fr':
-          'Ce créneau vient peut-être d\'être pris. Veuillez en essayer un autre.'
+          'Ce créneau vient peut-être d\'être pris. Veuillez en essayer un autre.',
     },
   },
   // Dashboards
@@ -452,7 +452,7 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     'myapts': {
       'en': 'My Appointments',
       'ar': 'مواعيدي',
-      'fr': 'Mes rendez-vous'
+      'fr': 'Mes rendez-vous',
     },
     'upcoming': {'en': 'UPCOMING', 'ar': 'القادمة', 'fr': 'À VENIR'},
     'completed': {'en': 'COMPLETED', 'ar': 'المكتملة', 'fr': 'TERMINÉS'},
@@ -460,177 +460,177 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     'noapts': {
       'en': 'No Appointments',
       'ar': 'لا توجد مواعيد',
-      'fr': 'Aucun rendez-vous'
+      'fr': 'Aucun rendez-vous',
     },
     'noaptsmsg': {
       'en': 'You don\'t have any appointments in this category yet.',
       'ar': 'ليس لديك أي مواعيد في هذه الفئة بعد.',
-      'fr': 'Vous n\'avez aucun rendez-vous dans cette catégorie.'
+      'fr': 'Vous n\'avez aucun rendez-vous dans cette catégorie.',
     },
     'yournum': {'en': 'Your Number:', 'ar': 'رقمك:', 'fr': 'Votre numéro :'},
     'lvrvw': {
       'en': 'Leave a Review',
       'ar': 'اترك تقييمًا',
-      'fr': 'Laisser un avis'
+      'fr': 'Laisser un avis',
     },
     'cnclapt': {
       'en': 'Cancel Appointment',
       'ar': 'إلغاء الموعد',
-      'fr': 'Annuler le rendez-vous'
+      'fr': 'Annuler le rendez-vous',
     },
     'cnclaptq': {
       'en': 'Cancel Appointment?',
       'ar': 'هل تريد إلغاء الموعد؟',
-      'fr': 'Annuler le rendez-vous ?'
+      'fr': 'Annuler le rendez-vous ?',
     },
     'cnclaptsure': {
       'en': 'Are you sure you want to cancel your appointment with',
       'ar': 'هل أنت متأكد من أنك تريد إلغاء موعدك مع',
-      'fr': 'Êtes-vous sûr de vouloir annuler votre rendez-vous avec'
+      'fr': 'Êtes-vous sûr de vouloir annuler votre rendez-vous avec',
     },
     'back': {'en': 'Back', 'ar': 'رجوع', 'fr': 'Retour'},
     'cnclconfirm': {
       'en': 'Confirm Cancellation',
       'ar': 'تأكيد الإلغاء',
-      'fr': 'Confirmer l\'annulation'
+      'fr': 'Confirmer l\'annulation',
     },
     'aptcnld': {
       'en': 'Appointment canceled successfully.',
       'ar': 'تم إلغاء الموعد بنجاح.',
-      'fr': 'Rendez-vous annulé avec succès.'
+      'fr': 'Rendez-vous annulé avec succès.',
     },
     'cnclfail': {
       'en': 'Failed to cancel',
       'ar': 'فشل الإلغاء',
-      'fr': 'Échec de l\'annulation'
+      'fr': 'Échec de l\'annulation',
     },
     'ratevisit': {
       'en': 'Rate your visit with',
       'ar': 'قيّم زيارتك مع',
-      'fr': 'Évaluez votre visite avec'
+      'fr': 'Évaluez votre visite avec',
     },
     'commentsopt': {
       'en': 'Your comments (optional)',
       'ar': 'تعليقاتك (اختياري)',
-      'fr': 'Vos commentaires (facultatif)'
+      'fr': 'Vos commentaires (facultatif)',
     },
     'commentshint': {
       'en': 'Tell us more about your experience...',
       'ar': 'أخبرنا المزيد عن تجربتك...',
-      'fr': 'Dites-nous en plus sur votre expérience...'
+      'fr': 'Dites-nous en plus sur votre expérience...',
     },
     'submitrev': {
       'en': 'Submit Review',
       'ar': 'إرسال التقييم',
-      'fr': 'Envoyer l\'avis'
+      'fr': 'Envoyer l\'avis',
     },
     'submittingrev': {
       'en': 'Submitting...',
       'ar': 'جاري الإرسال...',
-      'fr': 'Envoi en cours...'
+      'fr': 'Envoi en cours...',
     },
     'thankrev': {
       'en': 'Thank you for your review!',
       'ar': 'شكرًا لك على تقييمك!',
-      'fr': 'Merci pour votre avis !'
+      'fr': 'Merci pour votre avis !',
     },
     'revfail': {
       'en': 'Submission failed',
       'ar': 'فشل الإرسال',
-      'fr': 'Échec de l\'envoi'
+      'fr': 'Échec de l\'envoi',
     },
     'yourdash': {
       'en': 'Your Dashboard',
       'ar': 'لوحة التحكم الخاصة بك',
-      'fr': 'Votre tableau de bord'
+      'fr': 'Votre tableau de bord',
     },
     'loadptrfail': {
       'en': 'Could not load partner information.',
       'ar': 'تعذر تحميل معلومات الشريك.',
-      'fr': 'Impossible de charger les informations du partenaire.'
+      'fr': 'Impossible de charger les informations du partenaire.',
     },
     'schedule': {'en': 'Schedule', 'ar': 'الجدول الزمني', 'fr': 'Planning'},
     'analytics': {'en': 'Analytics', 'ar': 'التحليلات', 'fr': 'Statistiques'},
     'allapts': {
       'en': 'All Appointments',
       'ar': 'كل المواعيد',
-      'fr': 'Tous les RDV'
+      'fr': 'Tous les RDV',
     },
     'clncanalytics': {
       'en': 'Clinic Analytics',
       'ar': 'تحليلات العيادة',
-      'fr': 'Statistiques de la clinique'
+      'fr': 'Statistiques de la clinique',
     },
     'ptfullname': {
       'en': 'Patient\'s Full Name',
       'ar': 'اسم المريض الكامل',
-      'fr': 'Nom complet du patient'
+      'fr': 'Nom complet du patient',
     },
     'ptphone': {
       'en': 'Patient\'s Phone',
       'ar': 'هاتف المريض',
-      'fr': 'Téléphone du patient'
+      'fr': 'Téléphone du patient',
     },
     'apptcreated': {
       'en': 'Appointment created successfully!',
       'ar': 'تم إنشاء الموعد بنجاح!',
-      'fr': 'Rendez-vous créé avec succès !'
+      'fr': 'Rendez-vous créé avec succès !',
     },
     'fltrdoc': {
       'en': 'Filter by Doctor',
       'ar': 'التصفية حسب الطبيب',
-      'fr': 'Filtrer par médecin'
+      'fr': 'Filtrer par médecin',
     },
     'alldocs': {
       'en': 'All Doctors',
       'ar': 'كل الأطباء',
-      'fr': 'Tous les médecins'
+      'fr': 'Tous les médecins',
     },
     'noaptsfound': {
       'en': 'No Appointments Found',
       'ar': 'لم يتم العثور على مواعيد',
-      'fr': 'Aucun rendez-vous trouvé'
+      'fr': 'Aucun rendez-vous trouvé',
     },
     'noaptsfltr': {
       'en': 'There are no appointments matching your filter.',
       'ar': 'لا توجد مواعيد تطابق الفلتر الخاص بك.',
-      'fr': 'Aucun rendez-vous ne correspond à votre filtre.'
+      'fr': 'Aucun rendez-vous ne correspond à votre filtre.',
     },
     'loadanalyticsfail': {
       'en': 'Could not load analytics.',
       'ar': 'تعذر تحميل التحليلات.',
-      'fr': 'Impossible de charger les statistiques.'
+      'fr': 'Impossible de charger les statistiques.',
     },
     'nowserving': {
       'en': 'Now Serving',
       'ar': 'يتم خدمة الآن',
-      'fr': 'En consultation'
+      'fr': 'En consultation',
     },
     'upnext': {
       'en': 'Up Next in Queue',
       'ar': 'التالي في الطابور',
-      'fr': 'Prochains dans la file'
+      'fr': 'Prochains dans la file',
     },
     'qready': {
       'en': 'The queue is ready.',
       'ar': 'الطابور جاهز.',
-      'fr': 'La file d\'attente est prête.'
+      'fr': 'La file d\'attente est prête.',
     },
     'callnext': {
       'en': 'Press "Call Next Patient" to begin.',
       'ar': 'اضغط على "استدعاء المريض التالي" للبدء.',
-      'fr': 'Appuyez sur "Appeler le patient suivant" pour commencer.'
+      'fr': 'Appuyez sur "Appeler le patient suivant" pour commencer.',
     },
     'callnextbtn': {
       'en': 'Call Next Patient',
       'ar': 'استدعاء المريض التالي',
-      'fr': 'Appeler le patient suivant'
+      'fr': 'Appeler le patient suivant',
     },
     'noshow': {'en': 'No-Show', 'ar': 'لم يحضر', 'fr': 'Absent'},
     'markcomp': {
       'en': 'Mark as Completed',
       'ar': 'وضع علامة كمكتمل',
-      'fr': 'Marquer comme terminé'
+      'fr': 'Marquer comme terminé',
     },
   },
   // Settings & Profile
@@ -639,22 +639,22 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     'yourprof': {
       'en': 'Your Profile',
       'ar': 'ملفك الشخصي',
-      'fr': 'Votre profil'
+      'fr': 'Votre profil',
     },
     'notifications': {
       'en': 'Notifications',
       'ar': 'الإشعارات',
-      'fr': 'Notifications'
+      'fr': 'Notifications',
     },
     'pushnotif': {
       'en': 'Push Notifications',
       'ar': 'الإشعارات',
-      'fr': 'Notifications Push'
+      'fr': 'Notifications Push',
     },
     'rcvalerts': {
       'en': 'Receive alerts for your appointments',
       'ar': 'استقبال تنبيهات لمواعيدك',
-      'fr': 'Recevoir des alertes pour vos rendez-vous'
+      'fr': 'Recevoir des alertes pour vos rendez-vous',
     },
     'general': {'en': 'General', 'ar': 'عام', 'fr': 'Général'},
     'language': {'en': 'Language', 'ar': 'اللغة', 'fr': 'Langue'},
@@ -663,88 +663,88 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     'acctlegal': {
       'en': 'Account & Legal',
       'ar': 'الحساب والقانون',
-      'fr': 'Compte et juridique'
+      'fr': 'Compte et juridique',
     },
     'becomeptr': {
       'en': 'Become a Partner',
       'ar': 'كن شريكًا',
-      'fr': 'Devenir partenaire'
+      'fr': 'Devenir partenaire',
     },
     'listservices': {
       'en': 'List your services on Maouidi',
       'ar': 'أدرج خدماتك في موعدي',
-      'fr': 'Référencez vos services sur Maouidi'
+      'fr': 'Référencez vos services sur Maouidi',
     },
     'privpolicy': {
       'en': 'Privacy Policy',
       'ar': 'سياسة الخصوصية',
-      'fr': 'Politique de confidentialité'
+      'fr': 'Politique de confidentialité',
     },
     'termsserv': {
       'en': 'Terms of Service',
       'ar': 'شروط الخدمة',
-      'fr': 'Conditions d\'utilisation'
+      'fr': 'Conditions d\'utilisation',
     },
     'delacct': {
       'en': 'Delete Account',
       'ar': 'حذف الحساب',
-      'fr': 'Supprimer le compte'
+      'fr': 'Supprimer le compte',
     },
     'logout': {'en': 'Log Out', 'ar': 'تسجيل الخروج', 'fr': 'Se déconnecter'},
     'saving': {
       'en': 'Saving...',
       'ar': 'جاري الحفظ...',
-      'fr': 'Enregistrement...'
+      'fr': 'Enregistrement...',
     },
     'saveall': {
       'en': 'Save All Settings',
       'ar': 'حفظ كل الإعدادات',
-      'fr': 'Enregistrer tout'
+      'fr': 'Enregistrer tout',
     },
     'dob': {
       'en': 'Date of Birth',
       'ar': 'تاريخ الميلاد',
-      'fr': 'Date de naissance'
+      'fr': 'Date de naissance',
     },
     'gender': {'en': 'Gender', 'ar': 'الجنس', 'fr': 'Genre'},
     'selectgender': {
       'en': 'Select Gender',
       'ar': 'اختر الجنس',
-      'fr': 'Sélectionner le genre'
+      'fr': 'Sélectionner le genre',
     },
     'male': {'en': 'Male', 'ar': 'ذكر', 'fr': 'Homme'},
     'female': {'en': 'Female', 'ar': 'أنثى', 'fr': 'Femme'},
     'phnumreq': {
       'en': 'Phone number is required.',
       'ar': 'رقم الهاتف مطلوب.',
-      'fr': 'Le numéro de téléphone est requis.'
+      'fr': 'Le numéro de téléphone est requis.',
     },
     'phnumvalid': {
       'en': 'Must be a 10-digit number starting with 05, 06, or 07.',
       'ar': 'يجب أن يكون رقمًا مكونًا من 10 أرقام ويبدأ بـ 05 أو 06 أو 07.',
-      'fr': 'Doit être un numéro à 10 chiffres commençant par 05, 06 ou 07.'
+      'fr': 'Doit être un numéro à 10 chiffres commençant par 05, 06 ou 07.',
     },
     'selectstate': {
       'en': 'Select State',
       'ar': 'اختر الولاية',
-      'fr': 'Sélectionner l\'État'
+      'fr': 'Sélectionner l\'État',
     },
     'prof saved': {
       'en': 'Profile saved successfully!',
       'ar': 'تم حفظ الملف الشخصي بنجاح!',
-      'fr': 'Profil enregistré avec succès !'
+      'fr': 'Profil enregistré avec succès !',
     },
     'proferr': {
       'en': 'Error saving profile:',
       'ar': 'خطأ في حفظ الملف الشخصي:',
-      'fr': 'Erreur lors de l\'enregistrement du profil :'
+      'fr': 'Erreur lors de l\'enregistrement du profil :',
     },
   },
   {
     'i_agree_to': {
       'en': 'I agree to the ',
       'ar': 'أوافق على ',
-      'fr': 'J\'accepte la '
+      'fr': 'J\'accepte la ',
     },
     'and': {'en': ' and ', 'ar': ' و ', 'fr': ' et les '},
     'dialog_close': {'en': 'Close', 'ar': 'إغلاق', 'fr': 'Fermer'},
@@ -844,322 +844,322 @@ Veuillez remplacer ce texte par vos propres conditions d'utilisation.
       'ar':
           'ملاحظة: هذه الخدمة ليست للحالات الطارئة. إذا كانت حالتك حرجة، يرجى الاتصال بأقرب خدمة طوارئ لموقعك.',
       'fr':
-          'Remarque : Ce service n\'est pas destiné aux urgences. Si votre cas est critique, veuillez contacter le service d\'urgence le plus proche.'
-    }
+          'Remarque : Ce service n\'est pas destiné aux urgences. Si votre cas est critique, veuillez contacter le service d\'urgence le plus proche.',
+    },
   },
   {
     'charity_no_booking': {
       'en': 'This is a non-profit organization. Booking is not available.',
       'ar': 'هذه منظمة غير ربحية. الحجز غير متاح.',
       'fr':
-          'Ceci est une organisation à but non lucratif. La réservation n\'est pas disponible.'
+          'Ceci est une organisation à but non lucratif. La réservation n\'est pas disponible.',
     },
     'partner_inactive': {
       'en': 'This partner is not currently accepting appointments.',
       'ar': 'هذا الشريك لا يقبل المواعيد حاليًا.',
-      'fr': 'Ce partenaire n\'accepte pas de rendez-vous pour le moment.'
+      'fr': 'Ce partenaire n\'accepte pas de rendez-vous pour le moment.',
     },
     'past_date_booking_error': {
       'en': 'You cannot book an appointment for a past date.',
       'ar': 'لا يمكنك حجز موعد في تاريخ سابق.',
-      'fr': 'Vous ne pouvez pas réserver de rendez-vous à une date antérieure.'
+      'fr': 'Vous ne pouvez pas réserver de rendez-vous à une date antérieure.',
     },
     'time_validation_error': {
       'en': 'End time must be after start time.',
       'ar': 'يجب أن يكون وقت الانتهاء بعد وقت البدء.',
-      'fr': 'L\'heure de fin doit être postérieure à l\'heure de début.'
-    }
+      'fr': 'L\'heure de fin doit être postérieure à l\'heure de début.',
+    },
   },
   {
     'status_pending': {
       'en': 'Pending',
       'ar': 'قيد الانتظار',
-      'fr': 'En attente'
+      'fr': 'En attente',
     },
     'status_confirmed': {'en': 'Confirmed', 'ar': 'مؤكد', 'fr': 'Confirmé'},
     'status_completed': {'en': 'Completed', 'ar': 'مكتمل', 'fr': 'Terminé'},
     'status_cancelled_by_user': {
       'en': 'Canceled by You',
       'ar': 'ملغى من طرفك',
-      'fr': 'Annulé par vous'
+      'fr': 'Annulé par vous',
     },
     'status_cancelled_by_partner': {
       'en': 'Canceled by Partner',
       'ar': 'ملغى من طرف الشريك',
-      'fr': 'Annulé par le partenaire'
+      'fr': 'Annulé par le partenaire',
     },
     'status_no_show': {'en': 'No-Show', 'ar': 'لم يحضر', 'fr': 'Absent'},
     'status_rescheduled': {
       'en': 'Rescheduled',
       'ar': 'معاد جدولته',
-      'fr': 'Reprogrammé'
+      'fr': 'Reprogrammé',
     },
   },
   {
     'specialty_anatomy_and_pathological_cytology': {
       'en': 'Anatomy and Pathological Cytology',
       'ar': 'التشريح والخلية المرضية',
-      'fr': 'Anatomie et Cytologie Pathologiques'
+      'fr': 'Anatomie et Cytologie Pathologiques',
     },
     'specialty_cardiology': {
       'en': 'Cardiology',
       'ar': 'طب القلب',
-      'fr': 'Cardiologie'
+      'fr': 'Cardiologie',
     },
     'specialty_dermatology_and_venereology': {
       'en': 'Dermatology and Venereology',
       'ar': 'الأمراض الجلدية والتناسلية',
-      'fr': 'Dermatologie et Vénéréologie'
+      'fr': 'Dermatologie et Vénéréologie',
     },
     'specialty_endocrinology_and_diabetology': {
       'en': 'Endocrinology and Diabetology',
       'ar': 'الغدد الصماء والسكري',
-      'fr': 'Endocrinologie et Diabétologie'
+      'fr': 'Endocrinologie et Diabétologie',
     },
     'specialty_epidemiology_and_preventive_medicine': {
       'en': 'Epidemiology and Preventive Medicine',
       'ar': 'علم الأوبئة والطب الوقائي',
-      'fr': 'Épidémiologie et Médecine Préventive'
+      'fr': 'Épidémiologie et Médecine Préventive',
     },
     'specialty_gastroenterology_and_hepatology': {
       'en': 'Gastroenterology and Hepatology',
       'ar': 'أمراض الجهاز الهضمي والكبد',
-      'fr': 'Gastro-entérologie et Hépatologie'
+      'fr': 'Gastro-entérologie et Hépatologie',
     },
     'specialty_hematology_clinical': {
       'en': 'Hematology (Clinical)',
       'ar': 'أمراض الدم (السريرية)',
-      'fr': 'Hématologie (Clinique)'
+      'fr': 'Hématologie (Clinique)',
     },
     'specialty_infectious_diseases': {
       'en': 'Infectious Diseases',
       'ar': 'الأمراض المعدية',
-      'fr': 'Maladies Infectieuses'
+      'fr': 'Maladies Infectieuses',
     },
     'specialty_internal_medicine': {
       'en': 'Internal Medicine',
       'ar': 'الطب الباطني',
-      'fr': 'Médecine Interne'
+      'fr': 'Médecine Interne',
     },
     'specialty_medical_oncology': {
       'en': 'Medical Oncology',
       'ar': 'طب الأورام',
-      'fr': 'Oncologie Médicale'
+      'fr': 'Oncologie Médicale',
     },
     'specialty_nephrology': {
       'en': 'Nephrology',
       'ar': 'طب الكلى',
-      'fr': 'Néphrologie'
+      'fr': 'Néphrologie',
     },
     'specialty_neurology': {
       'en': 'Neurology',
       'ar': 'طب الأعصاب',
-      'fr': 'Neurologie'
+      'fr': 'Neurologie',
     },
     'specialty_nuclear_medicine': {
       'en': 'Nuclear Medicine',
       'ar': 'الطب النووي',
-      'fr': 'Médecine Nucléaire'
+      'fr': 'Médecine Nucléaire',
     },
     'specialty_pediatrics': {
       'en': 'Pediatrics',
       'ar': 'طب الأطفال',
-      'fr': 'Pédiatrie'
+      'fr': 'Pédiatrie',
     },
     'specialty_physical_medicine_and_rehabilitation': {
       'en': 'Physical Medicine and Rehabilitation',
       'ar': 'الطب الفيزيائي وإعادة التأهيل',
-      'fr': 'Médecine Physique et de Réadaptation'
+      'fr': 'Médecine Physique et de Réadaptation',
     },
     'specialty_pneumology': {
       'en': 'Pneumology',
       'ar': 'طب الأمراض الصدرية',
-      'fr': 'Pneumologie'
+      'fr': 'Pneumologie',
     },
     'specialty_psychiatry': {
       'en': 'Psychiatry',
       'ar': 'الطب النفسي',
-      'fr': 'Psychiatrie'
+      'fr': 'Psychiatrie',
     },
     'specialty_radiology__medical_imaging': {
       'en': 'Radiology / Medical Imaging',
       'ar': 'الأشعة / التصوير الطبي',
-      'fr': 'Radiologie / Imagerie Médicale'
+      'fr': 'Radiologie / Imagerie Médicale',
     },
     'specialty_radiotherapy': {
       'en': 'Radiotherapy',
       'ar': 'العلاج الإشعاعي',
-      'fr': 'Radiothérapie'
+      'fr': 'Radiothérapie',
     },
     'specialty_rheumatology': {
       'en': 'Rheumatology',
       'ar': 'طب الروماتيزم',
-      'fr': 'Rhumatologie'
+      'fr': 'Rhumatologie',
     },
     'specialty_sports_medicine': {
       'en': 'Sports Medicine',
       'ar': 'الطب الرياضي',
-      'fr': 'Médecine du Sport'
+      'fr': 'Médecine du Sport',
     },
     'specialty_anesthesiology_and_reanimation': {
       'en': 'Anesthesiology and Reanimation',
       'ar': 'التخدير والإنعاش',
-      'fr': 'Anesthésiologie et Réanimation'
+      'fr': 'Anesthésiologie et Réanimation',
     },
     'specialty_cardiovascular_surgery': {
       'en': 'Cardiovascular Surgery',
       'ar': 'جراحة القلب والأوعية الدموية',
-      'fr': 'Chirurgie Cardiovasculaire'
+      'fr': 'Chirurgie Cardiovasculaire',
     },
     'specialty_general_surgery': {
       'en': 'General Surgery',
       'ar': 'الجراحة العامة',
-      'fr': 'Chirurgie Générale'
+      'fr': 'Chirurgie Générale',
     },
     'specialty_maxillofacial_surgery': {
       'en': 'Maxillofacial Surgery',
       'ar': 'جراحة الوجه والفكين',
-      'fr': 'Chirurgie Maxillo-faciale'
+      'fr': 'Chirurgie Maxillo-faciale',
     },
     'specialty_neurosurgery': {
       'en': 'Neurosurgery',
       'ar': 'جراحة الأعصاب',
-      'fr': 'Neurochirurgie'
+      'fr': 'Neurochirurgie',
     },
     'specialty_obstetrics_and_gynecology': {
       'en': 'Obstetrics and Gynecology',
       'ar': 'أمراض النساء والتوليد',
-      'fr': 'Obstétrique et Gynécologie'
+      'fr': 'Obstétrique et Gynécologie',
     },
     'specialty_ophthalmology': {
       'en': 'Ophthalmology',
       'ar': 'طب العيون',
-      'fr': 'Ophtalmologie'
+      'fr': 'Ophtalmologie',
     },
     'specialty_orthopedics_and_traumatology': {
       'en': 'Orthopedics and Traumatology',
       'ar': 'جراحة العظام والمفاصل',
-      'fr': 'Orthopédie et Traumatologie'
+      'fr': 'Orthopédie et Traumatologie',
     },
     'specialty_otorhinolaryngology_ent': {
       'en': 'Otorhinolaryngology (ENT)',
       'ar': 'طب الأنف والأذن والحنجرة',
-      'fr': 'Oto-rhino-laryngologie (ORL)'
+      'fr': 'Oto-rhino-laryngologie (ORL)',
     },
     'specialty_pediatric_surgery': {
       'en': 'Pediatric Surgery',
       'ar': 'جراحة الأطفال',
-      'fr': 'Chirurgie Pédiatrique'
+      'fr': 'Chirurgie Pédiatrique',
     },
     'specialty_plastic_reconstructive_and_aesthetic_surgery': {
       'en': 'Plastic, Reconstructive, and Aesthetic Surgery',
       'ar': 'الجراحة التجميلية والترميمية',
-      'fr': 'Chirurgie Plastique, Reconstructrice et Esthétique'
+      'fr': 'Chirurgie Plastique, Reconstructrice et Esthétique',
     },
     'specialty_thoracic_surgery': {
       'en': 'Thoracic Surgery',
       'ar': 'جراحة الصدر',
-      'fr': 'Chirurgie Thoracique'
+      'fr': 'Chirurgie Thoracique',
     },
     'specialty_urology': {
       'en': 'Urology',
       'ar': 'طب المسالك البولية',
-      'fr': 'Urologie'
+      'fr': 'Urologie',
     },
     'specialty_vascular_surgery': {
       'en': 'Vascular Surgery',
       'ar': 'جراحة الأوعية الدموية',
-      'fr': 'Chirurgie Vasculaire'
+      'fr': 'Chirurgie Vasculaire',
     },
     'specialty_biochemistry': {
       'en': 'Biochemistry',
       'ar': 'الكيمياء الحيوية',
-      'fr': 'Biochimie'
+      'fr': 'Biochimie',
     },
     'specialty_clinical_neurophysiology': {
       'en': 'Clinical Neurophysiology',
       'ar': 'الفيزيولوجيا العصبية السريرية',
-      'fr': 'Neurophysiologie Clinique'
+      'fr': 'Neurophysiologie Clinique',
     },
     'specialty_hematology_biological': {
       'en': 'Hematology (Biological)',
       'ar': 'أمراض الدم (البيولوجية)',
-      'fr': 'Hématologie (Biologique)'
+      'fr': 'Hématologie (Biologique)',
     },
     'specialty_histology_embryology_and_cytogenetics': {
       'en': 'Histology, Embryology, and Cytogenetics',
       'ar': 'علم الأنسجة والأجنة والوراثة الخلوية',
-      'fr': 'Histologie, Embryologie et Cytogénétique'
+      'fr': 'Histologie, Embryologie et Cytogénétique',
     },
     'specialty_immunology': {
       'en': 'Immunology',
       'ar': 'علم المناعة',
-      'fr': 'Immunologie'
+      'fr': 'Immunologie',
     },
     'specialty_microbiology': {
       'en': 'Microbiology',
       'ar': 'علم الأحياء الدقيقة',
-      'fr': 'Microbiologie'
+      'fr': 'Microbiologie',
     },
     'specialty_medical_biophysics': {
       'en': 'Medical Biophysics',
       'ar': 'الفيزياء الحيوية الطبية',
-      'fr': 'Biophysique Médicale'
+      'fr': 'Biophysique Médicale',
     },
     'specialty_parasitology_and_mycology': {
       'en': 'Parasitology and Mycology',
       'ar': 'علم الطفيليات والفطريات',
-      'fr': 'Parasitologie et Mycologie'
+      'fr': 'Parasitologie et Mycologie',
     },
     'specialty_pharmacology': {
       'en': 'Pharmacology',
       'ar': 'علم الأدوية',
-      'fr': 'Pharmacologie'
+      'fr': 'Pharmacologie',
     },
     'specialty_physiology': {
       'en': 'Physiology',
       'ar': 'علم وظائف الأعضاء',
-      'fr': 'Physiologie'
+      'fr': 'Physiologie',
     },
     'specialty_toxicology': {
       'en': 'Toxicology',
       'ar': 'علم السموم',
-      'fr': 'Toxicologie'
+      'fr': 'Toxicologie',
     },
     'specialty_child_psychiatry': {
       'en': 'Child Psychiatry',
       'ar': 'الطب النفسي للأطفال',
-      'fr': 'Pédopsychiatrie'
+      'fr': 'Pédopsychiatrie',
     },
     'specialty_community_health__public_health': {
       'en': 'Community Health / Public Health',
       'ar': 'صحة المجتمع / الصحة العامة',
-      'fr': 'Santé Communautaire / Santé Publique'
+      'fr': 'Santé Communautaire / Santé Publique',
     },
     'specialty_emergency_medicine': {
       'en': 'Emergency Medicine',
       'ar': 'طب الطوارئ',
-      'fr': 'Médecine d\'Urgence'
+      'fr': 'Médecine d\'Urgence',
     },
     'specialty_forensic_medicine_and_medical_deontology': {
       'en': 'Forensic Medicine and Medical Deontology',
       'ar': 'الطب الشرعي وآداب مهنة الطب',
-      'fr': 'Médecine Légale et Déontologie Médicale'
+      'fr': 'Médecine Légale et Déontologie Médicale',
     },
     'specialty_occupational_medicine': {
       'en': 'Occupational Medicine',
       'ar': 'طب العمل',
-      'fr': 'Médecine du Travail'
+      'fr': 'Médecine du Travail',
     },
     'specialty_stomatology': {
       'en': 'Stomatology',
       'ar': 'طب الفم',
-      'fr': 'Stomatologie'
+      'fr': 'Stomatologie',
     },
     'specialty_transfusion_medicine_hemobiology': {
       'en': 'Transfusion Medicine (Hemobiology)',
       'ar': 'طب نقل الدم (بيولوجيا الدم)',
-      'fr': 'Médecine Transfusionnelle (Hémobiologie)'
+      'fr': 'Médecine Transfusionnelle (Hémobiologie)',
     },
   },
 ].reduce((a, b) => a..addAll(b));
