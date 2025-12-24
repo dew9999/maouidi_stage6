@@ -1,3 +1,5 @@
+// lib/ui/login/login_widget.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -47,7 +49,11 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
         email: email,
         password: password,
       );
-      // Router will handle redirect based on AuthState
+
+      // FIX: Force manual navigation to Home Page on success
+      if (mounted) {
+        context.goNamed('HomePage');
+      }
     } on AuthException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

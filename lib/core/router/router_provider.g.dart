@@ -6,16 +6,9 @@ part of 'router_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$routerHash() => r'f2669c0e610a4bf4c478f5b4c11ba30e0e7f353a';
+String _$routerHash() => r'c996c641af9013493aeac007f65704a721ad1536';
 
-/// Riverpod-managed GoRouter with auth guards and role-based redirects.
-///
-/// Features:
-/// - Automatically redirects unauthenticated users to /welcomeScreen
-/// - Prevents authenticated users from accessing login screens
-/// - Redirects authenticated users to appropriate dashboard based on role
-///
-/// Copied from [router].
+/// See also [router].
 @ProviderFor(router)
 final routerProvider = AutoDisposeProvider<GoRouter>.internal(
   router,

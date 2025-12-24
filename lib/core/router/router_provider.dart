@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../features/auth/presentation/auth_state_provider.dart';
-import '../../features/auth/presentation/user_role_provider.dart';
+// REMOVED: import '../../features/auth/presentation/user_role_provider.dart';
 import '../../index.dart';
 import '../../pages/privacy_policy_page.dart';
 import '../../pages/terms_of_service_page.dart';
@@ -13,15 +13,8 @@ import '../../core/layouts/main_layout.dart';
 
 part 'router_provider.g.dart';
 
-/// Riverpod-managed GoRouter with auth guards and role-based redirects.
-///
-/// Features:
-/// - Automatically redirects unauthenticated users to /welcomeScreen
-/// - Prevents authenticated users from accessing login screens
-/// - Redirects authenticated users to appropriate dashboard based on role
 @riverpod
 GoRouter router(RouterRef ref) {
-  // Watch auth state for automatic route refreshing
   final authState = ref.watch(authStateProvider);
 
   return GoRouter(
@@ -31,7 +24,6 @@ GoRouter router(RouterRef ref) {
     redirect: (context, state) async {
       final path = state.uri.path;
 
-      // Wait for auth state to load
       final user = authState.when(
         data: (user) => user,
         loading: () => null,
@@ -40,7 +32,6 @@ GoRouter router(RouterRef ref) {
 
       final isLoggedIn = user != null;
 
-      // Public routes (accessible without authentication)
       final publicRoutes = [
         '/welcomeScreen',
         '/login',
@@ -50,41 +41,29 @@ GoRouter router(RouterRef ref) {
         '/termsOfService',
       ];
 
-      // If user is not logged in and trying to access protected route
+      // 1. Block unauthenticated users
       if (!isLoggedIn && !publicRoutes.contains(path)) {
         return '/welcomeScreen';
       }
 
-      // If user is logged in and trying to access login/welcome screens
+      // 2. Redirect authenticated users AWAY from login screens
       if (isLoggedIn &&
           (path == '/login' || path == '/welcomeScreen' || path == '/create')) {
-        // Get user role to determine redirect destination
-        final role = await ref.read(userRoleProvider.future);
-
-        // Redirect to appropriate dashboard based on role
-        if (role == 'Medical Partner') {
-          return '/homePage'; // Partners see the Partner Hub
-        } else {
-          return '/homePage'; // Patients see the Patient Hub
-        }
+        // FIX: Immediate redirect to Home Page (No DB waiting)
+        return '/homePage';
       }
 
-      return null; // No redirect needed
+      return null;
     },
     errorBuilder: (context, state) => const WelcomeScreenWidget(),
     routes: [
       GoRoute(
         name: '_initialize',
         path: '/',
-        builder: (context, state) {
-          // Initial route - let redirect handle the logic
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        },
+        builder: (context, state) => const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
       ),
-
-      // Public Routes
       GoRoute(
         name: 'WelcomeScreen',
         path: '/welcomeScreen',
@@ -115,8 +94,6 @@ GoRouter router(RouterRef ref) {
         path: '/termsOfService',
         builder: (context, state) => const TermsOfServicePage(),
       ),
-
-      // Protected Routes (require authentication)
       GoRoute(
         name: 'HomePage',
         path: '/homePage',
@@ -178,11 +155,9 @@ GoRouter router(RouterRef ref) {
   );
 }
 
-/// Helper class to refresh GoRouter when auth state changes
 class _GoRouterRefreshNotifier extends ChangeNotifier {
   _GoRouterRefreshNotifier(this.authState) {
     authState.whenData((_) => notifyListeners());
   }
-
   final AsyncValue authState;
 }
