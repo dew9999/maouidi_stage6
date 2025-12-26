@@ -10,11 +10,34 @@ final _loginLoadingProvider = StateProvider.autoDispose<bool>((ref) => false);
 final _passwordVisibilityProvider =
     StateProvider.autoDispose<bool>((ref) => false);
 
-class LoginWidget extends ConsumerWidget {
+class LoginWidget extends ConsumerStatefulWidget {
   const LoginWidget({super.key});
 
   static String routeName = 'Login';
   static String routePath = '/login';
+
+  @override
+  ConsumerState<LoginWidget> createState() => _LoginWidgetState();
+}
+
+class _LoginWidgetState extends ConsumerState<LoginWidget> {
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   Future<void> _handleLogin(
     BuildContext context,
@@ -77,21 +100,17 @@ class LoginWidget extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
     final isLoading = ref.watch(_loginLoadingProvider);
     final passwordVisible = ref.watch(_passwordVisibilityProvider);
 
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-    final scaffoldKey = GlobalKey<ScaffoldState>();
-
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         backgroundColor: colorScheme.surface,
         appBar: AppBar(
           backgroundColor: colorScheme.surface,
@@ -121,7 +140,7 @@ class LoginWidget extends ConsumerWidget {
                 ),
                 const SizedBox(height: 32.0),
                 TextFormField(
-                  controller: emailController,
+                  controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email Address',
                     hintText: 'Enter your email...',
@@ -149,7 +168,7 @@ class LoginWidget extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16.0),
                 TextFormField(
-                  controller: passwordController,
+                  controller: _passwordController,
                   obscureText: !passwordVisible,
                   decoration: InputDecoration(
                     labelText: 'Password',
@@ -195,8 +214,8 @@ class LoginWidget extends ConsumerWidget {
                       : () => _handleLogin(
                             context,
                             ref,
-                            emailController.text.trim(),
-                            passwordController.text,
+                            _emailController.text.trim(),
+                            _passwordController.text,
                           ),
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),

@@ -91,6 +91,20 @@ class PartnerRepository {
         .map((data) => MedicalPartnersRow(data as Map<String, dynamic>))
         .toList();
   }
+
+  /// Get a single partner by ID.
+  ///
+  /// Returns partner details for the profile page.
+  Future<MedicalPartnersRow?> getPartnerById(String partnerId) async {
+    final response = await _supabase
+        .from('medical_partners')
+        .select()
+        .eq('id', partnerId)
+        .maybeSingle();
+
+    if (response == null) return null;
+    return MedicalPartnersRow(response as Map<String, dynamic>);
+  }
 }
 
 /// Provider for the PartnerRepository.

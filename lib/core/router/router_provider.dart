@@ -60,28 +60,6 @@ GoRouter router(RouterRef ref) {
         return '/verifyEmail';
       }
 
-      // 4. Check if profile is complete (presence of first_name)
-      if (isLoggedIn &&
-          user.emailConfirmedAt != null &&
-          path != '/completeProfile') {
-        try {
-          final supabase = Supabase.instance.client;
-          final profile = await supabase
-              .from('users')
-              .select('first_name')
-              .eq('id', user.id)
-              .maybeSingle();
-
-          if (profile == null ||
-              profile['first_name'] == null ||
-              profile['first_name'].toString().trim().isEmpty) {
-            return '/completeProfile';
-          }
-        } catch (e) {
-          // On error, continue to allow access
-        }
-      }
-
       return null;
     },
     errorBuilder: (context, state) => const WelcomeScreenWidget(),

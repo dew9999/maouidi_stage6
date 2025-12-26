@@ -76,3 +76,16 @@ Future<List<MedicalPartnersRow>> featuredPartners(
   final repository = ref.watch(partnerRepositoryProvider);
   return repository.getFeaturedPartners();
 }
+
+/// Provider for a single partner by ID.
+///
+/// Returns partner details for the profile page.
+/// Returns null if partner not found.
+@riverpod
+Future<MedicalPartnersRow?> partnerById(
+  PartnerByIdRef ref,
+  String partnerId,
+) async {
+  final repository = ref.watch(partnerRepositoryProvider);
+  return repository.getPartnerById(partnerId);
+}

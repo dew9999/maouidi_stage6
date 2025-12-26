@@ -110,14 +110,16 @@ class CompleteProfileWidget extends ConsumerWidget {
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) return;
 
-      await Supabase.instance.client.from('users').update({
+      await Supabase.instance.client.from('users').upsert({
+        'id': user.id,
+        'email': user.email,
         'first_name': firstNameController.text.trim(),
         'last_name': lastNameController.text.trim(),
         'phone': phoneController.text.trim(),
         'date_of_birth': selectedDateOfBirth.toIso8601String(),
         'gender': selectedGender,
         'wilaya': selectedWilaya,
-      }).eq('id', user.id);
+      });
 
       if (context.mounted) {
         context.go('/home');

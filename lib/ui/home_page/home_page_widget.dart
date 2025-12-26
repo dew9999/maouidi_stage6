@@ -153,9 +153,9 @@ class HomePageWidget extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: colorScheme.primary.withOpacity(0.1),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
@@ -522,9 +522,9 @@ class _ModernCategoryCardState extends State<_ModernCategoryCard>
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: widget.gradientColors[0].withOpacity(0.4),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),

@@ -371,5 +371,164 @@ final featuredPartnersProvider =
 
 typedef FeaturedPartnersRef
     = AutoDisposeFutureProviderRef<List<MedicalPartnersRow>>;
+String _$partnerByIdHash() => r'2eed5c317e55c7d125ff179607e7f239d7c41ee7';
+
+/// Provider for a single partner by ID.
+///
+/// Returns partner details for the profile page.
+/// Returns null if partner not found.
+///
+/// Copied from [partnerById].
+@ProviderFor(partnerById)
+const partnerByIdProvider = PartnerByIdFamily();
+
+/// Provider for a single partner by ID.
+///
+/// Returns partner details for the profile page.
+/// Returns null if partner not found.
+///
+/// Copied from [partnerById].
+class PartnerByIdFamily extends Family<AsyncValue<MedicalPartnersRow?>> {
+  /// Provider for a single partner by ID.
+  ///
+  /// Returns partner details for the profile page.
+  /// Returns null if partner not found.
+  ///
+  /// Copied from [partnerById].
+  const PartnerByIdFamily();
+
+  /// Provider for a single partner by ID.
+  ///
+  /// Returns partner details for the profile page.
+  /// Returns null if partner not found.
+  ///
+  /// Copied from [partnerById].
+  PartnerByIdProvider call(
+    String partnerId,
+  ) {
+    return PartnerByIdProvider(
+      partnerId,
+    );
+  }
+
+  @override
+  PartnerByIdProvider getProviderOverride(
+    covariant PartnerByIdProvider provider,
+  ) {
+    return call(
+      provider.partnerId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'partnerByIdProvider';
+}
+
+/// Provider for a single partner by ID.
+///
+/// Returns partner details for the profile page.
+/// Returns null if partner not found.
+///
+/// Copied from [partnerById].
+class PartnerByIdProvider
+    extends AutoDisposeFutureProvider<MedicalPartnersRow?> {
+  /// Provider for a single partner by ID.
+  ///
+  /// Returns partner details for the profile page.
+  /// Returns null if partner not found.
+  ///
+  /// Copied from [partnerById].
+  PartnerByIdProvider(
+    String partnerId,
+  ) : this._internal(
+          (ref) => partnerById(
+            ref as PartnerByIdRef,
+            partnerId,
+          ),
+          from: partnerByIdProvider,
+          name: r'partnerByIdProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$partnerByIdHash,
+          dependencies: PartnerByIdFamily._dependencies,
+          allTransitiveDependencies:
+              PartnerByIdFamily._allTransitiveDependencies,
+          partnerId: partnerId,
+        );
+
+  PartnerByIdProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.partnerId,
+  }) : super.internal();
+
+  final String partnerId;
+
+  @override
+  Override overrideWith(
+    FutureOr<MedicalPartnersRow?> Function(PartnerByIdRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: PartnerByIdProvider._internal(
+        (ref) => create(ref as PartnerByIdRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        partnerId: partnerId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<MedicalPartnersRow?> createElement() {
+    return _PartnerByIdProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is PartnerByIdProvider && other.partnerId == partnerId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, partnerId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin PartnerByIdRef on AutoDisposeFutureProviderRef<MedicalPartnersRow?> {
+  /// The parameter `partnerId` of this provider.
+  String get partnerId;
+}
+
+class _PartnerByIdProviderElement
+    extends AutoDisposeFutureProviderElement<MedicalPartnersRow?>
+    with PartnerByIdRef {
+  _PartnerByIdProviderElement(super.provider);
+
+  @override
+  String get partnerId => (origin as PartnerByIdProvider).partnerId;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

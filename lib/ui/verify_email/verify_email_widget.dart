@@ -54,6 +54,26 @@ class _VerifyEmailWidgetState extends ConsumerState<VerifyEmailWidget> {
       final refreshedUser = Supabase.instance.client.auth.currentUser;
       if (refreshedUser?.emailConfirmedAt != null && mounted) {
         _pollTimer?.cancel();
+
+        // Email is verified, now create the user record in database
+        try {
+          final metadata = refreshedUser!.userMetadata;
+          await Supabase.instance.client.from('users').insert({
+            'id': refreshedUser.id,
+            'email': refreshedUser.email,
+            'first_name': metadata?['first_name'],
+            'last_name': metadata?['last_name'],
+            'phone': metadata?['phone'],
+            'date_of_birth': metadata?['date_of_birth'],
+            'gender': metadata?['gender'],
+            'wilaya': metadata?['wilaya'],
+            'terms_validated_at': metadata?['terms_validated_at'],
+          });
+        } catch (e) {
+          // If insert fails (maybe user already exists), continue anyway
+          print('User record creation error: $e');
+        }
+
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -63,7 +83,7 @@ class _VerifyEmailWidgetState extends ConsumerState<VerifyEmailWidget> {
           );
           await Future.delayed(const Duration(seconds: 1));
           if (context.mounted) {
-            context.go('/completeProfile');
+            context.go('/home');
           }
         }
       }
