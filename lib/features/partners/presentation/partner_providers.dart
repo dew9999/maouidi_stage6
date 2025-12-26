@@ -64,3 +64,15 @@ Future<List<MedicalPartnersRow>> partnerSearch(
   final repository = ref.watch(partnerRepositoryProvider);
   return repository.searchPartners(searchTerm);
 }
+
+/// Provider for featured partners on home screen.
+///
+/// Returns a list of top 6 partners ordered by rating.
+/// Uses Riverpod's automatic caching and invalidation.
+@riverpod
+Future<List<MedicalPartnersRow>> featuredPartners(
+  FeaturedPartnersRef ref,
+) async {
+  final repository = ref.watch(partnerRepositoryProvider);
+  return repository.getFeaturedPartners();
+}

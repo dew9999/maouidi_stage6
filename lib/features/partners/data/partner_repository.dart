@@ -74,6 +74,23 @@ class PartnerRepository {
         .map((slot) => DateTime.parse(slot['available_slot'] as String))
         .toList();
   }
+
+  /// Get featured partners for home screen display.
+  ///
+  /// Returns top 6 partners ordered by average rating.
+  /// Only returns verified partners.
+  Future<List<MedicalPartnersRow>> getFeaturedPartners() async {
+    final response = await _supabase
+        .from('medical_partners')
+        .select()
+        .eq('is_verified', true)
+        .order('average_rating', ascending: false)
+        .limit(6);
+
+    return (response as List)
+        .map((data) => MedicalPartnersRow(data as Map<String, dynamic>))
+        .toList();
+  }
 }
 
 /// Provider for the PartnerRepository.

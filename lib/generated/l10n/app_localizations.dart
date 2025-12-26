@@ -693,6 +693,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try adjusting your search criteria'**
   String get noresultsmsg;
+
+  /// No description provided for @welcomeback.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back,'**
+  String get welcomeback;
+
+  /// No description provided for @searchhint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search doctors, clinics...'**
+  String get searchhint;
+
+  /// No description provided for @categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categories;
+
+  /// No description provided for @featuredpartners.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured Partners'**
+  String get featuredpartners;
+
+  /// No description provided for @doctors.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctors'**
+  String get doctors;
+
+  /// No description provided for @clinics.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinics'**
+  String get clinics;
+
+  /// No description provided for @homecare.
+  ///
+  /// In en, this message translates to:
+  /// **'Homecare'**
+  String get homecare;
+
+  /// No description provided for @charities.
+  ///
+  /// In en, this message translates to:
+  /// **'Charities'**
+  String get charities;
+
+  /// No description provided for @nofeaturedpartners.
+  ///
+  /// In en, this message translates to:
+  /// **'No featured partners available'**
+  String get nofeaturedpartners;
+
+  /// No description provided for @errloadingpartners.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading featured partners'**
+  String get errloadingpartners;
+
+  /// No description provided for @home.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
 }
 
 class _AppLocalizationsDelegate

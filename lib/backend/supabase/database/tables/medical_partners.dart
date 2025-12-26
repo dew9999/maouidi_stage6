@@ -62,6 +62,9 @@ class MedicalPartnersRow extends SupabaseDataRow {
   String? get address => getField<String>('address');
   set address(String? value) => setField<String>('address', value);
 
+  String? get wilaya => getField<String>('wilaya');
+  set wilaya(String? value) => setField<String>('wilaya', value);
+
   String? get nationalIdNumber => getField<String>('national_id_number');
   set nationalIdNumber(String? value) =>
       setField<String>('national_id_number', value);

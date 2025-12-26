@@ -25,3 +25,17 @@ Future<String?> userRole(UserRoleRef ref) async {
   final repository = ref.watch(authRepositoryProvider);
   return await repository.getUserRole(user.id);
 }
+
+/// FutureProvider that fetches the current user's profile data.
+///
+/// Automatically refreshes when auth state changes.
+/// Returns null if user is not authenticated.
+@riverpod
+Future<Map<String, dynamic>?> userProfile(UserProfileRef ref) async {
+  final user = await ref.watch(authStateProvider.future);
+
+  if (user == null) return null;
+
+  final repository = ref.watch(authRepositoryProvider);
+  return await repository.getUserProfile(user.id);
+}

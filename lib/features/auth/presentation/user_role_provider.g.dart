@@ -30,5 +30,25 @@ final userRoleProvider = AutoDisposeFutureProvider<String?>.internal(
 );
 
 typedef UserRoleRef = AutoDisposeFutureProviderRef<String?>;
+String _$userProfileHash() => r'a17e006adab2a9306eb4b4d5be5de60164183af2';
+
+/// FutureProvider that fetches the current user's profile data.
+///
+/// Automatically refreshes when auth state changes.
+/// Returns null if user is not authenticated.
+///
+/// Copied from [userProfile].
+@ProviderFor(userProfile)
+final userProfileProvider =
+    AutoDisposeFutureProvider<Map<String, dynamic>?>.internal(
+  userProfile,
+  name: r'userProfileProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$userProfileHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef UserProfileRef = AutoDisposeFutureProviderRef<Map<String, dynamic>?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

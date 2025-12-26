@@ -6,7 +6,7 @@ part of 'app_theme.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$themeModeNotifierHash() => r'fbc9a39c07019ba9f33e64fe210c137a02b0f1b9';
+String _$themeModeNotifierHash() => r'1a389ef95eb4414f58367de2655887bb93443945';
 
 /// Theme Mode Provider - manages light/dark theme preference
 ///

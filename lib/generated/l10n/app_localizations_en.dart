@@ -308,4 +308,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noresultsmsg => 'Try adjusting your search criteria';
+
+  @override
+  String get welcomeback => 'Welcome back,';
+
+  @override
+  String get searchhint => 'Search doctors, clinics...';
+
+  @override
+  String get categories => 'Categories';
+
+  @override
+  String get featuredpartners => 'Featured Partners';
+
+  @override
+  String get doctors => 'Doctors';
+
+  @override
+  String get clinics => 'Clinics';
+
+  @override
+  String get homecare => 'Homecare';
+
+  @override
+  String get charities => 'Charities';
+
+  @override
+  String get nofeaturedpartners => 'No featured partners available';
+
+  @override
+  String get errloadingpartners => 'Error loading featured partners';
+
+  @override
+  String get home => 'Home';
 }

@@ -348,5 +348,28 @@ class _PartnerSearchProviderElement
   @override
   String? get searchTerm => (origin as PartnerSearchProvider).searchTerm;
 }
+
+String _$featuredPartnersHash() => r'c529efc3c8156a9b4196e06f031244d959ef5be7';
+
+/// Provider for featured partners on home screen.
+///
+/// Returns a list of top 6 partners ordered by rating.
+/// Uses Riverpod's automatic caching and invalidation.
+///
+/// Copied from [featuredPartners].
+@ProviderFor(featuredPartners)
+final featuredPartnersProvider =
+    AutoDisposeFutureProvider<List<MedicalPartnersRow>>.internal(
+  featuredPartners,
+  name: r'featuredPartnersProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$featuredPartnersHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef FeaturedPartnersRef
+    = AutoDisposeFutureProviderRef<List<MedicalPartnersRow>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

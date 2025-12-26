@@ -99,5 +99,16 @@
   "srchptr": "Search Partners",
   "refinesrch": "Refine your search",
   "noresults": "No Results",
-  "noresultsmsg": "Try adjusting your search criteria"
+  "noresultsmsg": "Try adjusting your search criteria",
+  "welcomeback": "Welcome back,",
+  "searchhint": "Search doctors, clinics...",
+  "categories": "Categories",
+  "featuredpartners": "Featured Partners",
+  "doctors": "Doctors",
+  "clinics": "Clinics",
+  "homecare": "Homecare",
+  "charities": "Charities",
+  "nofeaturedpartners": "No featured partners available",
+  "errloadingpartners": "Error loading featured partners",
+  "home": "Home"
 }
