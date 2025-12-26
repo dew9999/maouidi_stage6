@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import '../../core/constants/wilayas.dart';
-import '../../features/auth/data/auth_repository.dart';
+import 'user_profile_controller.dart';
 
 class UserProfileWidget extends ConsumerStatefulWidget {
   const UserProfileWidget({super.key});
@@ -24,107 +24,12 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
   final _lastNameController = TextEditingController();
   final _phoneController = TextEditingController();
 
-  Map<String, dynamic>? _profileData;
-  bool _isLoading = true;
-  bool _isEditing = false;
-  bool _isSaving = false;
-
-  DateTime? _selectedDateOfBirth;
-  String? _selectedGender;
-  String? _selectedWilaya;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadProfile();
-  }
-
   @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _phoneController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadProfile() async {
-    try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) return;
-
-      final authRepo = ref.read(authRepositoryProvider);
-      final profile = await authRepo.getUserProfile(user.id);
-
-      if (mounted && profile != null) {
-        // Validate dropdown values match available items
-        final dbGender = profile['gender']?.toString();
-        final dbWilaya = profile['wilaya']?.toString();
-
-        setState(() {
-          _profileData = profile;
-          _firstNameController.text = profile['first_name']?.toString() ?? '';
-          _lastNameController.text = profile['last_name']?.toString() ?? '';
-          _phoneController.text = profile['phone']?.toString() ?? '';
-
-          // Parse date of birth
-          if (profile['date_of_birth'] != null) {
-            _selectedDateOfBirth = DateTime.parse(profile['date_of_birth']);
-          }
-
-          // Only set dropdown values if they exist in the dropdown lists
-          _selectedGender =
-              ['Male', 'Female', 'Other'].contains(dbGender) ? dbGender : null;
-          _selectedWilaya = wilayas.contains(dbWilaya) ? dbWilaya : null;
-
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading profile: ${e.toString()}')),
-        );
-      }
-    }
-  }
-
-  Future<void> _saveProfile() async {
-    setState(() => _isSaving = true);
-
-    try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) return;
-
-      final authRepo = ref.read(authRepositoryProvider);
-
-      await authRepo.updateUserProfile(user.id, {
-        'first_name': _firstNameController.text,
-        'last_name': _lastNameController.text,
-        'phone': _phoneController.text,
-        'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
-        'gender': _selectedGender,
-        'wilaya': _selectedWilaya,
-      });
-
-      if (mounted) {
-        setState(() {
-          _isEditing = false;
-          _isSaving = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully!')),
-        );
-        await _loadProfile();
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isSaving = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving profile: ${e.toString()}')),
-        );
-      }
-    }
   }
 
   IconData _getGenderIcon(String? gender) {
@@ -138,8 +43,32 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
     }
   }
 
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Listen to state changes to update controllers when data loads or on cancel
+    ref.listen(userProfileControllerProvider, (previous, next) {
+      final nextState = next.value;
+      final prevState = previous?.value;
+
+      if (nextState != null) {
+        // Initial load or if we just cancelled editing
+        bool justLoaded = prevState == null;
+        bool cancelledEditing =
+            (prevState?.isEditing == true && !nextState.isEditing);
+
+        if (justLoaded || cancelledEditing) {
+          _firstNameController.text = nextState.firstName;
+          _lastNameController.text = nextState.lastName;
+          _phoneController.text = nextState.phone;
+        }
+      }
+    });
+
+    final stateAsync = ref.watch(userProfileControllerProvider);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
@@ -162,205 +91,278 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
         ),
         centerTitle: true,
         actions: [
-          if (_isEditing)
-            TextButton(
-              onPressed: () {
-                setState(() => _isEditing = false);
-                _loadProfile();
-              },
-              child: const Text('Cancel'),
-            ),
+          stateAsync.when(
+            data: (state) {
+              if (state.isEditing) {
+                return TextButton(
+                  onPressed: () {
+                    ref
+                        .read(userProfileControllerProvider.notifier)
+                        .toggleEditing(false);
+                  },
+                  child: const Text('Cancel'),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  // Profile Picture
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: colorScheme.primaryContainer,
-                    ),
-                    child: Icon(
-                      _getGenderIcon(
-                        _selectedGender ?? _profileData?['gender'],
-                      ),
-                      size: 60,
-                      color: colorScheme.primary,
-                    ),
+      body: stateAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('Error: $err')),
+        data: (state) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              children: [
+                // Profile Picture
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: colorScheme.primaryContainer,
                   ),
-                  const SizedBox(height: 16),
+                  child: Icon(
+                    _getGenderIcon(state.gender),
+                    size: 60,
+                    color: colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 16),
 
-                  // Name Display
-                  Text(
-                    '${_firstNameController.text} ${_lastNameController.text}',
-                    style: textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                // Name Display
+                Text(
+                  '${state.firstName} ${state.lastName}',
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    user?.email ?? '',
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  user?.email ?? '',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
                   ),
-                  const SizedBox(height: 24),
+                ),
+                const SizedBox(height: 24),
 
-                  // Edit/Save Button
-                  if (!_isEditing)
-                    FilledButton.icon(
-                      onPressed: () {
-                        setState(() => _isEditing = true);
-                      },
-                      icon: const Icon(Icons.edit),
-                      label: const Text('Edit Profile'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                      ),
-                    )
-                  else
-                    FilledButton.icon(
-                      onPressed: _isSaving ? null : _saveProfile,
-                      icon: _isSaving
-                          ? SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: colorScheme.onPrimary,
-                              ),
-                            )
-                          : const Icon(Icons.save),
-                      label: Text(_isSaving ? 'Saving...' : 'Save Changes'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
+                // Edit/Save Button
+                if (!state.isEditing)
+                  FilledButton.icon(
+                    onPressed: () {
+                      ref
+                          .read(userProfileControllerProvider.notifier)
+                          .toggleEditing(true);
+                    },
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Edit Profile'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
                       ),
                     ),
-
-                  const SizedBox(height: 32),
-
-                  // Personal Information Section
-                  _buildSectionHeader(
-                    'Personal Information',
-                    colorScheme,
-                    textTheme,
-                  ),
-                  const SizedBox(height: 16),
-
-                  _buildTextField(
-                    controller: _firstNameController,
-                    label: 'First Name',
-                    icon: Icons.person_outline,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'[a-zA-Z\s-]'),
+                  )
+                else
+                  FilledButton.icon(
+                    onPressed: state.isSaving
+                        ? null
+                        : () async {
+                            try {
+                              final success = await ref
+                                  .read(userProfileControllerProvider.notifier)
+                                  .saveProfile();
+                              if (success && context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'Profile updated successfully!')),
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text('Error saving profile: $e')),
+                                );
+                              }
+                            }
+                          },
+                    icon: state.isSaving
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colorScheme.onPrimary,
+                            ),
+                          )
+                        : const Icon(Icons.save),
+                    label: Text(state.isSaving ? 'Saving...' : 'Save Changes'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
                       ),
-                    ],
-                    colorScheme: colorScheme,
-                    textTheme: textTheme,
+                    ),
                   ),
-                  const SizedBox(height: 16),
 
-                  _buildTextField(
-                    controller: _lastNameController,
-                    label: 'Last Name',
-                    icon: Icons.person_outline,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'[a-zA-Z\s-]'),
-                      ),
-                    ],
-                    colorScheme: colorScheme,
-                    textTheme: textTheme,
-                  ),
-                  const SizedBox(height: 16),
+                const SizedBox(height: 32),
 
-                  _buildTextField(
-                    controller: _phoneController,
-                    label: 'Phone Number',
-                    icon: Icons.phone_outlined,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(10),
-                    ],
-                    colorScheme: colorScheme,
-                    textTheme: textTheme,
-                  ),
-                  const SizedBox(height: 16),
+                // Personal Information Section
+                _buildSectionHeader(
+                  'Personal Information',
+                  colorScheme,
+                  textTheme,
+                ),
+                const SizedBox(height: 16),
 
-                  _buildDatePicker(colorScheme, textTheme),
-                  const SizedBox(height: 16),
+                _buildTextField(
+                  controller: _firstNameController,
+                  label: 'First Name',
+                  icon: Icons.person_outline,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z\s-]'),
+                    ),
+                  ],
+                  colorScheme: colorScheme,
+                  textTheme: textTheme,
+                  isEditing: state.isEditing,
+                  onChanged: (val) => ref
+                      .read(userProfileControllerProvider.notifier)
+                      .updateField(firstName: val),
+                ),
+                const SizedBox(height: 16),
 
-                  _buildGenderDropdown(colorScheme, textTheme),
-                  const SizedBox(height: 16),
+                _buildTextField(
+                  controller: _lastNameController,
+                  label: 'Last Name',
+                  icon: Icons.person_outline,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z\s-]'),
+                    ),
+                  ],
+                  colorScheme: colorScheme,
+                  textTheme: textTheme,
+                  isEditing: state.isEditing,
+                  onChanged: (val) => ref
+                      .read(userProfileControllerProvider.notifier)
+                      .updateField(lastName: val),
+                ),
+                const SizedBox(height: 16),
 
-                  _buildWilayaDropdown(colorScheme, textTheme),
+                _buildTextField(
+                  controller: _phoneController,
+                  label: 'Phone Number',
+                  icon: Icons.phone_outlined,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
+                  colorScheme: colorScheme,
+                  textTheme: textTheme,
+                  isEditing: state.isEditing,
+                  onChanged: (val) => ref
+                      .read(userProfileControllerProvider.notifier)
+                      .updateField(phone: val),
+                ),
+                const SizedBox(height: 16),
 
-                  const SizedBox(height: 32),
+                _buildDatePicker(
+                  context,
+                  state.dateOfBirth,
+                  state.isEditing,
+                  colorScheme,
+                  textTheme,
+                  (date) => ref
+                      .read(userProfileControllerProvider.notifier)
+                      .updateField(dateOfBirth: date),
+                ),
+                const SizedBox(height: 16),
 
-                  // Account Information Section
-                  _buildSectionHeader(
-                    'Account Information',
-                    colorScheme,
-                    textTheme,
-                  ),
-                  const SizedBox(height: 16),
+                _buildGenderDropdown(
+                  state.gender,
+                  state.isEditing,
+                  colorScheme,
+                  textTheme,
+                  (val) => ref
+                      .read(userProfileControllerProvider.notifier)
+                      .updateField(gender: val),
+                ),
+                const SizedBox(height: 16),
 
-                  _buildInfoRow(
-                    'Email',
-                    user?.email ?? 'N/A',
-                    Icons.email_outlined,
-                    colorScheme,
-                    textTheme,
-                  ),
-                  const SizedBox(height: 12),
+                _buildWilayaDropdown(
+                  state.wilaya,
+                  state.isEditing,
+                  colorScheme,
+                  textTheme,
+                  (val) => ref
+                      .read(userProfileControllerProvider.notifier)
+                      .updateField(wilaya: val),
+                ),
 
-                  _buildInfoRow(
-                    'Email Verified',
-                    user?.emailConfirmedAt != null ? 'Yes' : 'No',
-                    Icons.verified_outlined,
-                    colorScheme,
-                    textTheme,
-                  ),
-                  const SizedBox(height: 12),
+                const SizedBox(height: 32),
 
-                  _buildInfoRow(
-                    'Role',
-                    _profileData?['role']?.toString() ?? 'Patient',
-                    Icons.badge_outlined,
-                    colorScheme,
-                    textTheme,
-                  ),
-                  const SizedBox(height: 12),
+                // Account Information Section
+                _buildSectionHeader(
+                  'Account Information',
+                  colorScheme,
+                  textTheme,
+                ),
+                const SizedBox(height: 16),
 
-                  _buildInfoRow(
-                    'Member Since',
-                    user?.createdAt != null
-                        ? _formatDate(DateTime.parse(user!.createdAt))
-                        : 'N/A',
-                    Icons.calendar_today_outlined,
-                    colorScheme,
-                    textTheme,
-                  ),
-                ],
-              ),
+                _buildInfoRow(
+                  'Email',
+                  user?.email ?? 'N/A',
+                  Icons.email_outlined,
+                  colorScheme,
+                  textTheme,
+                ),
+                const SizedBox(height: 12),
+
+                _buildInfoRow(
+                  'Email Verified',
+                  user?.emailConfirmedAt != null ? 'Yes' : 'No',
+                  Icons.verified_outlined,
+                  colorScheme,
+                  textTheme,
+                ),
+                const SizedBox(height: 12),
+
+                _buildInfoRow(
+                  'Role',
+                  state.profileData?['role']?.toString() ?? 'Patient',
+                  Icons.badge_outlined,
+                  colorScheme,
+                  textTheme,
+                ),
+                const SizedBox(height: 12),
+
+                _buildInfoRow(
+                  'Member Since',
+                  user?.createdAt != null
+                      ? _formatDate(DateTime.parse(user!.createdAt))
+                      : 'N/A',
+                  Icons.calendar_today_outlined,
+                  colorScheme,
+                  textTheme,
+                ),
+              ],
             ),
+          );
+        },
+      ),
     );
   }
 
@@ -389,17 +391,20 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
     List<TextInputFormatter>? inputFormatters,
     required ColorScheme colorScheme,
     required TextTheme textTheme,
+    required bool isEditing,
+    required ValueChanged<String> onChanged,
   }) {
     return TextFormField(
       controller: controller,
-      enabled: _isEditing,
+      enabled: isEditing,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
+      onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: colorScheme.primary),
         filled: true,
-        fillColor: _isEditing
+        fillColor: isEditing
             ? colorScheme.surfaceContainerHighest
             : colorScheme.surfaceContainerLow,
         border: OutlineInputBorder(
@@ -418,26 +423,30 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
     );
   }
 
-  Widget _buildDatePicker(ColorScheme colorScheme, TextTheme textTheme) {
+  Widget _buildDatePicker(
+    BuildContext context,
+    DateTime? selectedDate,
+    bool isEditing,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+    ValueChanged<DateTime> onConfirm,
+  ) {
     return InkWell(
       onTap: () {
+        if (!isEditing) return;
         DatePicker.showDatePicker(
           context,
           showTitleActions: true,
           minTime: DateTime(1900, 1, 1),
           maxTime: DateTime.now(),
-          currentTime: _selectedDateOfBirth ?? DateTime.now(),
-          onConfirm: (date) {
-            if (_isEditing) {
-              setState(() => _selectedDateOfBirth = date);
-            }
-          },
+          currentTime: selectedDate ?? DateTime.now(),
+          onConfirm: onConfirm,
         );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: _isEditing
+          color: isEditing
               ? colorScheme.surfaceContainerHighest
               : colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(12),
@@ -459,15 +468,15 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _selectedDateOfBirth != null
-                        ? _formatDate(_selectedDateOfBirth!)
+                    selectedDate != null
+                        ? _formatDate(selectedDate)
                         : 'Not set',
                     style: textTheme.bodyLarge,
                   ),
                 ],
               ),
             ),
-            if (_isEditing)
+            if (isEditing)
               Icon(Icons.edit, color: colorScheme.onSurfaceVariant, size: 20),
           ],
         ),
@@ -475,14 +484,20 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
     );
   }
 
-  Widget _buildGenderDropdown(ColorScheme colorScheme, TextTheme textTheme) {
+  Widget _buildGenderDropdown(
+    String? currentVal,
+    bool isEditing,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+    ValueChanged<String?> onChanged,
+  ) {
     return DropdownButtonFormField<String>(
-      value: _selectedGender,
+      value: currentVal,
       decoration: InputDecoration(
         labelText: 'Gender',
         prefixIcon: Icon(Icons.wc_outlined, color: colorScheme.primary),
         filled: true,
-        fillColor: _isEditing
+        fillColor: isEditing
             ? colorScheme.surfaceContainerHighest
             : colorScheme.surfaceContainerLow,
         border: OutlineInputBorder(
@@ -502,21 +517,25 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
             ),
           )
           .toList(),
-      onChanged: _isEditing
-          ? (value) => setState(() => _selectedGender = value)
-          : null,
+      onChanged: isEditing ? onChanged : null,
     );
   }
 
-  Widget _buildWilayaDropdown(ColorScheme colorScheme, TextTheme textTheme) {
+  Widget _buildWilayaDropdown(
+    String? currentVal,
+    bool isEditing,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+    ValueChanged<String?> onChanged,
+  ) {
     return DropdownButtonFormField<String>(
-      value: _selectedWilaya,
+      value: currentVal,
       decoration: InputDecoration(
         labelText: 'Wilaya',
         prefixIcon:
             Icon(Icons.location_on_outlined, color: colorScheme.primary),
         filled: true,
-        fillColor: _isEditing
+        fillColor: isEditing
             ? colorScheme.surfaceContainerHighest
             : colorScheme.surfaceContainerLow,
         border: OutlineInputBorder(
@@ -536,9 +555,7 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
             ),
           )
           .toList(),
-      onChanged: _isEditing
-          ? (value) => setState(() => _selectedWilaya = value)
-          : null,
+      onChanged: isEditing ? onChanged : null,
     );
   }
 
@@ -580,9 +597,5 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
         ],
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 }

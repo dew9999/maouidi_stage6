@@ -284,7 +284,8 @@ mixin _$PartnerSettingsState {
   String get bookingSystemType => throw _privateConstructorUsedError;
   String get confirmationMode => throw _privateConstructorUsedError;
   int get dailyLimit => throw _privateConstructorUsedError;
-  Map<String, String> get workingHours => throw _privateConstructorUsedError;
+  Map<String, List<String>> get workingHours =>
+      throw _privateConstructorUsedError;
   List<DateTime> get closedDays => throw _privateConstructorUsedError;
   bool get isSaving => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
@@ -312,7 +313,7 @@ abstract class $PartnerSettingsStateCopyWith<$Res> {
       String bookingSystemType,
       String confirmationMode,
       int dailyLimit,
-      Map<String, String> workingHours,
+      Map<String, List<String>> workingHours,
       List<DateTime> closedDays,
       bool isSaving,
       bool isLoading,
@@ -393,7 +394,7 @@ class _$PartnerSettingsStateCopyWithImpl<$Res,
       workingHours: null == workingHours
           ? _value.workingHours
           : workingHours // ignore: cast_nullable_to_non_nullable
-              as Map<String, String>,
+              as Map<String, List<String>>,
       closedDays: null == closedDays
           ? _value.closedDays
           : closedDays // ignore: cast_nullable_to_non_nullable
@@ -433,7 +434,7 @@ abstract class _$$PartnerSettingsStateImplCopyWith<$Res>
       String bookingSystemType,
       String confirmationMode,
       int dailyLimit,
-      Map<String, String> workingHours,
+      Map<String, List<String>> workingHours,
       List<DateTime> closedDays,
       bool isSaving,
       bool isLoading,
@@ -511,7 +512,7 @@ class __$$PartnerSettingsStateImplCopyWithImpl<$Res>
       workingHours: null == workingHours
           ? _value._workingHours
           : workingHours // ignore: cast_nullable_to_non_nullable
-              as Map<String, String>,
+              as Map<String, List<String>>,
       closedDays: null == closedDays
           ? _value._closedDays
           : closedDays // ignore: cast_nullable_to_non_nullable
@@ -546,7 +547,7 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
       this.bookingSystemType = 'time_based',
       this.confirmationMode = 'manual',
       this.dailyLimit = 0,
-      final Map<String, String> workingHours = const {},
+      final Map<String, List<String>> workingHours = const {},
       final List<DateTime> closedDays = const [],
       this.isSaving = false,
       this.isLoading = false,
@@ -584,10 +585,10 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
   @override
   @JsonKey()
   final int dailyLimit;
-  final Map<String, String> _workingHours;
+  final Map<String, List<String>> _workingHours;
   @override
   @JsonKey()
-  Map<String, String> get workingHours {
+  Map<String, List<String>> get workingHours {
     if (_workingHours is EqualUnmodifiableMapView) return _workingHours;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_workingHours);
@@ -692,7 +693,7 @@ abstract class _PartnerSettingsState implements PartnerSettingsState {
       final String bookingSystemType,
       final String confirmationMode,
       final int dailyLimit,
-      final Map<String, String> workingHours,
+      final Map<String, List<String>> workingHours,
       final List<DateTime> closedDays,
       final bool isSaving,
       final bool isLoading,
@@ -719,7 +720,7 @@ abstract class _PartnerSettingsState implements PartnerSettingsState {
   @override
   int get dailyLimit;
   @override
-  Map<String, String> get workingHours;
+  Map<String, List<String>> get workingHours;
   @override
   List<DateTime> get closedDays;
   @override

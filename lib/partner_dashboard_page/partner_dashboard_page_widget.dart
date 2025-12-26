@@ -15,6 +15,7 @@ import 'components/homecare_details_view.dart';
 import 'components/dashboard_helpers.dart';
 import 'components/now_serving_card.dart';
 import '../features/appointments/presentation/partner_dashboard_controller.dart';
+import '../features/appointments/presentation/clinic_dashboard_controller.dart';
 
 enum DashboardView {
   schedule,
@@ -127,8 +128,7 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                 TextFormField(
                   controller: nameController,
                   decoration: InputDecoration(
-                    labelText:
-                        AppLocalizations.of(context)!.ptfullname,
+                    labelText: AppLocalizations.of(context)!.ptfullname,
                   ),
                   validator: (v) => v!.isEmpty
                       ? AppLocalizations.of(context)!.fieldreq
@@ -150,8 +150,7 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                   TextFormField(
                     controller: caseController,
                     decoration: InputDecoration(
-                      labelText:
-                          AppLocalizations.of(context)!.casedesc,
+                      labelText: AppLocalizations.of(context)!.casedesc,
                     ),
                     validator: (v) => v!.isEmpty
                         ? AppLocalizations.of(context)!.fieldreq
@@ -211,8 +210,10 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                     );
                     // Trigger refresh via controller
                     ref
-                        .read(partnerDashboardControllerProvider(partnerId)
-                            .notifier,)
+                        .read(
+                          partnerDashboardControllerProvider(partnerId)
+                              .notifier,
+                        )
                         .refresh();
                   }
                 } catch (e) {
@@ -225,7 +226,8 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                 }
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary),
             child: Text(AppLocalizations.of(context)!.submitreq),
           ),
         ],
@@ -259,8 +261,10 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                         },
                       );
                       ref
-                          .read(partnerDashboardControllerProvider(partnerId)
-                              .notifier,)
+                          .read(
+                            partnerDashboardControllerProvider(partnerId)
+                                .notifier,
+                          )
                           .refresh();
                     }
                   },
@@ -292,8 +296,10 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                   selected: {selectedView},
                   onSelectionChanged: (newSelection) {
                     ref
-                        .read(partnerDashboardControllerProvider(partnerId)
-                            .notifier,)
+                        .read(
+                          partnerDashboardControllerProvider(partnerId)
+                              .notifier,
+                        )
                         .setSelectedView(newSelection.first);
                   },
                   style: SegmentedButton.styleFrom(
@@ -330,7 +336,8 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
               onPressed: () {
                 ref
                     .read(
-                        partnerDashboardControllerProvider(partnerId).notifier,)
+                      partnerDashboardControllerProvider(partnerId).notifier,
+                    )
                     .refresh();
               },
               child: const Text('Retry'),
@@ -341,6 +348,219 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
     );
   }
 }
+
+// =====================================================================
+//                       CLINIC VIEWS (REFACTORED)
+// =====================================================================
+
+class _ClinicDashboardView extends ConsumerWidget {
+  const _ClinicDashboardView({required this.partnerId});
+  final String partnerId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stateAsync = ref.watch(clinicDashboardControllerProvider(partnerId));
+
+    return stateAsync.when(
+      data: (state) {
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: SegmentedButton<ClinicDashboardView>(
+                segments: [
+                  ButtonSegment(
+                    value: ClinicDashboardView.schedule,
+                    label: Text(AppLocalizations.of(context)!.allapts),
+                    icon: const Icon(Icons.calendar_month),
+                  ),
+                  ButtonSegment(
+                    value: ClinicDashboardView.analytics,
+                    label: Text(
+                      AppLocalizations.of(context)!.clncanalytics,
+                    ),
+                    icon: const Icon(Icons.bar_chart),
+                  ),
+                ],
+                selected: {state.currentView},
+                onSelectionChanged: (newSelection) {
+                  ref
+                      .read(
+                          clinicDashboardControllerProvider(partnerId).notifier)
+                      .setView(newSelection.first);
+                },
+                style: SegmentedButton.styleFrom(
+                  backgroundColor:
+                      Theme.of(context).colorScheme.surfaceContainerHigh,
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
+                  selectedForegroundColor: Colors.white,
+                  selectedBackgroundColor:
+                      Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+            Expanded(
+              child: state.currentView == ClinicDashboardView.schedule
+                  ? _ClinicScheduleView(clinicId: partnerId, state: state)
+                  : _ClinicAnalyticsView(clinicId: partnerId),
+            ),
+          ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, _) => Center(child: Text('Error: ${err.toString()}')),
+    );
+  }
+}
+
+class _ClinicScheduleView extends ConsumerWidget {
+  const _ClinicScheduleView({required this.clinicId, required this.state});
+  final String clinicId;
+  final ClinicDashboardState state;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final appointments = state.appointments;
+    final doctors = state.doctors;
+    final selectedDoctorId = state.selectedDoctorId;
+    final isLoading = state.isLoading;
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: DropdownButtonFormField<String>(
+            value: selectedDoctorId,
+            hint: Text(AppLocalizations.of(context)!.fltrdoc),
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              filled: true,
+              fillColor: theme.colorScheme.surfaceContainerHigh,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+            ),
+            items: [
+              DropdownMenuItem<String>(
+                value: null,
+                child: Text(AppLocalizations.of(context)!.alldocs),
+              ),
+              ...doctors.map(
+                (doc) => DropdownMenuItem<String>(
+                  value: doc.id,
+                  child: Text(doc.fullName ?? 'Unnamed Doctor'),
+                ),
+              ),
+            ],
+            onChanged: (value) {
+              ref
+                  .read(clinicDashboardControllerProvider(clinicId).notifier)
+                  .setSelectedDoctor(value);
+            },
+          ),
+        ),
+        if (isLoading) const LinearProgressIndicator(),
+        Expanded(
+          child: appointments.isEmpty
+              ? EmptyStateWidget(
+                  icon: Icons.calendar_today_rounded,
+                  title: AppLocalizations.of(context)!.noaptsfound,
+                  message: AppLocalizations.of(context)!.noaptsfltr,
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  itemCount: appointments.length,
+                  itemBuilder: (context, index) {
+                    final appt = appointments[index];
+                    final time =
+                        DateTime.parse(appt['appointment_time'] as String)
+                            .toLocal();
+                    return Card(
+                      elevation: 2,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: ListTile(
+                        title: Text(
+                          appt['patient_name'] as String? ?? 'A Patient',
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        subtitle: Text(
+                          'With: ${appt['doctor_name'] as String? ?? 'N/A'}\nStatus: ${getLocalizedStatus(context, appt['status'] as String)}',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        isThreeLine: true,
+                        trailing: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              DateFormat.yMMMd().format(time),
+                              style: theme.textTheme.bodySmall,
+                            ),
+                            Text(
+                              DateFormat.jm().format(time),
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ClinicAnalyticsView extends StatelessWidget {
+  const _ClinicAnalyticsView({required this.clinicId});
+  final String clinicId;
+
+  Future<Map<String, dynamic>> _fetchAnalytics() async {
+    return await Supabase.instance.client.rpc(
+      'get_clinic_analytics',
+      params: {
+        'clinic_id_arg': clinicId,
+      },
+    ).then((data) => data as Map<String, dynamic>);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _fetchAnalytics(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Center(
+            child: Text(
+              AppLocalizations.of(context)!.loadanalyticsfail,
+            ),
+          );
+        }
+
+        final summary = snapshot.data!['summary'] as Map<String, dynamic>;
+        final weekly =
+            List<Map<String, dynamic>>.from(snapshot.data!['weekly'] as List);
+
+        return _AnalyticsViewContent(
+          summaryStats: {
+            'total': summary['total'] as int? ?? 0,
+            'week_completed': summary['week_completed'] as int? ?? 0,
+            'month_completed': summary['month_completed'] as int? ?? 0,
+            'partner_canceled': 0,
+          },
+          weeklyStats: weekly,
+        );
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------
 
 class _ScheduleView extends ConsumerWidget {
   const _ScheduleView({
@@ -438,14 +658,18 @@ class _TimeSlotView extends ConsumerWidget {
                     onSelected: (isSelected) {
                       if (isSelected) {
                         ref
-                            .read(partnerDashboardControllerProvider(partnerId)
-                                .notifier,)
+                            .read(
+                              partnerDashboardControllerProvider(partnerId)
+                                  .notifier,
+                            )
                             .setSelectedStatus(statusInfo['dbValue']!);
                       }
                     },
                     selectedColor: theme.colorScheme.primary,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : theme.colorScheme.onSurface,
+                      color: isSelected
+                          ? Colors.white
+                          : theme.colorScheme.onSurface,
                     ),
                     backgroundColor: theme.colorScheme.surfaceContainerHigh,
                     side: BorderSide(color: theme.colorScheme.outlineVariant),
@@ -516,7 +740,8 @@ class _NumberQueueView extends ConsumerWidget {
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: theme.colorScheme.outlineVariant, width: 1),
+              border:
+                  Border.all(color: theme.colorScheme.outlineVariant, width: 1),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -525,7 +750,8 @@ class _NumberQueueView extends ConsumerWidget {
                   DateFormat.yMMMMd().format(DateTime.now()),
                   style: theme.textTheme.titleMedium,
                 ),
-                Icon(Icons.calendar_month_outlined, color: theme.colorScheme.primary),
+                Icon(Icons.calendar_month_outlined,
+                    color: theme.colorScheme.primary),
               ],
             ),
           ),
@@ -561,8 +787,9 @@ class _NumberQueueView extends ConsumerWidget {
                         onAction: () {
                           ref
                               .read(
-                                  partnerDashboardControllerProvider(partnerId)
-                                      .notifier,)
+                                partnerDashboardControllerProvider(partnerId)
+                                    .notifier,
+                              )
                               .refresh();
                         },
                       ),
@@ -602,9 +829,11 @@ class _NumberQueueView extends ConsumerWidget {
                             FilledButton(
                               onPressed: () async {
                                 await ref
-                                    .read(partnerDashboardControllerProvider(
-                                            partnerId,)
-                                        .notifier,)
+                                    .read(
+                                      partnerDashboardControllerProvider(
+                                        partnerId,
+                                      ).notifier,
+                                    )
                                     .nextPatient();
                               },
                               style: FilledButton.styleFrom(
@@ -629,253 +858,6 @@ class _NumberQueueView extends ConsumerWidget {
                 ),
         ),
       ],
-    );
-  }
-}
-
-// Clinic dashboard views remain unchanged as they don't use the new controller
-class _ClinicDashboardView extends StatefulWidget {
-  const _ClinicDashboardView({required this.partnerId});
-  final String partnerId;
-
-  @override
-  State<_ClinicDashboardView> createState() => _ClinicDashboardViewState();
-}
-
-class _ClinicDashboardViewState extends State<_ClinicDashboardView> {
-  DashboardView _currentView = DashboardView.schedule;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: SegmentedButton<DashboardView>(
-            segments: [
-              ButtonSegment(
-                value: DashboardView.schedule,
-                label: Text(AppLocalizations.of(context)!.allapts),
-                icon: const Icon(Icons.calendar_month),
-              ),
-              ButtonSegment(
-                value: DashboardView.analytics,
-                label: Text(
-                  AppLocalizations.of(context)!.clncanalytics,
-                ),
-                icon: const Icon(Icons.bar_chart),
-              ),
-            ],
-            selected: {_currentView},
-            onSelectionChanged: (newSelection) {
-              setState(() => _currentView = newSelection.first);
-            },
-            style: SegmentedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-              foregroundColor: Theme.of(context).colorScheme.onSurface,
-              selectedForegroundColor: Colors.white,
-              selectedBackgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        ),
-        Expanded(
-          child: _currentView == DashboardView.schedule
-              ? _ClinicScheduleView(clinicId: widget.partnerId)
-              : _ClinicAnalyticsView(clinicId: widget.partnerId),
-        ),
-      ],
-    );
-  }
-}
-
-class _ClinicScheduleView extends StatefulWidget {
-  const _ClinicScheduleView({required this.clinicId});
-  final String clinicId;
-
-  @override
-  State<_ClinicScheduleView> createState() => _ClinicScheduleViewState();
-}
-
-class _ClinicScheduleViewState extends State<_ClinicScheduleView> {
-  late Future<List<MedicalPartnersRow>> _doctorsFuture;
-  String? _selectedDoctorId;
-  int _refreshKey = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _doctorsFuture = MedicalPartnersTable().queryRows(
-      queryFn: (q) => q.eq('parent_clinic_id', widget.clinicId),
-    );
-  }
-
-  Future<List<Map<String, dynamic>>> _fetchAppointments() {
-    return Supabase.instance.client.rpc(
-      'get_clinic_appointments',
-      params: {
-        'clinic_id_arg': widget.clinicId,
-        'doctor_id_arg': _selectedDoctorId,
-      },
-    ).then((data) => List<Map<String, dynamic>>.from(data as List));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: FutureBuilder<List<MedicalPartnersRow>>(
-            future: _doctorsFuture,
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const SizedBox(height: 50);
-              }
-              final doctors = snapshot.data!;
-              return DropdownButtonFormField<String>(
-                value: _selectedDoctorId,
-                hint: Text(AppLocalizations.of(context)!.fltrdoc),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  filled: true,
-                  fillColor: theme.colorScheme.surfaceContainerHigh,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                ),
-                items: [
-                  DropdownMenuItem<String>(
-                    value: null,
-                    child: Text(AppLocalizations.of(context)!.alldocs),
-                  ),
-                  ...doctors.map(
-                    (doc) => DropdownMenuItem<String>(
-                      value: doc.id,
-                      child: Text(doc.fullName ?? 'Unnamed Doctor'),
-                    ),
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _selectedDoctorId = value;
-                    _refreshKey++;
-                  });
-                },
-              );
-            },
-          ),
-        ),
-        Expanded(
-          child: FutureBuilder<List<Map<String, dynamic>>>(
-            key: ValueKey(_refreshKey),
-            future: _fetchAppointments(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              }
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return EmptyStateWidget(
-                  icon: Icons.calendar_today_rounded,
-                  title: AppLocalizations.of(context)!.noaptsfound,
-                  message: AppLocalizations.of(context)!.noaptsfltr,
-                );
-              }
-
-              final appointments = snapshot.data!;
-              return ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                itemCount: appointments.length,
-                itemBuilder: (context, index) {
-                  final appt = appointments[index];
-                  final time =
-                      DateTime.parse(appt['appointment_time'] as String)
-                          .toLocal();
-                  return Card(
-                    elevation: 2,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      title: Text(
-                        appt['patient_name'] as String? ?? 'A Patient',
-                        style: theme.textTheme.titleMedium,
-                      ),
-                      subtitle: Text(
-                        'With: ${appt['doctor_name'] as String? ?? 'N/A'}\nStatus: ${getLocalizedStatus(context, appt['status'] as String)}',
-                        style: theme.textTheme.bodySmall,
-                      ),
-                      isThreeLine: true,
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            DateFormat.yMMMd().format(time),
-                            style: theme.textTheme.bodySmall,
-                          ),
-                          Text(
-                            DateFormat.jm().format(time),
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ClinicAnalyticsView extends StatelessWidget {
-  const _ClinicAnalyticsView({required this.clinicId});
-  final String clinicId;
-
-  Future<Map<String, dynamic>> _fetchAnalytics() async {
-    return await Supabase.instance.client.rpc(
-      'get_clinic_analytics',
-      params: {
-        'clinic_id_arg': clinicId,
-      },
-    ).then((data) => data as Map<String, dynamic>);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _fetchAnalytics(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError || !snapshot.hasData) {
-          return Center(
-            child: Text(
-              AppLocalizations.of(context)!.loadanalyticsfail,
-            ),
-          );
-        }
-
-        final summary = snapshot.data!['summary'] as Map<String, dynamic>;
-        final weekly =
-            List<Map<String, dynamic>>.from(snapshot.data!['weekly'] as List);
-
-        return _AnalyticsViewContent(
-          summaryStats: {
-            'total': summary['total'] as int? ?? 0,
-            'week_completed': summary['week_completed'] as int? ?? 0,
-            'month_completed': summary['month_completed'] as int? ?? 0,
-            'partner_canceled': 0,
-          },
-          weeklyStats: weekly,
-        );
-      },
     );
   }
 }
@@ -979,7 +961,8 @@ class _AnalyticsViewContent extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          Text('Completed Appointments - Last 7 Days', style: theme.textTheme.titleLarge),
+          Text('Completed Appointments - Last 7 Days',
+              style: theme.textTheme.titleLarge),
           const SizedBox(height: 24),
           SizedBox(
             height: 200,
@@ -1141,7 +1124,8 @@ class _AnalyticsCard extends StatelessWidget {
         children: [
           Text(value.toString(), style: theme.textTheme.displaySmall),
           const SizedBox(height: 8),
-          Text(label, style: theme.textTheme.labelMedium, textAlign: TextAlign.center),
+          Text(label,
+              style: theme.textTheme.labelMedium, textAlign: TextAlign.center),
         ],
       ),
     );
@@ -1260,7 +1244,9 @@ class _AppointmentInfoCard extends ConsumerWidget {
           OutlinedButton(
             onPressed: () async {
               await controller.cancelAppointment(
-                  appointmentId, 'Declined by partner',);
+                appointmentId,
+                'Declined by partner',
+              );
             },
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 36),
@@ -1288,7 +1274,7 @@ class _AppointmentInfoCard extends ConsumerWidget {
 
     if (status == 'Confirmed') {
       return Row(
-         children: [
+        children: [
           Expanded(
             child: FilledButton(
               onPressed: () async {
@@ -1311,7 +1297,8 @@ class _AppointmentInfoCard extends ConsumerWidget {
             ),
           ),
           PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: theme.colorScheme.onSurfaceVariant),
+            icon: Icon(Icons.more_vert,
+                color: theme.colorScheme.onSurfaceVariant),
             onSelected: (value) async {
               if (value == 'no-show') {
                 await controller.noShow(appointmentId);
@@ -1324,7 +1311,9 @@ class _AppointmentInfoCard extends ConsumerWidget {
                 );
                 if (confirmed) {
                   await controller.cancelAppointment(
-                      appointmentId, 'Canceled by partner',);
+                    appointmentId,
+                    'Canceled by partner',
+                  );
                 }
               }
             },
@@ -1382,15 +1371,18 @@ class _UpNextQueueCard extends ConsumerWidget {
                 backgroundColor: theme.colorScheme.tertiary.withAlpha(25),
                 child: Text(
                   '$appointmentNumber',
-                  style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.primary),
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(color: theme.colorScheme.primary),
                 ),
               ),
               title: Text(displayName, style: theme.textTheme.titleMedium),
               trailing: PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert, color: theme.colorScheme.onSurfaceVariant),
+                icon: Icon(Icons.more_vert,
+                    color: theme.colorScheme.onSurfaceVariant),
                 onSelected: (value) async {
                   final controller = ref.read(
-                      partnerDashboardControllerProvider(partnerId).notifier,);
+                    partnerDashboardControllerProvider(partnerId).notifier,
+                  );
 
                   if (value == 'cancel') {
                     final confirmed = await showStyledConfirmationDialog(
@@ -1401,7 +1393,9 @@ class _UpNextQueueCard extends ConsumerWidget {
                     );
                     if (confirmed) {
                       await controller.cancelAppointment(
-                          appointmentId, 'Canceled by partner',);
+                        appointmentId,
+                        'Canceled by partner',
+                      );
                     }
                   } else if (value == 'reschedule') {
                     try {
@@ -1447,7 +1441,3 @@ class _UpNextQueueCard extends ConsumerWidget {
     );
   }
 }
-
-
-
-

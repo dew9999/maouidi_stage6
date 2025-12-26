@@ -10,7 +10,7 @@ const _kLocaleStorageKey = '__locale_key__';
 
 /// Locale Provider - manages app locale using Riverpod
 ///
-/// Replaces FlutterFlow's FFLocalizations locale management
+/// Manages app-wide locale state
 /// Supports: English (en), Arabic (ar), French (fr)
 @riverpod
 class LocaleNotifier extends _$LocaleNotifier {

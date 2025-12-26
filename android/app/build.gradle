@@ -29,7 +29,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.mycompany.maouidi"
+    namespace "com.mycompany.maouidi"
     compileSdkVersion 35
     
     // ⬅️ ADDED: This line fixes the final NDK mismatch error 

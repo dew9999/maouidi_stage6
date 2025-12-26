@@ -28,7 +28,7 @@ class PartnerSettingsState with _$PartnerSettingsState {
     @Default('time_based') String bookingSystemType,
     @Default('manual') String confirmationMode,
     @Default(0) int dailyLimit,
-    @Default({}) Map<String, String> workingHours,
+    @Default({}) Map<String, List<String>> workingHours,
     @Default([]) List<DateTime> closedDays,
     @Default(false) bool isSaving,
     @Default(false) bool isLoading,

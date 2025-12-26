@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:maouidi/features/settings/domain/settings_state.dart';
+import '../domain/settings_state.dart';
 
 part 'settings_controller.g.dart';
 
@@ -37,26 +37,17 @@ class PatientSettingsController extends _$PatientSettingsController {
         isLoading: false,
       );
     } catch (e) {
-      // In case of error, return empty state with error message if needed
       return const PatientSettingsState();
     }
   }
 
   Future<void> toggleNotifications(bool isEnabled) async {
-    // Optimistic Update
     final previousState = state;
     if (state.hasValue) {
       state = AsyncValue.data(
-          state.value!.copyWith(notificationsEnabled: isEnabled),);
+          state.value!.copyWith(notificationsEnabled: isEnabled));
     }
-
-    try {
-      // Logic to persist notification setting to DB would go here
-      // For now, we rely on the optimistic update
-    } catch (e) {
-      // Revert on error
-      state = previousState;
-    }
+    // Optimistic update - in real app, save to DB here
   }
 
   Future<void> signOut() async {
@@ -95,7 +86,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         specialty: data['specialty'] as String?,
         location: data['address'] as String?,
         isActive: data['is_active'] as bool? ?? false,
-        notificationsEnabled: true, // Default or fetch from DB if column exists
+        notificationsEnabled: true,
         bookingSystemType:
             data['booking_system_type'] as String? ?? 'time_based',
         confirmationMode: data['confirmation_mode'] as String? ?? 'manual',
@@ -109,14 +100,21 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     }
   }
 
-  Map<String, String> _parseWorkingHours(dynamic data) {
+  Map<String, List<String>> _parseWorkingHours(dynamic data) {
     if (data == null) return {};
+    Map<String, List<String>> result = {};
+
     if (data is Map) {
-      // Ensure values are strings
-      return Map<String, String>.from(data.map(
-          (key, value) => MapEntry(key.toString(), value?.toString() ?? ''),),);
+      data.forEach((key, value) {
+        if (value is List) {
+          result[key.toString()] = value.map((e) => e.toString()).toList();
+        } else if (value is String) {
+          // Handle legacy single-string case if necessary or comma separated
+          result[key.toString()] = [value];
+        }
+      });
     }
-    return {};
+    return result;
   }
 
   List<DateTime> _parseClosedDays(dynamic data) {
@@ -127,83 +125,114 @@ class PartnerSettingsController extends _$PartnerSettingsController {
   // --- Actions ---
 
   Future<void> updateSpecialty(String? value) async {
-    if (value == null) return;
-    if (state.hasValue) {
-      state = AsyncValue.data(state.value!.copyWith(specialty: value));
-    }
+    if (value == null || !state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(specialty: value));
   }
 
   Future<void> updateClinic(String? value) async {
-    if (value == null) return;
-    if (state.hasValue) {
-      state = AsyncValue.data(state.value!.copyWith(location: value));
-    }
+    if (value == null || !state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(location: value));
   }
 
   Future<void> updateIsActive(bool value) async {
-    if (state.hasValue) {
-      state = AsyncValue.data(state.value!.copyWith(isActive: value));
-    }
+    if (!state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(isActive: value));
   }
 
   Future<void> toggleNotifications(bool value) async {
-    if (state.hasValue) {
-      state =
-          AsyncValue.data(state.value!.copyWith(notificationsEnabled: value));
-    }
+    if (!state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(notificationsEnabled: value));
   }
 
   Future<void> updateBookingSystem(String value) async {
-    if (state.hasValue) {
-      state = AsyncValue.data(state.value!.copyWith(bookingSystemType: value));
-    }
+    if (!state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(bookingSystemType: value));
   }
 
-  /// Updates daily limit. Accepts [int] to match typical counter widget usage.
   Future<void> updateDailyLimit(int limit) async {
-    if (state.hasValue) {
-      state = AsyncValue.data(state.value!.copyWith(dailyLimit: limit));
-    }
+    if (!state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(dailyLimit: limit));
   }
 
   Future<void> updateConfirmationMode(String value) async {
-    if (state.hasValue) {
-      state = AsyncValue.data(state.value!.copyWith(confirmationMode: value));
+    if (!state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(confirmationMode: value));
+  }
+
+  // --- Granular Working Hours Actions ---
+
+  Map<String, List<String>> _getCurrentHours() {
+    return state.value?.workingHours != null
+        ? Map<String, List<String>>.from(state.value!.workingHours)
+        : {};
+  }
+
+  void _updateHoursState(Map<String, List<String>> newHours) {
+    if (!state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(workingHours: newHours));
+  }
+
+  Future<void> addWorkingHourSlot(String day) async {
+    if (!state.hasValue) return;
+    final hours = _getCurrentHours();
+    if (!hours.containsKey(day)) {
+      hours[day] = [];
+    }
+    // Default slot
+    hours[day]!.add("09:00-17:00");
+    _updateHoursState(hours);
+  }
+
+  Future<void> removeWorkingHourSlot(String day, int index) async {
+    if (!state.hasValue) return;
+    final hours = _getCurrentHours();
+    if (hours.containsKey(day) && hours[day]!.length > index) {
+      hours[day]!.removeAt(index);
+      // If list is empty, remove key? Or keep empty list?
+      // UI suggests keeping key means "Enabled" but empty slots.
+      // Usually removing all slots implies disabling the day.
+      if (hours[day]!.isEmpty) {
+        hours.remove(day);
+      }
+      _updateHoursState(hours);
     }
   }
 
-  /// Updates working hours. Handles both `Map<String, String>` and `Map<String, List<String>>`.
-  Future<void> updateWorkingHours(dynamic hours) async {
+  Future<void> updateWorkingHourSlot(
+      String day, int index, String newSlot) async {
     if (!state.hasValue) return;
-
-    Map<String, String> newHours = {};
-
-    if (hours is Map<String, String>) {
-      newHours = hours;
-    } else if (hours is Map<String, List<String>>) {
-      // Convert List format (e.g. ["09:00", "17:00"]) to String "09:00-17:00"
-      hours.forEach((key, value) {
-        if (value.isNotEmpty) {
-          newHours[key] = value.join('-');
-        }
-      });
-    } else if (hours is Map) {
-      // Best effort conversion for dynamic maps
-      hours.forEach((key, value) {
-        newHours[key.toString()] = value.toString();
-      });
+    final hours = _getCurrentHours();
+    if (hours.containsKey(day) && hours[day]!.length > index) {
+      hours[day]![index] = newSlot;
+      _updateHoursState(hours);
     }
+  }
 
-    state = AsyncValue.data(state.value!.copyWith(workingHours: newHours));
+  Future<void> setDayAvailability(String day, bool isOpen) async {
+    if (!state.hasValue) return;
+    final hours = _getCurrentHours();
+    if (isOpen) {
+      if (!hours.containsKey(day)) {
+        hours[day] = ["09:00-17:00"];
+      }
+    } else {
+      hours.remove(day);
+    }
+    _updateHoursState(hours);
+  }
+
+  // Legacy bulk update method, updated for List support
+  Future<void> updateWorkingHours(Map<String, List<String>> hours) async {
+    if (!state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(workingHours: hours));
   }
 
   Future<void> addClosedDay(DateTime day) async {
     if (!state.hasValue) return;
     final currentDays = List<DateTime>.from(state.value!.closedDays);
 
-    // Avoid duplicates
     if (!currentDays.any((d) =>
-        d.year == day.year && d.month == day.month && d.day == day.day,)) {
+        d.year == day.year && d.month == day.month && d.day == day.day)) {
       currentDays.add(day);
       state = AsyncValue.data(state.value!.copyWith(closedDays: currentDays));
     }
@@ -214,14 +243,13 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     final currentDays = List<DateTime>.from(state.value!.closedDays);
 
     currentDays.removeWhere(
-        (d) => d.year == day.year && d.month == day.month && d.day == day.day,);
+        (d) => d.year == day.year && d.month == day.month && d.day == day.day);
 
     state = AsyncValue.data(state.value!.copyWith(closedDays: currentDays));
   }
 
   Future<void> handleEmergency() async {
-    // Placeholder for emergency cancellation logic
-    // In a real app, this would trigger a Supabase RPC to cancel today's appointments
+    // RPC placeholder
   }
 
   Future<void> saveAllSettings() async {
@@ -231,7 +259,6 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return;
 
-    // Set saving state
     state = AsyncValue.data(currentState.copyWith(isSaving: true));
 
     try {
@@ -242,19 +269,18 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         'booking_system_type': currentState.bookingSystemType,
         'confirmation_mode': currentState.confirmationMode,
         'daily_limit': currentState.dailyLimit,
-        'working_hours': currentState.workingHours,
+        'working_hours': currentState
+            .workingHours, // Directly save Map<String, List<String>>
         'closed_days':
             currentState.closedDays.map((e) => e.toIso8601String()).toList(),
       }).eq('id', user.id);
 
-      // Reset saving state
       state = AsyncValue.data(currentState.copyWith(isSaving: false));
     } catch (e) {
-      // Reset saving state on error
       state = AsyncValue.data(currentState.copyWith(
         isSaving: false,
         errorMessage: 'Failed to save: ${e.toString()}',
-      ),);
+      ));
       rethrow;
     }
   }

@@ -10,7 +10,7 @@ String _$localeNotifierHash() => r'cc6a568d42d44d6bcb13834ba1815e31cb21bcc6';
 
 /// Locale Provider - manages app locale using Riverpod
 ///
-/// Replaces FlutterFlow's FFLocalizations locale management
+/// Manages app-wide locale state
 /// Supports: English (en), Arabic (ar), French (fr)
 ///
 /// Copied from [LocaleNotifier].
