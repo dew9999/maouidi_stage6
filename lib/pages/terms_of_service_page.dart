@@ -1,7 +1,6 @@
 // lib/pages/terms_of_service_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:maouidi/flutter_flow/flutter_flow_theme.dart';
 
 class TermsOfServicePage extends StatelessWidget {
   const TermsOfServicePage({super.key});
@@ -11,12 +10,15 @@ class TermsOfServicePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: theme.primaryBackground,
-        iconTheme: IconThemeData(color: theme.primaryText),
-        title: Text('Terms of Service', style: theme.headlineSmall),
+        backgroundColor: colorScheme.surface,
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
+        title: Text('Terms of Service', style: textTheme.headlineSmall),
         elevation: 2,
       ),
       body: const SingleChildScrollView(

@@ -1,7 +1,6 @@
 // lib/components/empty_state_widget.dart
 
 import 'package:flutter/material.dart';
-import 'package:maouidi/flutter_flow/flutter_flow_theme.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   const EmptyStateWidget({
@@ -17,7 +16,10 @@ class EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -27,18 +29,20 @@ class EmptyStateWidget extends StatelessWidget {
             Icon(
               icon,
               size: 72,
-              color: theme.secondaryText,
+              color: colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 24),
             Text(
               title,
-              style: theme.headlineSmall,
+              style: textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: theme.bodyMedium.copyWith(color: theme.secondaryText),
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
               textAlign: TextAlign.center,
             ),
           ],

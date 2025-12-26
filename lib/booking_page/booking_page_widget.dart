@@ -3,17 +3,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:maouidi/core/extensions/extensions.dart';
 import 'package:maouidi/features/bookings/data/booking_repository.dart';
 import 'package:maouidi/features/bookings/presentation/booking_controller.dart';
 import 'package:maouidi/features/bookings/presentation/booking_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '/flutter_flow/flutter_flow_calendar.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart';
+import 'package:maouidi/generated/l10n/app_localizations.dart';
 
 Future<Map<String, String>?> showHomecareDetailsDialog(
-    BuildContext context,) async {
+  BuildContext context,
+) async {
   final colorScheme = Theme.of(context).colorScheme;
   final textTheme = Theme.of(context).textTheme;
   final formKey = GlobalKey<FormState>();
@@ -25,8 +26,10 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
     builder: (dialogContext) {
       return AlertDialog(
         backgroundColor: colorScheme.surface,
-        title: Text(FFLocalizations.of(context).getText('hcdetails'),
-            style: textTheme.headlineSmall,),
+        title: Text(
+          AppLocalizations.of(context)!.hcdetails,
+          style: textTheme.headlineSmall,
+        ),
         content: Form(
           key: formKey,
           child: SingleChildScrollView(
@@ -36,9 +39,9 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
                 TextFormField(
                   controller: caseController,
                   decoration: InputDecoration(
-                    labelText: FFLocalizations.of(context).getText('casedesc'),
+                    labelText: AppLocalizations.of(context)!.casedesc,
                     labelStyle: textTheme.labelMedium,
-                    hintText: FFLocalizations.of(context).getText('casedescex'),
+                    hintText: AppLocalizations.of(context)!.casedescex,
                     hintStyle: textTheme.labelMedium,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -46,16 +49,16 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
                   ),
                   maxLines: 3,
                   validator: (v) => v == null || v.isEmpty
-                      ? FFLocalizations.of(context).getText('fieldreq')
+                      ? AppLocalizations.of(context)!.fieldreq
                       : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: locationController,
                   decoration: InputDecoration(
-                    labelText: FFLocalizations.of(context).getText('fulladdr'),
+                    labelText: AppLocalizations.of(context)!.fulladdr,
                     labelStyle: textTheme.labelMedium,
-                    hintText: FFLocalizations.of(context).getText('fulladdrex'),
+                    hintText: AppLocalizations.of(context)!.fulladdrex,
                     hintStyle: textTheme.labelMedium,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -63,7 +66,7 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
                   ),
                   maxLines: 2,
                   validator: (v) => v == null || v.isEmpty
-                      ? FFLocalizations.of(context).getText('fieldreq')
+                      ? AppLocalizations.of(context)!.fieldreq
                       : null,
                 ),
               ],
@@ -73,8 +76,10 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(null),
-            child: Text(FFLocalizations.of(context).getText('cancel'),
-                style: TextStyle(color: colorScheme.onSurfaceVariant),),
+            child: Text(
+              AppLocalizations.of(context)!.cancel,
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -87,7 +92,7 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
             },
             style:
                 ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
-            child: Text(FFLocalizations.of(context).getText('submitreq')),
+            child: Text(AppLocalizations.of(context)!.submitreq),
           ),
         ],
       );
@@ -117,17 +122,22 @@ class BookingPageWidget extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         automaticallyImplyLeading: false,
-        leading: FlutterFlowIconButton(
-          borderColor: Colors.transparent,
-          borderRadius: 30.0,
-          buttonSize: 60.0,
-          icon: const Icon(Icons.arrow_back_rounded,
-              color: Colors.white, size: 30.0,),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: Colors.white,
+            size: 30.0,
+          ),
           onPressed: () => context.safePop(),
         ),
-        title: Text(FFLocalizations.of(context).getText('bookapptbar'),
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontFamily: 'Inter', color: Colors.white, fontSize: 22.0,),),
+        title: Text(
+          AppLocalizations.of(context)!.bookapptbar,
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontFamily: 'Inter',
+                color: Colors.white,
+                fontSize: 22.0,
+              ),
+        ),
         centerTitle: true,
         elevation: 2.0,
       ),
@@ -138,9 +148,16 @@ class BookingPageWidget extends ConsumerWidget {
             : bookingState.partnerData == null
                 ? Center(
                     child: Text(
-                        FFLocalizations.of(context).getText('ptrnotconfig'),),)
+                      AppLocalizations.of(context)!.ptrnotconfig,
+                    ),
+                  )
                 : _buildBookingView(
-                    context, ref, bookingState, partnerId, isPartnerBooking,),
+                    context,
+                    ref,
+                    bookingState,
+                    partnerId,
+                    isPartnerBooking,
+                  ),
       ),
     );
   }
@@ -224,8 +241,8 @@ class _NumberQueueBookingView extends ConsumerWidget {
         SnackBar(
           content: Text(
             partnerData.category == 'Homecare'
-                ? FFLocalizations.of(context).getText('reqsent')
-                : FFLocalizations.of(context).getText('gotnum'),
+                ? AppLocalizations.of(context)!.reqsent
+                : AppLocalizations.of(context)!.gotnum,
           ),
           backgroundColor: Colors.green,
         ),
@@ -236,7 +253,7 @@ class _NumberQueueBookingView extends ConsumerWidget {
       String errorMessage = 'An unexpected error occurred. Please try again.';
       if (e is PostgrestException) {
         if (e.message.contains('You already have an active appointment')) {
-          errorMessage = FFLocalizations.of(context).getText('alrdyappt');
+          errorMessage = AppLocalizations.of(context)!.alrdyappt;
         } else if (e.message.contains('fully booked')) {
           errorMessage = 'This provider is fully booked today.';
         } else {
@@ -266,8 +283,10 @@ class _NumberQueueBookingView extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: colorScheme.surface,
-        title: Text(FFLocalizations.of(context).getText('bookforpatient'),
-            style: textTheme.titleLarge,),
+        title: Text(
+          AppLocalizations.of(context)!.bookforpatient,
+          style: textTheme.titleLarge,
+        ),
         content: Form(
           key: formKey,
           child: Column(
@@ -276,21 +295,19 @@ class _NumberQueueBookingView extends ConsumerWidget {
               TextFormField(
                 controller: nameController,
                 decoration: InputDecoration(
-                  labelText: FFLocalizations.of(context).getText('ptfullname'),
+                  labelText: AppLocalizations.of(context)!.ptfullname,
                 ),
-                validator: (v) => v!.isEmpty
-                    ? FFLocalizations.of(context).getText('fieldreq')
-                    : null,
+                validator: (v) =>
+                    v!.isEmpty ? AppLocalizations.of(context)!.fieldreq : null,
               ),
               TextFormField(
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
-                  labelText: FFLocalizations.of(context).getText('ptphone'),
+                  labelText: AppLocalizations.of(context)!.ptphone,
                 ),
-                validator: (v) => v!.isEmpty
-                    ? FFLocalizations.of(context).getText('fieldreq')
-                    : null,
+                validator: (v) =>
+                    v!.isEmpty ? AppLocalizations.of(context)!.fieldreq : null,
               ),
             ],
           ),
@@ -298,8 +315,10 @@ class _NumberQueueBookingView extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(FFLocalizations.of(context).getText('cancel'),
-                style: TextStyle(color: colorScheme.onSurfaceVariant),),
+            child: Text(
+              AppLocalizations.of(context)!.cancel,
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -315,7 +334,7 @@ class _NumberQueueBookingView extends ConsumerWidget {
             },
             style:
                 ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
-            child: Text(FFLocalizations.of(context).getText('submitreq')),
+            child: Text(AppLocalizations.of(context)!.submitreq),
           ),
         ],
       ),
@@ -344,27 +363,42 @@ class _NumberQueueBookingView extends ConsumerWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: FlutterFlowCalendar(
-            color: colorScheme.primary,
-            iconColor: colorScheme.onSurfaceVariant,
-            weekFormat: false,
-            weekStartsMonday: false,
-            rowHeight: 44.0,
-            initialDate: selectedDate,
-            onChange: (newSelectedDate) {
-              if (newSelectedDate != null) {
-                ref
-                    .read(bookingControllerProvider(partnerId).notifier)
-                    .onDateSelected(newSelectedDate.start, partnerId);
-              }
+          child: TableCalendar(
+            firstDay: DateTime.utc(2020, 1, 1),
+            lastDay: DateTime.utc(2030, 12, 31),
+            focusedDay: selectedDate,
+            selectedDayPredicate: (day) => isSameDay(day, selectedDate),
+            onDaySelected: (selectedDay, focusedDay) {
+              ref
+                  .read(bookingControllerProvider(partnerId).notifier)
+                  .onDateSelected(selectedDay, partnerId);
             },
-            titleStyle: textTheme.titleLarge,
-            dayOfWeekStyle: textTheme.bodyLarge,
-            dateStyle: textTheme.bodyMedium,
-            selectedDateStyle:
-                textTheme.titleSmall?.copyWith(color: Colors.white),
-            inactiveDateStyle: textTheme.labelMedium,
-            locale: FFLocalizations.of(context).languageCode,
+            calendarStyle: CalendarStyle(
+              selectedDecoration: BoxDecoration(
+                color: colorScheme.primary,
+                shape: BoxShape.circle,
+              ),
+              todayDecoration: BoxDecoration(
+                color: colorScheme.primary.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+              selectedTextStyle:
+                  textTheme.titleSmall?.copyWith(color: Colors.white) ??
+                      const TextStyle(color: Colors.white),
+              todayTextStyle: textTheme.bodyMedium ?? const TextStyle(),
+              defaultTextStyle: textTheme.bodyMedium ?? const TextStyle(),
+              weekendTextStyle: textTheme.bodyMedium ?? const TextStyle(),
+              outsideTextStyle: textTheme.labelMedium ?? const TextStyle(),
+            ),
+            headerStyle: HeaderStyle(
+              titleTextStyle: textTheme.titleLarge ?? const TextStyle(),
+              formatButtonVisible: false,
+              titleCentered: true,
+            ),
+            daysOfWeekStyle: DaysOfWeekStyle(
+              weekdayStyle: textTheme.bodyLarge ?? const TextStyle(),
+              weekendStyle: textTheme.bodyLarge ?? const TextStyle(),
+            ),
           ),
         ),
         const Divider(thickness: 1, indent: 16, endIndent: 16),
@@ -384,7 +418,7 @@ class _NumberQueueBookingView extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  '${partnerData.category == 'Homecare' ? FFLocalizations.of(context).getText('requestvisit') : FFLocalizations.of(context).getText('getnumberfor')} for the day of:',
+                  '${partnerData.category == 'Homecare' ? AppLocalizations.of(context)!.requestvisit : AppLocalizations.of(context)!.getnumberfor} for the day of:',
                   textAlign: TextAlign.center,
                   style: textTheme.headlineSmall,
                 ),
@@ -396,7 +430,7 @@ class _NumberQueueBookingView extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "${FFLocalizations.of(context).getText('atpartner')} ${partnerData.fullName}",
+                  '${AppLocalizations.of(context)!.atpartner} ${partnerData.fullName}',
                   textAlign: TextAlign.center,
                   style: textTheme.bodyLarge,
                 ),
@@ -405,8 +439,7 @@ class _NumberQueueBookingView extends ConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: Text(
-                      FFLocalizations.of(context)
-                          .getText('past_date_booking_error'),
+                      AppLocalizations.of(context)!.pastdateerr,
                       textAlign: TextAlign.center,
                       style: textTheme.bodyMedium
                           ?.copyWith(color: colorScheme.error),
@@ -416,7 +449,7 @@ class _NumberQueueBookingView extends ConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: Text(
-                      FFLocalizations.of(context).getText('closeddate'),
+                      AppLocalizations.of(context)!.closeddate,
                       textAlign: TextAlign.center,
                       style: textTheme.bodyMedium
                           ?.copyWith(color: colorScheme.error),
@@ -426,13 +459,13 @@ class _NumberQueueBookingView extends ConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: Text(
-                      FFLocalizations.of(context).getText('notworkingday'),
+                      AppLocalizations.of(context)!.notworkingday,
                       textAlign: TextAlign.center,
                       style: textTheme.bodyMedium
                           ?.copyWith(color: colorScheme.error),
                     ),
                   ),
-                FFButtonWidget(
+                FilledButton(
                   onPressed: isButtonDisabled
                       ? null
                       : () async {
@@ -442,20 +475,24 @@ class _NumberQueueBookingView extends ConsumerWidget {
                             await _bookAppointment(context, ref);
                           }
                         },
-                  text: isPartnerBooking
-                      ? FFLocalizations.of(context).getText('bookforpatient')
-                      : (partnerData.category == 'Homecare'
-                          ? FFLocalizations.of(context).getText('submithcreq')
-                          : FFLocalizations.of(context).getText('getmynum')),
-                  options: FFButtonOptions(
-                    height: 50,
-                    color: colorScheme.primary,
-                    textStyle: textTheme.titleSmall
-                        ?.copyWith(fontFamily: 'Inter', color: Colors.white),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: colorScheme.primary,
+                    disabledBackgroundColor:
+                        colorScheme.surfaceContainerHighest,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     elevation: 3,
-                    borderRadius: BorderRadius.circular(12),
-                    disabledColor: colorScheme.surfaceContainerHighest,
-                    disabledTextColor: colorScheme.onSurfaceVariant,
+                  ),
+                  child: Text(
+                    isPartnerBooking
+                        ? AppLocalizations.of(context)!.bookforpatient
+                        : (partnerData.category == 'Homecare'
+                            ? AppLocalizations.of(context)!.submithcreq
+                            : AppLocalizations.of(context)!.getmynum),
+                    style: textTheme.titleSmall
+                        ?.copyWith(fontFamily: 'Inter', color: Colors.white),
                   ),
                 ),
               ],
@@ -465,6 +502,11 @@ class _NumberQueueBookingView extends ConsumerWidget {
       ],
     );
   }
+}
+
+bool isSameDay(DateTime? a, DateTime? b) {
+  if (a == null || b == null) return false;
+  return a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
 class _TimeSlotBookingView extends ConsumerWidget {
@@ -488,27 +530,42 @@ class _TimeSlotBookingView extends ConsumerWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: FlutterFlowCalendar(
-            color: colorScheme.primary,
-            iconColor: colorScheme.onSurfaceVariant,
-            weekFormat: false,
-            weekStartsMonday: false,
-            rowHeight: 44.0,
-            initialDate: selectedDate,
-            onChange: (newSelectedDate) {
-              if (newSelectedDate != null) {
-                ref
-                    .read(bookingControllerProvider(partnerId).notifier)
-                    .onDateSelected(newSelectedDate.start, partnerId);
-              }
+          child: TableCalendar(
+            firstDay: DateTime.utc(2020, 1, 1),
+            lastDay: DateTime.utc(2030, 12, 31),
+            focusedDay: selectedDate,
+            selectedDayPredicate: (day) => isSameDay(day, selectedDate),
+            onDaySelected: (selectedDay, focusedDay) {
+              ref
+                  .read(bookingControllerProvider(partnerId).notifier)
+                  .onDateSelected(selectedDay, partnerId);
             },
-            titleStyle: textTheme.titleLarge,
-            dayOfWeekStyle: textTheme.bodyLarge,
-            dateStyle: textTheme.bodyMedium,
-            selectedDateStyle:
-                textTheme.titleSmall?.copyWith(color: Colors.white),
-            inactiveDateStyle: textTheme.labelMedium,
-            locale: FFLocalizations.of(context).languageCode,
+            calendarStyle: CalendarStyle(
+              selectedDecoration: BoxDecoration(
+                color: colorScheme.primary,
+                shape: BoxShape.circle,
+              ),
+              todayDecoration: BoxDecoration(
+                color: colorScheme.primary.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+              selectedTextStyle:
+                  textTheme.titleSmall?.copyWith(color: Colors.white) ??
+                      const TextStyle(color: Colors.white),
+              todayTextStyle: textTheme.bodyMedium ?? const TextStyle(),
+              defaultTextStyle: textTheme.bodyMedium ?? const TextStyle(),
+              weekendTextStyle: textTheme.bodyMedium ?? const TextStyle(),
+              outsideTextStyle: textTheme.labelMedium ?? const TextStyle(),
+            ),
+            headerStyle: HeaderStyle(
+              titleTextStyle: textTheme.titleLarge ?? const TextStyle(),
+              formatButtonVisible: false,
+              titleCentered: true,
+            ),
+            daysOfWeekStyle: DaysOfWeekStyle(
+              weekdayStyle: textTheme.bodyLarge ?? const TextStyle(),
+              weekendStyle: textTheme.bodyLarge ?? const TextStyle(),
+            ),
           ),
         ),
         const Divider(thickness: 1, indent: 16, endIndent: 16),
@@ -536,7 +593,10 @@ class _TimeSlotGrid extends ConsumerWidget {
   final bool isPartnerBooking;
 
   void _showBookForPatientDialog(
-      BuildContext context, WidgetRef ref, TimeSlot slot,) {
+    BuildContext context,
+    WidgetRef ref,
+    TimeSlot slot,
+  ) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final formKey = GlobalKey<FormState>();
@@ -547,8 +607,10 @@ class _TimeSlotGrid extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: colorScheme.surface,
-        title: Text(FFLocalizations.of(context).getText('bookforpatient'),
-            style: textTheme.titleLarge,),
+        title: Text(
+          AppLocalizations.of(context)!.bookforpatient,
+          style: textTheme.titleLarge,
+        ),
         content: Form(
           key: formKey,
           child: Column(
@@ -557,21 +619,19 @@ class _TimeSlotGrid extends ConsumerWidget {
               TextFormField(
                 controller: nameController,
                 decoration: InputDecoration(
-                  labelText: FFLocalizations.of(context).getText('ptfullname'),
+                  labelText: AppLocalizations.of(context)!.ptfullname,
                 ),
-                validator: (v) => v!.isEmpty
-                    ? FFLocalizations.of(context).getText('fieldreq')
-                    : null,
+                validator: (v) =>
+                    v!.isEmpty ? AppLocalizations.of(context)!.fieldreq : null,
               ),
               TextFormField(
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
-                  labelText: FFLocalizations.of(context).getText('ptphone'),
+                  labelText: AppLocalizations.of(context)!.ptphone,
                 ),
-                validator: (v) => v!.isEmpty
-                    ? FFLocalizations.of(context).getText('fieldreq')
-                    : null,
+                validator: (v) =>
+                    v!.isEmpty ? AppLocalizations.of(context)!.fieldreq : null,
               ),
             ],
           ),
@@ -579,8 +639,10 @@ class _TimeSlotGrid extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(FFLocalizations.of(context).getText('cancel'),
-                style: TextStyle(color: colorScheme.onSurfaceVariant),),
+            child: Text(
+              AppLocalizations.of(context)!.cancel,
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -597,7 +659,7 @@ class _TimeSlotGrid extends ConsumerWidget {
             },
             style:
                 ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
-            child: Text(FFLocalizations.of(context).getText('submitreq')),
+            child: Text(AppLocalizations.of(context)!.submitreq),
           ),
         ],
       ),
@@ -634,7 +696,7 @@ class _TimeSlotGrid extends ConsumerWidget {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(FFLocalizations.of(context).getText('apptcreated')),
+          content: Text(AppLocalizations.of(context)!.apptcreated),
           backgroundColor: Colors.green,
         ),
       );
@@ -650,9 +712,9 @@ class _TimeSlotGrid extends ConsumerWidget {
       String errorMessage = 'An unexpected error occurred. Please try again.';
       if (e is PostgrestException) {
         if (e.message.contains('You already have an active appointment')) {
-          errorMessage = FFLocalizations.of(context).getText('alrdyappt');
+          errorMessage = AppLocalizations.of(context)!.alrdyappt;
         } else {
-          errorMessage = FFLocalizations.of(context).getText('slottaken');
+          errorMessage = AppLocalizations.of(context)!.slottaken;
         }
       } else {
         errorMessage =
@@ -683,8 +745,10 @@ class _TimeSlotGrid extends ConsumerWidget {
 
     if (bookingState.availableSlots.isEmpty) {
       return Center(
-        child: Text(FFLocalizations.of(context).getText('noslots'),
-            style: Theme.of(context).textTheme.bodyMedium,),
+        child: Text(
+          AppLocalizations.of(context)!.noslots,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
       );
     }
 
@@ -715,7 +779,7 @@ class _TimeSlotGrid extends ConsumerWidget {
             break;
         }
 
-        return FFButtonWidget(
+        return FilledButton(
           onPressed: isTappable
               ? () async {
                   if (isPartnerBooking) {
@@ -725,19 +789,22 @@ class _TimeSlotGrid extends ConsumerWidget {
                   }
                 }
               : null,
-          text: DateFormat('HH:mm').format(slot.time.toLocal()),
-          options: FFButtonOptions(
-            height: 40.0,
-            padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
-            iconPadding: const EdgeInsets.all(0),
-            color: buttonColor,
-            textStyle: Theme.of(context)
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(double.infinity, 40),
+            backgroundColor: buttonColor,
+            disabledBackgroundColor: buttonColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            elevation: 2.0,
+          ),
+          child: Text(
+            DateFormat('HH:mm').format(slot.time.toLocal()),
+            style: Theme.of(context)
                 .textTheme
                 .titleSmall
                 ?.copyWith(fontFamily: 'Inter', color: Colors.white),
-            elevation: 2.0,
-            borderRadius: BorderRadius.circular(8.0),
-            disabledColor: buttonColor,
           ),
         );
       },

@@ -1,4 +1,4 @@
-export '../../../flutter_flow/lat_lng.dart';
+export 'package:maouidi/core/models/lat_lng.dart';
 export 'package:supabase_flutter/supabase_flutter.dart';
 
 export '../supabase.dart';

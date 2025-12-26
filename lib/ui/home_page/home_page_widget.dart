@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/features/auth/presentation/auth_state_provider.dart';
 
 class HomePageWidget extends ConsumerWidget {
@@ -11,20 +10,22 @@ class HomePageWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
     final currentUser = ref.watch(authStateProvider).valueOrNull;
 
     return Scaffold(
-      backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: FlutterFlowTheme.of(context).primary,
+        backgroundColor: colorScheme.primary,
         automaticallyImplyLeading: false,
         title: Text(
           'Home',
-          style: FlutterFlowTheme.of(context).headlineMedium.override(
-                fontFamily: 'Inter',
-                color: Colors.white,
-                fontSize: 22.0,
-              ),
+          style: textTheme.headlineMedium?.copyWith(
+            color: colorScheme.onPrimary,
+            fontSize: 22.0,
+          ),
         ),
         actions: const [],
         centerTitle: false,
@@ -39,7 +40,7 @@ class HomePageWidget extends ConsumerWidget {
               padding: const EdgeInsets.all(16.0),
               child: Text(
                 'Welcome, ${currentUser?.email ?? "User"}!',
-                style: FlutterFlowTheme.of(context).headlineSmall,
+                style: textTheme.headlineSmall,
               ),
             ),
             // Add more home page content here

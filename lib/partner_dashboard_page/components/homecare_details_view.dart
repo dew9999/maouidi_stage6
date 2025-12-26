@@ -1,7 +1,6 @@
 // lib/partner_dashboard_page/components/homecare_details_view.dart
 
 import 'package:flutter/material.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
 
 class HomecareDetailsView extends StatelessWidget {
   const HomecareDetailsView({
@@ -15,7 +14,10 @@ class HomecareDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     final caseDescription = appointmentData['case_description'] as String?;
     final location = appointmentData['patient_location'] as String?;
 
@@ -23,20 +25,17 @@ class HomecareDetailsView extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final textColor = lightTheme ? Colors.white : theme.primaryText;
+    final textColor = lightTheme ? Colors.white : colorScheme.onSurface;
     final secondaryTextColor =
-        lightTheme ? Colors.white70 : theme.secondaryText;
+        lightTheme ? Colors.white70 : colorScheme.onSurfaceVariant;
 
     return Padding(
       padding: const EdgeInsets.only(top: 12.0),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          // FIX: Use a semi-transparent black for better contrast on gradients
-          color: lightTheme
-              // ignore: deprecated_member_use
-              ? Colors.black.withOpacity(0.15)
-              : theme.primaryBackground,
+          color:
+              lightTheme ? Colors.black.withOpacity(0.15) : colorScheme.surface,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
@@ -44,32 +43,46 @@ class HomecareDetailsView extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.description_outlined,
-                    size: 16, color: secondaryTextColor,),
+                Icon(
+                  Icons.description_outlined,
+                  size: 16,
+                  color: secondaryTextColor,
+                ),
                 const SizedBox(width: 8),
-                Text('Case Description',
-                    style:
-                        theme.labelMedium.copyWith(color: secondaryTextColor),),
+                Text(
+                  'Case Description',
+                  style: textTheme.labelMedium
+                      ?.copyWith(color: secondaryTextColor),
+                ),
               ],
             ),
             const SizedBox(height: 4),
-            Text(caseDescription,
-                style: theme.bodyMedium.copyWith(color: textColor),),
+            Text(
+              caseDescription,
+              style: textTheme.bodyMedium?.copyWith(color: textColor),
+            ),
             if (location != null && location.isNotEmpty) ...[
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(Icons.location_on_outlined,
-                      size: 16, color: secondaryTextColor,),
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 16,
+                    color: secondaryTextColor,
+                  ),
                   const SizedBox(width: 8),
-                  Text('Patient Location',
-                      style: theme.labelMedium
-                          .copyWith(color: secondaryTextColor),),
+                  Text(
+                    'Patient Location',
+                    style: textTheme.labelMedium
+                        ?.copyWith(color: secondaryTextColor),
+                  ),
                 ],
               ),
               const SizedBox(height: 4),
-              Text(location,
-                  style: theme.bodyMedium.copyWith(color: textColor),),
+              Text(
+                location,
+                style: textTheme.bodyMedium?.copyWith(color: textColor),
+              ),
             ],
           ],
         ),

@@ -1,28 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
 
-class WelcomeScreenWidget extends StatefulWidget {
+class WelcomeScreenWidget extends StatelessWidget {
   const WelcomeScreenWidget({super.key});
 
   static String routeName = 'WelcomeScreen';
   static String routePath = '/welcomeScreen';
 
   @override
-  State<WelcomeScreenWidget> createState() => _WelcomeScreenWidgetState();
-}
-
-class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget> {
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
-  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: colorScheme.surface,
         body: SafeArea(
           top: true,
           child: Column(
@@ -33,7 +27,7 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: Image.asset(
-                  'assets/images/favicon.png', // Ensure this asset exists
+                  'assets/images/favicon.png',
                   width: 150.0,
                   height: 150.0,
                   fit: BoxFit.cover,
@@ -45,18 +39,16 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget> {
               // Title
               Text(
                 'Welcome to Maouidi',
-                style: FlutterFlowTheme.of(context).headlineMedium.override(
-                      fontFamily: 'Inter',
-                      color: FlutterFlowTheme.of(context).primaryText,
-                    ),
+                style: textTheme.headlineMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 12.0),
               Text(
                 'Your health, your schedule.',
-                style: FlutterFlowTheme.of(context).bodyMedium.override(
-                      fontFamily: 'Inter',
-                      color: FlutterFlowTheme.of(context).secondaryText,
-                    ),
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 48.0),
               // Buttons
@@ -66,45 +58,41 @@ class _WelcomeScreenWidgetState extends State<WelcomeScreenWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    FFButtonWidget(
+                    FilledButton(
                       onPressed: () {
                         context.pushNamed('Login');
                       },
-                      text: 'Log In',
-                      options: FFButtonOptions(
-                        height: 50.0,
-                        color: FlutterFlowTheme.of(context).primary,
-                        textStyle:
-                            FlutterFlowTheme.of(context).titleSmall.override(
-                                  fontFamily: 'Inter',
-                                  color: Colors.white,
-                                ),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 50),
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                        textStyle: textTheme.titleSmall,
                         elevation: 2.0,
-                        borderRadius: BorderRadius.circular(12.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
                       ),
+                      child: const Text('Log In'),
                     ),
                     const SizedBox(height: 16.0),
-                    FFButtonWidget(
+                    OutlinedButton(
                       onPressed: () {
                         context.pushNamed('Create');
                       },
-                      text: 'Create Account',
-                      options: FFButtonOptions(
-                        height: 50.0,
-                        color: FlutterFlowTheme.of(context).secondaryBackground,
-                        textStyle: FlutterFlowTheme.of(context)
-                            .bodyLarge
-                            .override(
-                              fontFamily: 'Inter',
-                              color: FlutterFlowTheme.of(context).primaryText,
-                            ),
-                        elevation: 0.0,
-                        borderSide: BorderSide(
-                          color: FlutterFlowTheme.of(context).alternate,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 50),
+                        backgroundColor: colorScheme.surface,
+                        foregroundColor: colorScheme.onSurface,
+                        textStyle: textTheme.bodyLarge,
+                        side: BorderSide(
+                          color: colorScheme.outline,
                           width: 1.0,
                         ),
-                        borderRadius: BorderRadius.circular(12.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
                       ),
+                      child: const Text('Create Account'),
                     ),
                   ],
                 ),

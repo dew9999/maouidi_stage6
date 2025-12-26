@@ -2,41 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
 
-class CreateWidget extends ConsumerStatefulWidget {
+// Riverpod providers for state management
+final _createLoadingProvider = StateProvider.autoDispose<bool>((ref) => false);
+final _passwordVisibilityProvider =
+    StateProvider.autoDispose<bool>((ref) => false);
+final _confirmPasswordVisibilityProvider =
+    StateProvider.autoDispose<bool>((ref) => false);
+
+class CreateWidget extends ConsumerWidget {
   const CreateWidget({super.key});
 
   static String routeName = 'Create';
   static String routePath = '/create';
 
-  @override
-  ConsumerState<CreateWidget> createState() => _CreateWidgetState();
-}
-
-class _CreateWidgetState extends ConsumerState<CreateWidget> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  bool _passwordVisibility = false;
-  bool _confirmPasswordVisibility = false;
-  bool _isLoading = false;
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _handleSignUp() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-
+  Future<void> _handleSignUp(
+    BuildContext context,
+    WidgetRef ref,
+    String email,
+    String password,
+    String confirmPassword,
+  ) async {
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all fields')),
@@ -51,54 +37,67 @@ class _CreateWidgetState extends ConsumerState<CreateWidget> {
       return;
     }
 
-    setState(() => _isLoading = true);
+    ref.read(_createLoadingProvider.notifier).state = true;
 
     try {
       await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
       );
-      if (mounted) {
+      if (context.mounted) {
         context.goNamed('HomePage');
       }
     } on AuthException catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.message),
-            backgroundColor: FlutterFlowTheme.of(context).error,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('An unexpected error occurred'),
-            backgroundColor: FlutterFlowTheme.of(context).error,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      ref.read(_createLoadingProvider.notifier).state = false;
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final isLoading = ref.watch(_createLoadingProvider);
+    final passwordVisible = ref.watch(_passwordVisibilityProvider);
+    final confirmPasswordVisible =
+        ref.watch(_confirmPasswordVisibilityProvider);
+
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+    final scaffoldKey = GlobalKey<ScaffoldState>();
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: colorScheme.surface,
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+          backgroundColor: colorScheme.surface,
           automaticallyImplyLeading: true,
           elevation: 0.0,
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_rounded,
-              color: FlutterFlowTheme.of(context).primaryText,
+              color: colorScheme.onSurface,
               size: 24.0,
             ),
             onPressed: () => context.pop(),
@@ -114,18 +113,17 @@ class _CreateWidgetState extends ConsumerState<CreateWidget> {
                 children: [
                   Text(
                     'Create Account',
-                    style: FlutterFlowTheme.of(context).headlineMedium,
+                    style: textTheme.headlineMedium,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32.0),
                   TextFormField(
-                    controller: _emailController,
+                    controller: emailController,
                     decoration: InputDecoration(
                       labelText: 'Email Address',
                       hintText: 'Enter your email...',
                       filled: true,
-                      fillColor:
-                          FlutterFlowTheme.of(context).secondaryBackground,
+                      fillColor: colorScheme.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
@@ -134,67 +132,75 @@ class _CreateWidgetState extends ConsumerState<CreateWidget> {
                   ),
                   const SizedBox(height: 16.0),
                   TextFormField(
-                    controller: _passwordController,
-                    obscureText: !_passwordVisibility,
+                    controller: passwordController,
+                    obscureText: !passwordVisible,
                     decoration: InputDecoration(
                       labelText: 'Password',
                       filled: true,
-                      fillColor:
-                          FlutterFlowTheme.of(context).secondaryBackground,
+                      fillColor: colorScheme.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _passwordVisibility
+                          passwordVisible
                               ? Icons.visibility_outlined
                               : Icons.visibility_off_outlined,
                         ),
-                        onPressed: () => setState(
-                          () => _passwordVisibility = !_passwordVisibility,
-                        ),
+                        onPressed: () => ref
+                            .read(_passwordVisibilityProvider.notifier)
+                            .state = !passwordVisible,
                       ),
                     ),
                   ),
                   const SizedBox(height: 16.0),
                   TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: !_confirmPasswordVisibility,
+                    controller: confirmPasswordController,
+                    obscureText: !confirmPasswordVisible,
                     decoration: InputDecoration(
                       labelText: 'Confirm Password',
                       filled: true,
-                      fillColor:
-                          FlutterFlowTheme.of(context).secondaryBackground,
+                      fillColor: colorScheme.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _confirmPasswordVisibility
+                          confirmPasswordVisible
                               ? Icons.visibility_outlined
                               : Icons.visibility_off_outlined,
                         ),
-                        onPressed: () => setState(
-                          () => _confirmPasswordVisibility =
-                              !_confirmPasswordVisibility,
-                        ),
+                        onPressed: () => ref
+                            .read(_confirmPasswordVisibilityProvider.notifier)
+                            .state = !confirmPasswordVisible,
                       ),
                     ),
                   ),
                   const SizedBox(height: 24.0),
-                  FFButtonWidget(
-                    onPressed: _isLoading ? null : _handleSignUp,
-                    text: _isLoading ? 'Creating Account...' : 'Create Account',
-                    options: FFButtonOptions(
-                      height: 50.0,
-                      color: FlutterFlowTheme.of(context).primary,
-                      textStyle:
-                          FlutterFlowTheme.of(context).titleSmall.override(
-                                fontFamily: 'Inter',
-                                color: Colors.white,
-                              ),
+                  FilledButton(
+                    onPressed: isLoading
+                        ? null
+                        : () => _handleSignUp(
+                              context,
+                              ref,
+                              emailController.text.trim(),
+                              passwordController.text,
+                              confirmPasswordController.text,
+                            ),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                      disabledBackgroundColor:
+                          colorScheme.primary.withOpacity(0.5),
+                      textStyle: textTheme.titleSmall,
                       elevation: 2.0,
-                      borderRadius: BorderRadius.circular(12.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                    child: Text(
+                      isLoading ? 'Creating Account...' : 'Create Account',
                     ),
                   ),
                 ],

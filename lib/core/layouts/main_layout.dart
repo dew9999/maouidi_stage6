@@ -7,6 +7,9 @@ import '/core/providers/screen_utils_provider.dart';
 import '/index.dart';
 import '/auth/supabase_auth/auth_util.dart';
 
+// Riverpod provider for navigation index
+final _navIndexProvider = StateProvider.autoDispose<int>((ref) => 0);
+
 /// Main Navigation Layout - Pure Flutter + Riverpod Implementation
 ///
 /// Replaces the legacy NavBarPage with:
@@ -14,8 +17,8 @@ import '/auth/supabase_auth/auth_util.dart';
 /// - Material 3 NavigationRail for tablet/desktop
 /// - Role-based tab visibility (Medical Partner vs Patient)
 /// - NO FlutterFlow dependencies
-/// - NO GNav dependency
-class MainLayout extends ConsumerStatefulWidget {
+/// - NO setState - uses Riverpod StateProvider
+class MainLayout extends ConsumerWidget {
   const MainLayout({
     super.key,
     this.initialPageIndex = 0,
@@ -24,41 +27,41 @@ class MainLayout extends ConsumerStatefulWidget {
   final int initialPageIndex;
 
   @override
-  ConsumerState<MainLayout> createState() => _MainLayoutState();
-}
-
-class _MainLayoutState extends ConsumerState<MainLayout> {
-  late int _currentIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentIndex = widget.initialPageIndex;
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final userRoleAsync = ref.watch(userRoleProvider);
     final screenUtils = ScreenUtils(context);
+
+    // Initialize index on first build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ref.read(_navIndexProvider) == 0 && initialPageIndex != 0) {
+        ref.read(_navIndexProvider.notifier).state = initialPageIndex;
+      }
+    });
 
     return userRoleAsync.when(
       data: (userRole) {
         // Define tabs based on user role
         final NavigationConfig config = _getNavigationConfig(userRole);
 
+        final currentIndex = ref.watch(_navIndexProvider);
+
         // Ensure current index is valid
-        if (_currentIndex >= config.pages.length) {
-          _currentIndex = 0;
+        final safeIndex =
+            currentIndex >= config.pages.length ? 0 : currentIndex;
+        if (safeIndex != currentIndex) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ref.read(_navIndexProvider.notifier).state = safeIndex;
+          });
         }
 
-        final currentPage = config.pages[_currentIndex];
+        final currentPage = config.pages[safeIndex];
 
         // Adaptive Layout: NavigationRail for tablets, NavigationBar for phones
         if (screenUtils.isMedium || screenUtils.isExpanded) {
-          return _buildTabletLayout(theme, config, currentPage);
+          return _buildTabletLayout(theme, config, currentPage, safeIndex, ref);
         } else {
-          return _buildMobileLayout(theme, config, currentPage);
+          return _buildMobileLayout(theme, config, currentPage, safeIndex, ref);
         }
       },
       loading: () => Scaffold(
@@ -82,14 +85,16 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     ThemeData theme,
     NavigationConfig config,
     Widget currentPage,
+    int currentIndex,
+    WidgetRef ref,
   ) {
     return Scaffold(
       body: Row(
         children: [
           NavigationRail(
-            selectedIndex: _currentIndex,
+            selectedIndex: currentIndex,
             onDestinationSelected: (index) {
-              setState(() => _currentIndex = index);
+              ref.read(_navIndexProvider.notifier).state = index;
             },
             labelType: NavigationRailLabelType.selected,
             backgroundColor: theme.colorScheme.surface,
@@ -114,13 +119,15 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     ThemeData theme,
     NavigationConfig config,
     Widget currentPage,
+    int currentIndex,
+    WidgetRef ref,
   ) {
     return Scaffold(
       body: currentPage,
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
+        selectedIndex: currentIndex,
         onDestinationSelected: (index) {
-          setState(() => _currentIndex = index);
+          ref.read(_navIndexProvider.notifier).state = index;
         },
         destinations: config.tabs
             .map(

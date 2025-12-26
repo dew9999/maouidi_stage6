@@ -5,6 +5,9 @@ export '/ui/home_page/home_page_widget.dart' show HomePageWidget;
 export '/ui/create/create_widget.dart' show CreateWidget;
 export '/ui/forgot_password/forgot_password_widget.dart'
     show ForgotPasswordWidget;
+export '/ui/verify_email/verify_email_widget.dart' show VerifyEmailWidget;
+export '/ui/complete_profile/complete_profile_widget.dart'
+    show CompleteProfileWidget;
 export '/ui/user_profile/user_profile_widget.dart' show UserProfileWidget;
 export '/partner_list_page/partner_list_page_widget.dart'
     show PartnerListPageWidget;

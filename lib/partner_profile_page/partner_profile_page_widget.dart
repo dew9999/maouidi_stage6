@@ -2,8 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
-import '../../flutter_flow/flutter_flow_util.dart';
+import 'package:maouidi/generated/l10n/app_localizations.dart';
 
 class PartnerProfilePageWidget extends ConsumerWidget {
   const PartnerProfilePageWidget({
@@ -18,26 +17,29 @@ class PartnerProfilePageWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     if (partnerId == null || partnerId!.isEmpty) {
       return Scaffold(
-        appBar:
-            AppBar(title: Text(FFLocalizations.of(context).getText('ptrerr'))),
+        appBar: AppBar(title: Text(l10n.ptrerr)),
         body: Center(
-          child: Text(FFLocalizations.of(context).getText('ptridmissing')),
+          child: Text(l10n.ptridmissing),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: theme.primaryBackground,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: theme.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: colorScheme.primary,
+        iconTheme: IconThemeData(color: colorScheme.onPrimary),
         title: Text(
           'Partner Profile',
-          style: theme.headlineMedium.copyWith(color: Colors.white),
+          style:
+              textTheme.headlineMedium?.copyWith(color: colorScheme.onPrimary),
         ),
         centerTitle: true,
         elevation: 2,
@@ -53,23 +55,25 @@ class PartnerProfilePageWidget extends ConsumerWidget {
                 Icon(
                   Icons.medical_services_outlined,
                   size: 100,
-                  color: theme.secondaryText,
+                  color: colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(height: 24),
                 Text(
                   'Partner Profile',
-                  style: theme.headlineMedium,
+                  style: textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 16),
                 Text(
                   'This page is under migration to the new architecture.',
-                  style: theme.bodyMedium.copyWith(color: theme.secondaryText),
+                  style: textTheme.bodyMedium
+                      ?.copyWith(color: colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Partner ID: $partnerId',
-                  style: theme.bodySmall.copyWith(color: theme.secondaryText),
+                  style: textTheme.bodySmall
+                      ?.copyWith(color: colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ),
               ],

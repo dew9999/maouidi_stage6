@@ -2,33 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
 
-class ForgotPasswordWidget extends ConsumerStatefulWidget {
+// Riverpod provider for loading state
+final _resetLoadingProvider = StateProvider.autoDispose<bool>((ref) => false);
+
+class ForgotPasswordWidget extends ConsumerWidget {
   const ForgotPasswordWidget({super.key});
 
   static String routeName = 'ForgotPassword';
   static String routePath = '/forgotPassword';
 
-  @override
-  ConsumerState<ForgotPasswordWidget> createState() =>
-      _ForgotPasswordWidgetState();
-}
-
-class _ForgotPasswordWidgetState extends ConsumerState<ForgotPasswordWidget> {
-  final _emailController = TextEditingController();
-  bool _isLoading = false;
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _handleResetPassword() async {
-    final email = _emailController.text.trim();
+  Future<void> _handleResetPassword(
+    BuildContext context,
+    WidgetRef ref,
+    String email,
+  ) async {
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter your email address')),
@@ -36,11 +24,11 @@ class _ForgotPasswordWidgetState extends ConsumerState<ForgotPasswordWidget> {
       return;
     }
 
-    setState(() => _isLoading = true);
+    ref.read(_resetLoadingProvider.notifier).state = true;
 
     try {
       await Supabase.instance.client.auth.resetPasswordForEmail(email);
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Password reset link sent to your email'),
@@ -50,34 +38,42 @@ class _ForgotPasswordWidgetState extends ConsumerState<ForgotPasswordWidget> {
         context.pop();
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: FlutterFlowTheme.of(context).error,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      ref.read(_resetLoadingProvider.notifier).state = false;
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final isLoading = ref.watch(_resetLoadingProvider);
+
+    final emailController = TextEditingController();
+    final scaffoldKey = GlobalKey<ScaffoldState>();
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: colorScheme.surface,
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+          backgroundColor: colorScheme.surface,
           automaticallyImplyLeading: true,
           elevation: 0.0,
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_rounded,
-              color: FlutterFlowTheme.of(context).primaryText,
+              color: colorScheme.onSurface,
               size: 24.0,
             ),
             onPressed: () => context.pop(),
@@ -92,22 +88,22 @@ class _ForgotPasswordWidgetState extends ConsumerState<ForgotPasswordWidget> {
               children: [
                 Text(
                   'Forgot Password',
-                  style: FlutterFlowTheme.of(context).headlineMedium,
+                  style: textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12.0),
                 Text(
                   'Enter your email address and we will send you a link to reset your password.',
-                  style: FlutterFlowTheme.of(context).bodyMedium,
+                  style: textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32.0),
                 TextFormField(
-                  controller: _emailController,
+                  controller: emailController,
                   decoration: InputDecoration(
                     labelText: 'Email Address',
                     filled: true,
-                    fillColor: FlutterFlowTheme.of(context).secondaryBackground,
+                    fillColor: colorScheme.surface,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
@@ -115,19 +111,27 @@ class _ForgotPasswordWidgetState extends ConsumerState<ForgotPasswordWidget> {
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 24.0),
-                FFButtonWidget(
-                  onPressed: _isLoading ? null : _handleResetPassword,
-                  text: _isLoading ? 'Sending...' : 'Send Reset Link',
-                  options: FFButtonOptions(
-                    height: 50.0,
-                    color: FlutterFlowTheme.of(context).primary,
-                    textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                          fontFamily: 'Inter',
-                          color: Colors.white,
-                        ),
+                FilledButton(
+                  onPressed: isLoading
+                      ? null
+                      : () => _handleResetPassword(
+                            context,
+                            ref,
+                            emailController.text.trim(),
+                          ),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: colorScheme.primary,
+                    foregroundColor: colorScheme.onPrimary,
+                    disabledBackgroundColor:
+                        colorScheme.primary.withOpacity(0.5),
+                    textStyle: textTheme.titleSmall,
                     elevation: 2.0,
-                    borderRadius: BorderRadius.circular(12.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
                   ),
+                  child: Text(isLoading ? 'Sending...' : 'Send Reset Link'),
                 ),
               ],
             ),

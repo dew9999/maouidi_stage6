@@ -62,6 +62,19 @@ class AuthRepository {
       return 'Patient';
     }
   }
+
+  Future<Map<String, dynamic>?> getUserProfile(String userId) async {
+    final response =
+        await _supabase.from('users').select().eq('id', userId).maybeSingle();
+    return response;
+  }
+
+  Future<void> updateUserProfile(
+    String userId,
+    Map<String, dynamic> data,
+  ) async {
+    await _supabase.from('users').update(data).eq('id', userId);
+  }
 }
 
 /// Provider for the AuthRepository.

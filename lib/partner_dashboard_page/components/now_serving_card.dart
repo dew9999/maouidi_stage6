@@ -2,10 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
-import '../../flutter_flow/flutter_flow_widgets.dart';
 import 'homecare_details_view.dart';
-import 'dashboard_helpers.dart'; // Import the new helper file
+import 'dashboard_helpers.dart';
 
 class NowServingCard extends StatelessWidget {
   const NowServingCard({
@@ -19,13 +17,13 @@ class NowServingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
     final client = Supabase.instance.client;
     final appointmentId = appointmentData['id'];
 
-    // FIX: Use the central helper function for consistency and correctness.
     final (displayName, _) = getPatientDisplayInfo(appointmentData);
-
     final appointmentNumber = appointmentData['appointment_number'];
 
     return Card(
@@ -36,7 +34,7 @@ class NowServingCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
-            colors: [theme.primary, theme.tertiary],
+            colors: [colorScheme.primary, colorScheme.tertiary],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -44,58 +42,71 @@ class NowServingCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Now Serving',
-                style: theme.labelLarge.copyWith(color: Colors.white70),),
+            Text(
+              'Now Serving',
+              style: textTheme.labelLarge?.copyWith(color: Colors.white70),
+            ),
             const SizedBox(height: 8),
             Row(
               children: [
                 CircleAvatar(
                   radius: 28,
                   backgroundColor: Colors.white,
-                  child: Text('$appointmentNumber',
-                      style: theme.displaySmall.copyWith(color: theme.primary),),
+                  child: Text(
+                    '$appointmentNumber',
+                    style: textTheme.displaySmall
+                        ?.copyWith(color: colorScheme.primary),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
                     displayName,
-                    style: theme.headlineMedium.copyWith(
-                        color: Colors.white, fontWeight: FontWeight.bold,),
+                    style: textTheme.headlineMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
             ),
             HomecareDetailsView(
-                appointmentData: appointmentData, lightTheme: true,),
+              appointmentData: appointmentData,
+              lightTheme: true,
+            ),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
-                  child: FFButtonWidget(
+                  child: OutlinedButton(
                     onPressed: () async {
                       try {
                         await client.from('appointments').update(
-                            {'status': 'NoShow'},).eq('id', appointmentId);
+                          {'status': 'NoShow'},
+                        ).eq('id', appointmentId);
                         onAction();
                       } catch (e) {
                         if (context.mounted) {
                           showErrorSnackbar(
-                              context, 'Action failed: ${e.toString()}',);
+                            context,
+                            'Action failed: ${e.toString()}',
+                          );
                         }
                       }
                     },
-                    text: 'No-Show',
-                    options: FFButtonOptions(
-                      height: 44,
-                      color: Colors.white.withAlpha(51),
-                      textStyle: theme.titleSmall.copyWith(color: Colors.white),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 44),
+                      backgroundColor: Colors.white.withAlpha(51),
+                      foregroundColor: Colors.white,
+                      textStyle: textTheme.titleSmall,
                     ),
+                    child: const Text('No-Show'),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   flex: 2,
-                  child: FFButtonWidget(
+                  child: FilledButton.icon(
                     onPressed: () async {
                       try {
                         await client.from('appointments').update({
@@ -106,17 +117,20 @@ class NowServingCard extends StatelessWidget {
                       } catch (e) {
                         if (context.mounted) {
                           showErrorSnackbar(
-                              context, 'Action failed: ${e.toString()}',);
+                            context,
+                            'Action failed: ${e.toString()}',
+                          );
                         }
                       }
                     },
-                    text: 'Mark as Completed',
                     icon: const Icon(Icons.check_circle, size: 20),
-                    options: FFButtonOptions(
-                      height: 44,
-                      color: Colors.white,
-                      textStyle: theme.titleSmall.copyWith(
-                          color: theme.primary, fontWeight: FontWeight.bold,),
+                    label: const Text('Mark as Completed'),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 44),
+                      backgroundColor: Colors.white,
+                      foregroundColor: colorScheme.primary,
+                      textStyle: textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),

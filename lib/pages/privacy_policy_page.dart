@@ -1,7 +1,6 @@
 // lib/pages/privacy_policy_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:maouidi/flutter_flow/flutter_flow_theme.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {
   const PrivacyPolicyPage({super.key});
@@ -11,12 +10,15 @@ class PrivacyPolicyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: theme.primaryBackground,
-        iconTheme: IconThemeData(color: theme.primaryText),
-        title: Text('Privacy Policy', style: theme.headlineSmall),
+        backgroundColor: colorScheme.surface,
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
+        title: Text('Privacy Policy', style: textTheme.headlineSmall),
         elevation: 2,
       ),
       body: const SingleChildScrollView(

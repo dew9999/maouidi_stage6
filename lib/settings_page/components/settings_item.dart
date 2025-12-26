@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
 
 class SettingsItem extends StatelessWidget {
   final IconData icon;
@@ -7,8 +6,8 @@ class SettingsItem extends StatelessWidget {
   final String? subtitle;
   final Widget? trailing;
   final VoidCallback? onTap;
-  final Color? iconColor; // <-- ADDED THIS
-  final Color? iconBackgroundColor; // <-- ADDED THIS
+  final Color? iconColor;
+  final Color? iconBackgroundColor;
 
   const SettingsItem({
     super.key,
@@ -17,13 +16,16 @@ class SettingsItem extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.onTap,
-    this.iconColor, // <-- ADDED THIS
-    this.iconBackgroundColor, // <-- ADDED THIS
+    this.iconColor,
+    this.iconBackgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -34,12 +36,12 @@ class SettingsItem extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                // MODIFIED: Use the new color parameters with a fallback
-                color: iconBackgroundColor ?? theme.accent1.withAlpha(25),
+                color: iconBackgroundColor ??
+                    colorScheme.primaryContainer.withAlpha(25),
                 borderRadius: BorderRadius.circular(8),
               ),
-              // MODIFIED: Use the new color parameters with a fallback
-              child: Icon(icon, color: iconColor ?? theme.primary, size: 20),
+              child:
+                  Icon(icon, color: iconColor ?? colorScheme.primary, size: 20),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -47,14 +49,14 @@ class SettingsItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(title, style: theme.bodyLarge),
+                  Text(title, style: textTheme.bodyLarge),
                   if (subtitle != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 2.0),
                       child: Text(
                         subtitle!,
-                        style: theme.labelMedium
-                            .copyWith(color: theme.secondaryText),
+                        style: textTheme.labelMedium
+                            ?.copyWith(color: colorScheme.onSurfaceVariant),
                       ),
                     ),
                 ],

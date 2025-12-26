@@ -7,9 +7,9 @@ import 'package:go_router/go_router.dart';
 import 'package:collection/collection.dart';
 import 'package:maouidi/core/localization_helpers.dart';
 import '../components/empty_state_widget.dart';
-import '../flutter_flow/flutter_flow_theme.dart';
-import '../flutter_flow/flutter_flow_util.dart';
-import '../flutter_flow/flutter_flow_widgets.dart';
+import 'package:maouidi/generated/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
+
 import '../backend/supabase/supabase.dart';
 import 'components/homecare_details_view.dart';
 import 'components/dashboard_helpers.dart';
@@ -33,15 +33,15 @@ class PartnerDashboardPageWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.primaryBackground,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: theme.primary,
+        backgroundColor: theme.colorScheme.primary,
         title: Text(
-          FFLocalizations.of(context).getText('yourdash'),
-          style: theme.headlineMedium.override(
+          AppLocalizations.of(context)!.yourdash,
+          style: theme.textTheme.headlineMedium?.copyWith(
             fontFamily: 'Inter',
             color: Colors.white,
           ),
@@ -65,7 +65,7 @@ class PartnerDashboardPageWidget extends ConsumerWidget {
             if (!snapshot.hasData || snapshot.data == null) {
               return Center(
                 child: Text(
-                  FFLocalizations.of(context).getText('loadptrfail'),
+                  AppLocalizations.of(context)!.loadptrfail,
                 ),
               );
             }
@@ -102,7 +102,7 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
   final String category;
 
   void _showBookForPatientDialog(BuildContext context, WidgetRef ref) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
     final phoneController = TextEditingController();
@@ -113,10 +113,10 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: theme.secondaryBackground,
+        backgroundColor: theme.colorScheme.surfaceContainerHigh,
         title: Text(
-          FFLocalizations.of(context).getText('bookforpatient'),
-          style: theme.titleLarge,
+          AppLocalizations.of(context)!.bookforpatient,
+          style: theme.textTheme.titleLarge,
         ),
         content: Form(
           key: formKey,
@@ -128,10 +128,10 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                   controller: nameController,
                   decoration: InputDecoration(
                     labelText:
-                        FFLocalizations.of(context).getText('ptfullname'),
+                        AppLocalizations.of(context)!.ptfullname,
                   ),
                   validator: (v) => v!.isEmpty
-                      ? FFLocalizations.of(context).getText('fieldreq')
+                      ? AppLocalizations.of(context)!.fieldreq
                       : null,
                 ),
                 const SizedBox(height: 16),
@@ -139,10 +139,10 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                   controller: phoneController,
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
-                    labelText: FFLocalizations.of(context).getText('ptphone'),
+                    labelText: AppLocalizations.of(context)!.ptphone,
                   ),
                   validator: (v) => v!.isEmpty
-                      ? FFLocalizations.of(context).getText('fieldreq')
+                      ? AppLocalizations.of(context)!.fieldreq
                       : null,
                 ),
                 if (isHomecare) ...[
@@ -151,10 +151,10 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                     controller: caseController,
                     decoration: InputDecoration(
                       labelText:
-                          FFLocalizations.of(context).getText('casedesc'),
+                          AppLocalizations.of(context)!.casedesc,
                     ),
                     validator: (v) => v!.isEmpty
-                        ? FFLocalizations.of(context).getText('fieldreq')
+                        ? AppLocalizations.of(context)!.fieldreq
                         : null,
                   ),
                   const SizedBox(height: 16),
@@ -164,7 +164,7 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                       labelText: 'Patient Location',
                     ),
                     validator: (v) => v!.isEmpty
-                        ? FFLocalizations.of(context).getText('fieldreq')
+                        ? AppLocalizations.of(context)!.fieldreq
                         : null,
                   ),
                 ],
@@ -176,8 +176,8 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(
-              FFLocalizations.of(context).getText('cancel'),
-              style: TextStyle(color: theme.secondaryText),
+              AppLocalizations.of(context)!.cancel,
+              style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
             ),
           ),
           ElevatedButton(
@@ -204,7 +204,7 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          FFLocalizations.of(context).getText('apptcreated'),
+                          AppLocalizations.of(context)!.apptcreated,
                         ),
                         backgroundColor: Colors.green,
                       ),
@@ -225,8 +225,8 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                 }
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: theme.primary),
-            child: Text(FFLocalizations.of(context).getText('submitreq')),
+            style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary),
+            child: Text(AppLocalizations.of(context)!.submitreq),
           ),
         ],
       ),
@@ -235,7 +235,7 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final dashboardAsync =
         ref.watch(partnerDashboardControllerProvider(partnerId));
 
@@ -264,7 +264,7 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                           .refresh();
                     }
                   },
-                  backgroundColor: theme.primary,
+                  backgroundColor: theme.colorScheme.primary,
                   elevation: 8,
                   child: const Icon(Icons.add, color: Colors.white, size: 28),
                 ),
@@ -277,14 +277,14 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                     ButtonSegment(
                       value: 'schedule',
                       label: Text(
-                        FFLocalizations.of(context).getText('schedule'),
+                        AppLocalizations.of(context)!.schedule,
                       ),
                       icon: const Icon(Icons.calendar_month),
                     ),
                     ButtonSegment(
                       value: 'analytics',
                       label: Text(
-                        FFLocalizations.of(context).getText('analytics'),
+                        AppLocalizations.of(context)!.analytics,
                       ),
                       icon: const Icon(Icons.bar_chart),
                     ),
@@ -297,10 +297,10 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                         .setSelectedView(newSelection.first);
                   },
                   style: SegmentedButton.styleFrom(
-                    backgroundColor: theme.secondaryBackground,
-                    foregroundColor: theme.primaryText,
+                    backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                    foregroundColor: theme.colorScheme.onSurface,
                     selectedForegroundColor: Colors.white,
-                    selectedBackgroundColor: theme.primary,
+                    selectedBackgroundColor: theme.colorScheme.primary,
                   ),
                 ),
               ),
@@ -380,7 +380,7 @@ class _TimeSlotView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final selectedStatus = dashboardState.selectedStatus;
 
     // Filter appointments based on selected status
@@ -428,7 +428,7 @@ class _TimeSlotView extends ConsumerWidget {
                   },
                   {
                     'dbValue': 'Canceled',
-                    'display': FFLocalizations.of(context).getText('canceled'),
+                    'display': AppLocalizations.of(context)!.canceled,
                   },
                 ].map((statusInfo) {
                   final isSelected = selectedStatus == statusInfo['dbValue'];
@@ -443,13 +443,12 @@ class _TimeSlotView extends ConsumerWidget {
                             .setSelectedStatus(statusInfo['dbValue']!);
                       }
                     },
-                    selectedColor: theme.primary,
+                    selectedColor: theme.colorScheme.primary,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : theme.primaryText,
+                      color: isSelected ? Colors.white : theme.colorScheme.onSurface,
                     ),
-                    backgroundColor: theme.secondaryBackground,
-                    shape:
-                        StadiumBorder(side: BorderSide(color: theme.alternate)),
+                    backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                    side: BorderSide(color: theme.colorScheme.outlineVariant),
                   );
                 }).toList(),
               ),
@@ -460,8 +459,8 @@ class _TimeSlotView extends ConsumerWidget {
         if (filteredAppointments.isEmpty)
           EmptyStateWidget(
             icon: Icons.calendar_view_day_rounded,
-            title: FFLocalizations.of(context).getText('noaptsfound'),
-            message: FFLocalizations.of(context).getText('noaptsfltr'),
+            title: AppLocalizations.of(context)!.noaptsfound,
+            message: AppLocalizations.of(context)!.noaptsfltr,
           )
         else
           ListView.builder(
@@ -495,7 +494,7 @@ class _NumberQueueView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final todayAppointments = dashboardState.todayAppointments;
     final currentPatient = dashboardState.currentPatient;
 
@@ -515,18 +514,18 @@ class _NumberQueueView extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: theme.secondaryBackground,
+              color: theme.colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: theme.alternate, width: 1),
+              border: Border.all(color: theme.colorScheme.outlineVariant, width: 1),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   DateFormat.yMMMMd().format(DateTime.now()),
-                  style: theme.titleMedium,
+                  style: theme.textTheme.titleMedium,
                 ),
-                Icon(Icons.calendar_month_outlined, color: theme.primary),
+                Icon(Icons.calendar_month_outlined, color: theme.colorScheme.primary),
               ],
             ),
           ),
@@ -535,7 +534,7 @@ class _NumberQueueView extends ConsumerWidget {
           child: activeAppointments.isEmpty
               ? EmptyStateWidget(
                   icon: Icons.people_outline,
-                  title: FFLocalizations.of(context).getText('qready'),
+                  title: AppLocalizations.of(context)!.qready,
                   message:
                       'There are no active appointments in the queue for today.',
                 )
@@ -574,8 +573,8 @@ class _NumberQueueView extends ConsumerWidget {
                           bottom: 8,
                         ),
                         child: Text(
-                          FFLocalizations.of(context).getText('upnext'),
-                          style: theme.titleLarge,
+                          AppLocalizations.of(context)!.upnext,
+                          style: theme.textTheme.titleLarge,
                         ),
                       ),
                       ...upNextAppointments.map(
@@ -591,16 +590,16 @@ class _NumberQueueView extends ConsumerWidget {
                         child: Column(
                           children: [
                             Text(
-                              FFLocalizations.of(context).getText('qready'),
-                              style: theme.headlineSmall,
+                              AppLocalizations.of(context)!.qready,
+                              style: theme.textTheme.headlineSmall,
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              FFLocalizations.of(context).getText('callnext'),
-                              style: theme.bodyMedium,
+                              AppLocalizations.of(context)!.callnext,
+                              style: theme.textTheme.bodyMedium,
                             ),
                             const SizedBox(height: 16),
-                            FFButtonWidget(
+                            FilledButton(
                               onPressed: () async {
                                 await ref
                                     .read(partnerDashboardControllerProvider(
@@ -608,15 +607,19 @@ class _NumberQueueView extends ConsumerWidget {
                                         .notifier,)
                                     .nextPatient();
                               },
-                              text: FFLocalizations.of(context)
-                                  .getText('callnextbtn'),
-                              icon: const Icon(Icons.campaign_outlined),
-                              options: FFButtonOptions(
-                                height: 50,
-                                color: theme.primary,
-                                textStyle: theme.titleSmall.copyWith(
-                                  color: Colors.white,
-                                ),
+                              style: FilledButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 50),
+                                backgroundColor: theme.colorScheme.primary,
+                                foregroundColor: Colors.white,
+                                textStyle: theme.textTheme.titleSmall,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.campaign_outlined),
+                                  const SizedBox(width: 8),
+                                  Text(AppLocalizations.of(context)!.callnext),
+                                ],
                               ),
                             ),
                           ],
@@ -652,13 +655,13 @@ class _ClinicDashboardViewState extends State<_ClinicDashboardView> {
             segments: [
               ButtonSegment(
                 value: DashboardView.schedule,
-                label: Text(FFLocalizations.of(context).getText('allapts')),
+                label: Text(AppLocalizations.of(context)!.allapts),
                 icon: const Icon(Icons.calendar_month),
               ),
               ButtonSegment(
                 value: DashboardView.analytics,
                 label: Text(
-                  FFLocalizations.of(context).getText('clncanalytics'),
+                  AppLocalizations.of(context)!.clncanalytics,
                 ),
                 icon: const Icon(Icons.bar_chart),
               ),
@@ -668,10 +671,10 @@ class _ClinicDashboardViewState extends State<_ClinicDashboardView> {
               setState(() => _currentView = newSelection.first);
             },
             style: SegmentedButton.styleFrom(
-              backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-              foregroundColor: FlutterFlowTheme.of(context).primaryText,
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
               selectedForegroundColor: Colors.white,
-              selectedBackgroundColor: FlutterFlowTheme.of(context).primary,
+              selectedBackgroundColor: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),
@@ -718,7 +721,7 @@ class _ClinicScheduleViewState extends State<_ClinicScheduleView> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     return Column(
       children: [
         Padding(
@@ -732,19 +735,19 @@ class _ClinicScheduleViewState extends State<_ClinicScheduleView> {
               final doctors = snapshot.data!;
               return DropdownButtonFormField<String>(
                 value: _selectedDoctorId,
-                hint: Text(FFLocalizations.of(context).getText('fltrdoc')),
+                hint: Text(AppLocalizations.of(context)!.fltrdoc),
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                   filled: true,
-                  fillColor: theme.secondaryBackground,
+                  fillColor: theme.colorScheme.surfaceContainerHigh,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
                 items: [
                   DropdownMenuItem<String>(
                     value: null,
-                    child: Text(FFLocalizations.of(context).getText('alldocs')),
+                    child: Text(AppLocalizations.of(context)!.alldocs),
                   ),
                   ...doctors.map(
                     (doc) => DropdownMenuItem<String>(
@@ -777,8 +780,8 @@ class _ClinicScheduleViewState extends State<_ClinicScheduleView> {
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return EmptyStateWidget(
                   icon: Icons.calendar_today_rounded,
-                  title: FFLocalizations.of(context).getText('noaptsfound'),
-                  message: FFLocalizations.of(context).getText('noaptsfltr'),
+                  title: AppLocalizations.of(context)!.noaptsfound,
+                  message: AppLocalizations.of(context)!.noaptsfltr,
                 );
               }
 
@@ -797,11 +800,11 @@ class _ClinicScheduleViewState extends State<_ClinicScheduleView> {
                     child: ListTile(
                       title: Text(
                         appt['patient_name'] as String? ?? 'A Patient',
-                        style: theme.titleMedium,
+                        style: theme.textTheme.titleMedium,
                       ),
                       subtitle: Text(
                         'With: ${appt['doctor_name'] as String? ?? 'N/A'}\nStatus: ${getLocalizedStatus(context, appt['status'] as String)}',
-                        style: theme.bodySmall,
+                        style: theme.textTheme.bodySmall,
                       ),
                       isThreeLine: true,
                       trailing: Column(
@@ -810,11 +813,11 @@ class _ClinicScheduleViewState extends State<_ClinicScheduleView> {
                         children: [
                           Text(
                             DateFormat.yMMMd().format(time),
-                            style: theme.bodySmall,
+                            style: theme.textTheme.bodySmall,
                           ),
                           Text(
                             DateFormat.jm().format(time),
-                            style: theme.bodyMedium,
+                            style: theme.textTheme.bodyMedium,
                           ),
                         ],
                       ),
@@ -854,7 +857,7 @@ class _ClinicAnalyticsView extends StatelessWidget {
         if (snapshot.hasError || !snapshot.hasData) {
           return Center(
             child: Text(
-              FFLocalizations.of(context).getText('loadanalyticsfail'),
+              AppLocalizations.of(context)!.loadanalyticsfail,
             ),
           );
         }
@@ -941,7 +944,7 @@ class _AnalyticsViewState extends State<_AnalyticsView> {
         if (snapshot.hasError || !snapshot.hasData) {
           return Center(
             child: Text(
-              FFLocalizations.of(context).getText('loadanalyticsfail'),
+              AppLocalizations.of(context)!.loadanalyticsfail,
             ),
           );
         }
@@ -966,7 +969,7 @@ class _AnalyticsViewContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final maxValue = weeklyStats
         .map((d) => d['appointment_count'] as int)
         .fold<int>(0, (max, current) => current > max ? current : max)
@@ -976,7 +979,7 @@ class _AnalyticsViewContent extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          Text('Completed Appointments - Last 7 Days', style: theme.titleLarge),
+          Text('Completed Appointments - Last 7 Days', style: theme.textTheme.titleLarge),
           const SizedBox(height: 24),
           SizedBox(
             height: 200,
@@ -985,20 +988,20 @@ class _AnalyticsViewContent extends StatelessWidget {
                 maxY: maxValue == 0 ? 5 : maxValue + 2,
                 barTouchData: BarTouchData(
                   touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => theme.secondaryText,
+                    getTooltipColor: (_) => theme.colorScheme.onSurfaceVariant,
                     getTooltipItem: (group, groupIndex, rod, rodIndex) {
                       final day = weeklyStats[group.x];
                       return BarTooltipItem(
                         '${day['day_of_week']}\n',
                         TextStyle(
-                          color: theme.secondaryBackground,
+                          color: theme.colorScheme.surface,
                           fontWeight: FontWeight.bold,
                         ),
                         children: <TextSpan>[
                           TextSpan(
                             text: rod.toY.toInt().toString(),
                             style: TextStyle(
-                              color: theme.secondaryBackground,
+                              color: theme.colorScheme.surface,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -1026,7 +1029,7 @@ class _AnalyticsViewContent extends StatelessWidget {
                             weeklyStats[value.toInt()]['day_of_week'] as String;
                         return Padding(
                           padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(day, style: theme.bodySmall),
+                          child: Text(day, style: theme.textTheme.bodySmall),
                         );
                       },
                       reservedSize: 32,
@@ -1042,7 +1045,7 @@ class _AnalyticsViewContent extends StatelessWidget {
                         }
                         return Text(
                           value.toInt().toString(),
-                          style: theme.bodySmall,
+                          style: theme.textTheme.bodySmall,
                           textAlign: TextAlign.left,
                         );
                       },
@@ -1058,7 +1061,7 @@ class _AnalyticsViewContent extends StatelessWidget {
                           BarChartRodData(
                             toY: (dayData['appointment_count'] as int)
                                 .toDouble(),
-                            color: theme.primary,
+                            color: theme.colorScheme.primary,
                             width: 16,
                             borderRadius: BorderRadius.circular(4),
                           ),
@@ -1071,7 +1074,7 @@ class _AnalyticsViewContent extends StatelessWidget {
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: theme.alternate,
+                      color: theme.colorScheme.outlineVariant,
                       strokeWidth: 1,
                     );
                   },
@@ -1119,26 +1122,26 @@ class _AnalyticsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     return Container(
       width: (MediaQuery.of(context).size.width / 2) - 24,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.secondaryBackground,
+        color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             blurRadius: 4,
-            color: theme.primaryBackground,
+            color: theme.colorScheme.surface.withAlpha(50),
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         children: [
-          Text(value.toString(), style: theme.displaySmall),
+          Text(value.toString(), style: theme.textTheme.displaySmall),
           const SizedBox(height: 8),
-          Text(label, style: theme.labelMedium, textAlign: TextAlign.center),
+          Text(label, style: theme.textTheme.labelMedium, textAlign: TextAlign.center),
         ],
       ),
     );
@@ -1161,26 +1164,26 @@ class _AppointmentInfoCard extends ConsumerWidget {
   final String partnerId;
 
   Color getStatusColor(BuildContext context, String? status) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     switch (status) {
       case 'Confirmed':
       case 'Completed':
-        return theme.success;
+        return theme.colorScheme.tertiary;
       case 'Cancelled_ByUser':
       case 'Cancelled_ByPartner':
       case 'NoShow':
-        return theme.error;
+        return theme.colorScheme.error;
       case 'Pending':
       case 'Rescheduled':
-        return theme.warning;
+        return Colors.orange;
       default:
-        return theme.secondaryText;
+        return theme.colorScheme.onSurfaceVariant;
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final status = appointment.status;
     final appointmentId = appointment.id;
     final appointmentTime = appointment.appointmentTime.toLocal();
@@ -1194,7 +1197,7 @@ class _AppointmentInfoCard extends ConsumerWidget {
 
     return Card(
       elevation: 2,
-      shadowColor: theme.primaryBackground,
+      shadowColor: theme.colorScheme.surface,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: IntrinsicHeight(
@@ -1210,16 +1213,16 @@ class _AppointmentInfoCard extends ConsumerWidget {
                   children: [
                     Text(
                       DateFormat('h:mm a').format(appointmentTime),
-                      style: theme.bodyMedium.copyWith(
-                        color: theme.secondaryText,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(displayName, style: theme.titleMedium),
+                    Text(displayName, style: theme.textTheme.titleMedium),
                     Text(
                       displayPhone,
-                      style: theme.bodySmall.copyWith(
-                        color: theme.secondaryText,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                     HomecareDetailsView(
@@ -1246,7 +1249,7 @@ class _AppointmentInfoCard extends ConsumerWidget {
     String status,
     int appointmentId,
   ) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final controller =
         ref.read(partnerDashboardControllerProvider(partnerId).notifier);
 
@@ -1254,31 +1257,30 @@ class _AppointmentInfoCard extends ConsumerWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          FFButtonWidget(
+          OutlinedButton(
             onPressed: () async {
               await controller.cancelAppointment(
                   appointmentId, 'Declined by partner',);
             },
-            text: 'Decline',
-            options: FFButtonOptions(
-              height: 36,
-              color: theme.secondaryBackground,
-              textStyle: theme.bodyMedium.copyWith(color: theme.error),
-              elevation: 1,
-              borderSide: BorderSide(color: theme.alternate),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 36),
+              foregroundColor: theme.colorScheme.error,
+              side: BorderSide(color: theme.colorScheme.outlineVariant),
+              elevation: 0,
             ),
+            child: const Text('Decline'),
           ),
           const SizedBox(width: 8),
-          FFButtonWidget(
+          FilledButton(
             onPressed: () async {
               await controller.confirmAppointment(appointmentId);
             },
-            text: 'Confirm',
-            options: FFButtonOptions(
-              height: 36,
-              color: theme.success,
-              textStyle: theme.bodyMedium.copyWith(color: Colors.white),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(double.infinity, 36),
+              backgroundColor: theme.colorScheme.tertiary,
+              foregroundColor: Colors.white,
             ),
+            child: const Text('Confirm'),
           ),
         ],
       );
@@ -1286,31 +1288,37 @@ class _AppointmentInfoCard extends ConsumerWidget {
 
     if (status == 'Confirmed') {
       return Row(
-        children: [
+         children: [
           Expanded(
-            child: FFButtonWidget(
+            child: FilledButton(
               onPressed: () async {
                 await controller.completeAppointment(appointmentId);
               },
-              text: FFLocalizations.of(context).getText('markcomp'),
-              icon: const Icon(Icons.check_circle_outline),
-              options: FFButtonOptions(
-                width: double.infinity,
-                height: 40,
-                color: theme.primary,
-                textStyle: theme.titleSmall.copyWith(color: Colors.white),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(double.infinity, 40),
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: Colors.white,
+                textStyle: theme.textTheme.titleSmall,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.check_circle_outline),
+                  const SizedBox(width: 8),
+                  Text(AppLocalizations.of(context)!.markcomp),
+                ],
               ),
             ),
           ),
           PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: theme.secondaryText),
+            icon: Icon(Icons.more_vert, color: theme.colorScheme.onSurfaceVariant),
             onSelected: (value) async {
               if (value == 'no-show') {
                 await controller.noShow(appointmentId);
               } else if (value == 'cancel') {
                 final confirmed = await showStyledConfirmationDialog(
                   context: context,
-                  title: FFLocalizations.of(context).getText('cnclaptq'),
+                  title: AppLocalizations.of(context)!.cnclaptq,
                   content: 'Are you sure you want to cancel this appointment?',
                   confirmText: 'Confirm',
                 );
@@ -1350,7 +1358,7 @@ class _UpNextQueueCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final appointmentId = appointment.id;
     final (displayName, _) = getPatientDisplayInfo({
       'on_behalf_of_patient_name': appointment.onBehalfOfPatientName,
@@ -1371,15 +1379,15 @@ class _UpNextQueueCard extends ConsumerWidget {
             ListTile(
               leading: CircleAvatar(
                 radius: 20,
-                backgroundColor: theme.accent1.withAlpha(25),
+                backgroundColor: theme.colorScheme.tertiary.withAlpha(25),
                 child: Text(
                   '$appointmentNumber',
-                  style: theme.titleMedium.copyWith(color: theme.primary),
+                  style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.primary),
                 ),
               ),
-              title: Text(displayName, style: theme.titleMedium),
+              title: Text(displayName, style: theme.textTheme.titleMedium),
               trailing: PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert, color: theme.secondaryText),
+                icon: Icon(Icons.more_vert, color: theme.colorScheme.onSurfaceVariant),
                 onSelected: (value) async {
                   final controller = ref.read(
                       partnerDashboardControllerProvider(partnerId).notifier,);
@@ -1387,7 +1395,7 @@ class _UpNextQueueCard extends ConsumerWidget {
                   if (value == 'cancel') {
                     final confirmed = await showStyledConfirmationDialog(
                       context: context,
-                      title: FFLocalizations.of(context).getText('cnclaptq'),
+                      title: AppLocalizations.of(context)!.cnclaptq,
                       content: 'Are you sure you want to cancel this request?',
                       confirmText: 'Confirm',
                     );
@@ -1439,3 +1447,7 @@ class _UpNextQueueCard extends ConsumerWidget {
     );
   }
 }
+
+
+
+

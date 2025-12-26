@@ -1,7 +1,6 @@
 // lib/partner_dashboard_page/components/dashboard_helpers.dart
 
 import 'package:flutter/material.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 
 // Helper function to consistently get patient display info
 (String, String) getPatientDisplayInfo(Map<String, dynamic> appointmentData) {
@@ -32,23 +31,29 @@ Future<bool> showStyledConfirmationDialog({
   required String content,
   required String confirmText,
 }) async {
-  final theme = FlutterFlowTheme.of(context);
+  final theme = Theme.of(context);
+  final colorScheme = theme.colorScheme;
+  final textTheme = theme.textTheme;
+
   final result = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      backgroundColor: theme.secondaryBackground,
-      title: Text(title, style: theme.titleLarge),
-      content: Text(content, style: theme.bodyMedium),
+      backgroundColor: colorScheme.surface,
+      title: Text(title, style: textTheme.titleLarge),
+      content: Text(content, style: textTheme.bodyMedium),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: Text('Cancel', style: TextStyle(color: theme.secondaryText)),
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
+          ),
         ),
         ElevatedButton(
           onPressed: () => Navigator.of(dialogContext).pop(true),
           style: ElevatedButton.styleFrom(
-            backgroundColor: theme.error,
-            foregroundColor: Colors.white,
+            backgroundColor: colorScheme.error,
+            foregroundColor: colorScheme.onError,
           ),
           child: Text(confirmText),
         ),
@@ -60,8 +65,10 @@ Future<bool> showStyledConfirmationDialog({
 
 // Reusable function for user-friendly error messages
 void showErrorSnackbar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    content: Text(message),
-    backgroundColor: FlutterFlowTheme.of(context).error,
-  ),);
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      backgroundColor: Theme.of(context).colorScheme.error,
+    ),
+  );
 }

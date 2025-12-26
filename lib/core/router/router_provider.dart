@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../features/auth/presentation/auth_state_provider.dart';
-// REMOVED: import '../../features/auth/presentation/user_role_provider.dart';
 import '../../index.dart';
 import '../../pages/privacy_policy_page.dart';
 import '../../pages/terms_of_service_page.dart';
@@ -49,8 +49,36 @@ GoRouter router(RouterRef ref) {
       // 2. Redirect authenticated users AWAY from login screens
       if (isLoggedIn &&
           (path == '/login' || path == '/welcomeScreen' || path == '/create')) {
-        // FIX: Immediate redirect to Home Page (No DB waiting)
-        return '/homePage';
+        return '/home';
+      }
+
+      // 3. Check if email is verified
+      if (isLoggedIn &&
+          user.emailConfirmedAt == null &&
+          path != '/verifyEmail') {
+        return '/verifyEmail';
+      }
+
+      // 4. Check if profile is complete (presence of first_name)
+      if (isLoggedIn &&
+          user.emailConfirmedAt != null &&
+          path != '/completeProfile') {
+        try {
+          final supabase = Supabase.instance.client;
+          final profile = await supabase
+              .from('users')
+              .select('first_name')
+              .eq('id', user.id)
+              .maybeSingle();
+
+          if (profile == null ||
+              profile['first_name'] == null ||
+              profile['first_name'].toString().trim().isEmpty) {
+            return '/completeProfile';
+          }
+        } catch (e) {
+          // On error, continue to allow access
+        }
       }
 
       return null;
@@ -83,6 +111,19 @@ GoRouter router(RouterRef ref) {
         name: 'ForgotPassword',
         path: '/forgotPassword',
         builder: (context, state) => const ForgotPasswordWidget(),
+      ),
+      GoRoute(
+        name: 'VerifyEmail',
+        path: '/verifyEmail',
+        builder: (context, state) => const VerifyEmailWidget(),
+      ),
+      GoRoute(
+        name: 'CompleteProfile',
+        path: '/completeProfile',
+        builder: (context, state) {
+          final isEditing = state.uri.queryParameters['isEditing'] == 'true';
+          return CompleteProfileWidget(isEditing: isEditing);
+        },
       ),
       GoRoute(
         name: 'PrivacyPolicyPage',

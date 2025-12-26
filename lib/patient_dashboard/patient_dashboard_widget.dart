@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maouidi/core/localization_helpers.dart';
 import '../components/empty_state_widget.dart';
-import '../flutter_flow/flutter_flow_theme.dart';
-import '../flutter_flow/flutter_flow_util.dart';
-import '../flutter_flow/flutter_flow_widgets.dart';
+import 'package:maouidi/generated/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
+
 import '../features/patient/presentation/patient_dashboard_controller.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
@@ -39,16 +39,16 @@ class _PatientDashboardWidgetState extends ConsumerState<PatientDashboardWidget>
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final dashboardState = ref.watch(patientDashboardControllerProvider);
 
     return Scaffold(
-      backgroundColor: theme.primaryBackground,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: theme.primary,
+        backgroundColor: theme.colorScheme.primary,
         title: Text(
-          FFLocalizations.of(context).getText('myapts'),
-          style: theme.headlineMedium.override(
+          AppLocalizations.of(context)!.myapts,
+          style: theme.textTheme.headlineMedium?.copyWith(
             fontFamily: 'Inter',
             color: Colors.white,
             fontSize: 22.0,
@@ -58,15 +58,16 @@ class _PatientDashboardWidgetState extends ConsumerState<PatientDashboardWidget>
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
-          labelStyle: theme.titleSmall.copyWith(fontWeight: FontWeight.bold),
+          labelStyle:
+              theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withAlpha(178),
-          indicatorColor: theme.accent1,
+          indicatorColor: theme.colorScheme.secondary,
           indicatorWeight: 3.0,
           tabs: [
-            Tab(text: FFLocalizations.of(context).getText('upcoming')),
-            Tab(text: FFLocalizations.of(context).getText('completed')),
-            Tab(text: FFLocalizations.of(context).getText('canceled')),
+            Tab(text: AppLocalizations.of(context)!.upcoming),
+            Tab(text: AppLocalizations.of(context)!.completed),
+            Tab(text: AppLocalizations.of(context)!.canceled),
           ],
         ),
       ),
@@ -99,8 +100,8 @@ class _PatientDashboardWidgetState extends ConsumerState<PatientDashboardWidget>
     if (appointments.isEmpty) {
       return EmptyStateWidget(
         icon: Icons.calendar_month_outlined,
-        title: FFLocalizations.of(context).getText('noapts'),
-        message: FFLocalizations.of(context).getText('noaptsmsg'),
+        title: AppLocalizations.of(context)!.noapts,
+        message: AppLocalizations.of(context)!.noaptsmsg,
       );
     }
 
@@ -139,26 +140,26 @@ class PatientAppointmentCard extends ConsumerWidget {
   final VoidCallback onReviewCompleted;
 
   Color getStatusColor(BuildContext context, String? status) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     switch (status) {
       case 'Confirmed':
       case 'Completed':
-        return theme.success;
+        return theme.colorScheme.tertiary;
       case 'Cancelled_ByUser':
       case 'Cancelled_ByPartner':
       case 'NoShow':
-        return theme.error;
+        return theme.colorScheme.error;
       case 'Pending':
       case 'Rescheduled':
-        return theme.warning;
+        return Colors.orange;
       default:
-        return theme.secondaryText;
+        return theme.colorScheme.onSurfaceVariant;
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final status = appointmentData['status'] as String? ?? '';
     final appointmentId = appointmentData['id'];
     final canCancel = status == 'Pending' || status == 'Confirmed';
@@ -180,19 +181,19 @@ class PatientAppointmentCard extends ConsumerWidget {
         appointmentData['medical_partners'] as Map<String, dynamic>? ?? {};
     final partnerName = partnerData['full_name'] as String? ?? 'N/A';
     final specialty = partnerData['specialty'] as String? ??
-        FFLocalizations.of(context).getText('nospecialty');
+        AppLocalizations.of(context)!.nospecialty;
     final appointmentTime =
         DateTime.parse(appointmentData['appointment_time']).toLocal();
     final appointmentNumber = appointmentData['appointment_number'] as int?;
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.secondaryBackground,
+        color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             blurRadius: 4,
-            color: theme.primaryBackground,
+            color: theme.colorScheme.surface.withAlpha(50),
             offset: const Offset(0, 2),
           ),
         ],
@@ -209,23 +210,24 @@ class PatientAppointmentCard extends ConsumerWidget {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: theme.primaryBackground,
+                    color: theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: theme.alternate, width: 1),
+                    border: Border.all(
+                        color: theme.colorScheme.outlineVariant, width: 1,),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         DateFormat('MMM').format(appointmentTime).toUpperCase(),
-                        style: theme.bodySmall.copyWith(
+                        style: theme.textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: theme.primary,
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                       Text(
                         DateFormat('d').format(appointmentTime),
-                        style: theme.headlineMedium.override(
+                        style: theme.textTheme.headlineMedium?.copyWith(
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.bold,
                         ),
@@ -240,13 +242,13 @@ class PatientAppointmentCard extends ConsumerWidget {
                     children: [
                       Text(
                         partnerName,
-                        style: theme.titleLarge,
+                        style: theme.textTheme.titleLarge,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         specialty,
-                        style: theme.bodyMedium
-                            .copyWith(color: theme.secondaryText),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,),
                       ),
                       const SizedBox(height: 12),
                       Row(
@@ -258,7 +260,7 @@ class PatientAppointmentCard extends ConsumerWidget {
                             children: [
                               Text(
                                 getLocalizedStatus(context, status),
-                                style: theme.bodyLarge.copyWith(
+                                style: theme.textTheme.bodyLarge?.copyWith(
                                   color: getStatusColor(context, status),
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -266,17 +268,18 @@ class PatientAppointmentCard extends ConsumerWidget {
                               const SizedBox(height: 4),
                               if (appointmentNumber != null)
                                 Text(
-                                  '${FFLocalizations.of(context).getText('yournum')} #$appointmentNumber',
-                                  style: theme.bodyMedium.copyWith(
-                                    color: theme.secondaryText,
+                                  '${AppLocalizations.of(context)!.yournum} #$appointmentNumber',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 )
                               else
                                 Text(
                                   DateFormat('h:mm a').format(appointmentTime),
-                                  style: theme.bodyMedium
-                                      .copyWith(color: theme.secondaryText),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          theme.colorScheme.onSurfaceVariant,),
                                 ),
                             ],
                           ),
@@ -290,37 +293,51 @@ class PatientAppointmentCard extends ConsumerWidget {
             if (canLeaveReview)
               Padding(
                 padding: const EdgeInsets.only(top: 16.0),
-                child: FFButtonWidget(
+                child: FilledButton(
                   onPressed: () => _showReviewDialog(
-                      context, ref, appointmentId, partnerName,),
-                  text: FFLocalizations.of(context).getText('lvrvw'),
-                  icon: const Icon(Icons.rate_review_outlined),
-                  options: FFButtonOptions(
-                    width: double.infinity,
-                    height: 44,
-                    color: theme.primary,
-                    textStyle: theme.titleSmall.copyWith(color: Colors.white),
+                    context,
+                    ref,
+                    appointmentId,
+                    partnerName,
+                  ),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 44),
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    textStyle: theme.textTheme.titleSmall,
                     elevation: 2,
-                    borderRadius: BorderRadius.circular(8),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.rate_review_outlined),
+                      const SizedBox(width: 8),
+                      Text(AppLocalizations.of(context)!.lvrvw),
+                    ],
                   ),
                 ),
               ),
             if (canCancel)
               Padding(
                 padding: const EdgeInsets.only(top: 12.0),
-                child: FFButtonWidget(
+                child: OutlinedButton(
                   onPressed: () => _showCancelDialog(
-                      context, ref, appointmentId, partnerName,),
-                  text: FFLocalizations.of(context).getText('cnclapt'),
-                  options: FFButtonOptions(
-                    width: double.infinity,
-                    height: 44,
-                    color: theme.secondaryBackground,
-                    textStyle: theme.titleSmall.copyWith(color: theme.error),
-                    elevation: 2,
-                    borderSide: BorderSide(color: theme.alternate, width: 1),
-                    borderRadius: BorderRadius.circular(8),
+                    context,
+                    ref,
+                    appointmentId,
+                    partnerName,
                   ),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 44),
+                    foregroundColor: theme.colorScheme.error,
+                    side: BorderSide(
+                        color: theme.colorScheme.outlineVariant, width: 1,),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),),
+                  ),
+                  child: Text(AppLocalizations.of(context)!.cnclapt),
                 ),
               ),
           ],
@@ -335,26 +352,26 @@ class PatientAppointmentCard extends ConsumerWidget {
     int appointmentId,
     String partnerName,
   ) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: theme.secondaryBackground,
+        backgroundColor: theme.colorScheme.surfaceContainerHigh,
         title: Text(
-          FFLocalizations.of(context).getText('cnclaptq'),
-          style: theme.titleLarge,
+          AppLocalizations.of(context)!.cnclaptq,
+          style: theme.textTheme.titleLarge,
         ),
         content: Text(
-          '${FFLocalizations.of(context).getText('cnclaptsure')} $partnerName?',
-          style: theme.bodyMedium,
+          '${AppLocalizations.of(context)!.cnclaptsure} $partnerName?',
+          style: theme.textTheme.bodyMedium,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(
-              FFLocalizations.of(context).getText('back'),
-              style: TextStyle(color: theme.secondaryText),
+              AppLocalizations.of(context)!.back,
+              style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
             ),
           ),
           ElevatedButton(
@@ -368,8 +385,7 @@ class PatientAppointmentCard extends ConsumerWidget {
                 Navigator.of(dialogContext).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content:
-                        Text(FFLocalizations.of(context).getText('aptcnld')),
+                    content: Text(AppLocalizations.of(context)!.aptcnld),
                     backgroundColor: Colors.green,
                   ),
                 );
@@ -380,18 +396,18 @@ class PatientAppointmentCard extends ConsumerWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      '${FFLocalizations.of(context).getText('cnclfail')}: ${e.toString()}',
+                      '${AppLocalizations.of(context)!.cnclfail}: ${e.toString()}',
                     ),
-                    backgroundColor: theme.error,
+                    backgroundColor: theme.colorScheme.error,
                   ),
                 );
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: theme.error,
+              backgroundColor: theme.colorScheme.error,
               foregroundColor: Colors.white,
             ),
-            child: Text(FFLocalizations.of(context).getText('cnclconfirm')),
+            child: Text(AppLocalizations.of(context)!.cnclconfirm),
           ),
         ],
       ),
@@ -452,7 +468,7 @@ class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(FFLocalizations.of(context).getText('thankrev')),
+          content: Text(AppLocalizations.of(context)!.thankrev),
           backgroundColor: Colors.green,
         ),
       );
@@ -462,9 +478,9 @@ class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${FFLocalizations.of(context).getText('revfail')}: ${e.toString()}',
+            '${AppLocalizations.of(context)!.revfail}: ${e.toString()}',
           ),
-          backgroundColor: FlutterFlowTheme.of(context).error,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     } finally {
@@ -482,14 +498,14 @@ class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     return Padding(
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: theme.secondaryBackground,
+          color: theme.colorScheme.surfaceContainerHigh,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
@@ -499,18 +515,18 @@ class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
               width: 50,
               height: 5,
               decoration: BoxDecoration(
-                color: theme.alternate,
+                color: theme.colorScheme.outlineVariant,
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
             const SizedBox(height: 16),
             Text(
-              FFLocalizations.of(context).getText('ratevisit'),
-              style: theme.bodyMedium,
+              AppLocalizations.of(context)!.ratevisit,
+              style: theme.textTheme.bodyMedium,
             ),
             Text(
               widget.partnerName,
-              style: theme.headlineSmall,
+              style: theme.textTheme.headlineSmall,
             ),
             const SizedBox(height: 24),
             RatingBar.builder(
@@ -520,7 +536,7 @@ class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
               itemCount: 5,
               itemPadding: const EdgeInsets.symmetric(horizontal: 6.0),
               itemBuilder: (context, _) =>
-                  Icon(Icons.star, color: theme.warning),
+                  const Icon(Icons.star, color: Colors.orange),
               onRatingUpdate: (rating) {
                 setState(() {
                   _rating = rating;
@@ -531,28 +547,31 @@ class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
             TextFormField(
               controller: _reviewController,
               decoration: InputDecoration(
-                labelText: FFLocalizations.of(context).getText('commentsopt'),
-                hintText: FFLocalizations.of(context).getText('commentshint'),
+                labelText: AppLocalizations.of(context)!.commentsopt,
+                hintText: AppLocalizations.of(context)!.commentshint,
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 filled: true,
-                fillColor: theme.primaryBackground,
+                fillColor: theme.colorScheme.surface,
               ),
               maxLines: 4,
             ),
             const SizedBox(height: 24),
-            FFButtonWidget(
+            FilledButton(
               onPressed: _isSubmitting ? null : _submitReview,
-              text: _isSubmitting
-                  ? FFLocalizations.of(context).getText('submittingrev')
-                  : FFLocalizations.of(context).getText('submitrev'),
-              options: FFButtonOptions(
-                width: double.infinity,
-                height: 50,
-                color: theme.primary,
-                textStyle: theme.titleSmall.copyWith(color: Colors.white),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: Colors.white,
+                textStyle: theme.textTheme.titleSmall,
                 elevation: 3,
-                borderRadius: BorderRadius.circular(12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),),
+              ),
+              child: Text(
+                _isSubmitting
+                    ? AppLocalizations.of(context)!.submittingrev
+                    : AppLocalizations.of(context)!.submitrev,
               ),
             ),
           ],

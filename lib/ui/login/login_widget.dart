@@ -4,37 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
 
-class LoginWidget extends ConsumerStatefulWidget {
+// Riverpod providers for state management
+final _loginLoadingProvider = StateProvider.autoDispose<bool>((ref) => false);
+final _passwordVisibilityProvider =
+    StateProvider.autoDispose<bool>((ref) => false);
+
+class LoginWidget extends ConsumerWidget {
   const LoginWidget({super.key});
 
   static String routeName = 'Login';
   static String routePath = '/login';
 
-  @override
-  ConsumerState<LoginWidget> createState() => _LoginWidgetState();
-}
-
-class _LoginWidgetState extends ConsumerState<LoginWidget> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _passwordVisibility = false;
-  bool _isLoading = false;
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _handleLogin() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-
+  Future<void> _handleLogin(
+    BuildContext context,
+    WidgetRef ref,
+    String email,
+    String password,
+  ) async {
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter email and password')),
@@ -42,56 +29,78 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
       return;
     }
 
-    setState(() => _isLoading = true);
+    ref.read(_loginLoadingProvider.notifier).state = true;
 
     try {
-      await Supabase.instance.client.auth.signInWithPassword(
+      final response = await Supabase.instance.client.auth.signInWithPassword(
         email: email,
         password: password,
       );
 
-      // FIX: Force manual navigation to Home Page on success
-      if (mounted) {
-        context.goNamed('HomePage');
+      // Login successful
+      final user = response.user;
+      if (user != null) {
+        // Check if email is verified
+        if (user.emailConfirmedAt == null) {
+          // Email not verified, redirect to verification page
+          if (context.mounted) {
+            context.go('/verifyEmail');
+          }
+        } else {
+          // Email verified navigation to home
+          if (context.mounted) {
+            context.go('/home');
+          }
+        }
       }
     } on AuthException catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.message),
-            backgroundColor: FlutterFlowTheme.of(context).error,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('An unexpected error occurred'),
-            backgroundColor: FlutterFlowTheme.of(context).error,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      ref.read(_loginLoadingProvider.notifier).state = false;
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final isLoading = ref.watch(_loginLoadingProvider);
+    final passwordVisible = ref.watch(_passwordVisibilityProvider);
+
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+    final scaffoldKey = GlobalKey<ScaffoldState>();
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: colorScheme.surface,
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+          backgroundColor: colorScheme.surface,
           automaticallyImplyLeading: true,
           elevation: 0.0,
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_rounded,
-              color: FlutterFlowTheme.of(context).primaryText,
+              color: colorScheme.onSurface,
               size: 24.0,
             ),
             onPressed: () => context.pop(),
@@ -107,92 +116,101 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
               children: [
                 Text(
                   'Welcome Back',
-                  style: FlutterFlowTheme.of(context).headlineMedium,
+                  style: textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32.0),
                 TextFormField(
-                  controller: _emailController,
+                  controller: emailController,
                   decoration: InputDecoration(
                     labelText: 'Email Address',
                     hintText: 'Enter your email...',
-                    labelStyle: FlutterFlowTheme.of(context).bodyMedium,
-                    hintStyle: FlutterFlowTheme.of(context).bodyMedium,
+                    labelStyle: textTheme.bodyMedium,
+                    hintStyle: textTheme.bodyMedium,
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: FlutterFlowTheme.of(context).alternate,
+                        color: colorScheme.outline,
                         width: 1.0,
                       ),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: FlutterFlowTheme.of(context).primary,
+                        color: colorScheme.primary,
                         width: 1.0,
                       ),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     filled: true,
-                    fillColor: FlutterFlowTheme.of(context).secondaryBackground,
+                    fillColor: colorScheme.surface,
                   ),
-                  style: FlutterFlowTheme.of(context).bodyMedium,
+                  style: textTheme.bodyMedium,
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 16.0),
                 TextFormField(
-                  controller: _passwordController,
-                  obscureText: !_passwordVisibility,
+                  controller: passwordController,
+                  obscureText: !passwordVisible,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     hintText: 'Enter your password...',
-                    labelStyle: FlutterFlowTheme.of(context).bodyMedium,
-                    hintStyle: FlutterFlowTheme.of(context).bodyMedium,
+                    labelStyle: textTheme.bodyMedium,
+                    hintStyle: textTheme.bodyMedium,
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: FlutterFlowTheme.of(context).alternate,
+                        color: colorScheme.outline,
                         width: 1.0,
                       ),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: FlutterFlowTheme.of(context).primary,
+                        color: colorScheme.primary,
                         width: 1.0,
                       ),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     filled: true,
-                    fillColor: FlutterFlowTheme.of(context).secondaryBackground,
+                    fillColor: colorScheme.surface,
                     suffixIcon: InkWell(
-                      onTap: () => setState(
-                        () => _passwordVisibility = !_passwordVisibility,
-                      ),
+                      onTap: () => ref
+                          .read(_passwordVisibilityProvider.notifier)
+                          .state = !passwordVisible,
                       focusNode: FocusNode(skipTraversal: true),
                       child: Icon(
-                        _passwordVisibility
+                        passwordVisible
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
-                        color: FlutterFlowTheme.of(context).secondaryText,
+                        color: colorScheme.onSurfaceVariant,
                         size: 22.0,
                       ),
                     ),
                   ),
-                  style: FlutterFlowTheme.of(context).bodyMedium,
+                  style: textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 24.0),
-                FFButtonWidget(
-                  onPressed: _isLoading ? null : _handleLogin,
-                  text: _isLoading ? 'Signing In...' : 'Sign In',
-                  options: FFButtonOptions(
-                    height: 50.0,
-                    color: FlutterFlowTheme.of(context).primary,
-                    textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                          fontFamily: 'Inter',
-                          color: Colors.white,
-                        ),
+                FilledButton(
+                  onPressed: isLoading
+                      ? null
+                      : () => _handleLogin(
+                            context,
+                            ref,
+                            emailController.text.trim(),
+                            passwordController.text,
+                          ),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: colorScheme.primary,
+                    foregroundColor: colorScheme.onPrimary,
+                    disabledBackgroundColor:
+                        colorScheme.primary.withOpacity(0.5),
+                    textStyle: textTheme.titleSmall,
                     elevation: 2.0,
-                    borderRadius: BorderRadius.circular(12.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
                   ),
+                  child: Text(isLoading ? 'Signing In...' : 'Sign In'),
                 ),
                 const SizedBox(height: 16.0),
                 Row(
@@ -200,17 +218,16 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
                   children: [
                     Text(
                       'Don\'t have an account? ',
-                      style: FlutterFlowTheme.of(context).bodyMedium,
+                      style: textTheme.bodyMedium,
                     ),
                     InkWell(
                       onTap: () => context.pushNamed('Create'),
                       child: Text(
                         'Sign Up',
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              fontFamily: 'Inter',
-                              color: FlutterFlowTheme.of(context).primary,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -219,11 +236,10 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
                   onPressed: () => context.pushNamed('ForgotPassword'),
                   child: Text(
                     'Forgot Password?',
-                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                          fontFamily: 'Inter',
-                          color: FlutterFlowTheme.of(context).secondaryText,
-                          decoration: TextDecoration.underline,
-                        ),
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
               ],

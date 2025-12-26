@@ -2,10 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:maouidi/generated/l10n/app_localizations.dart';
 import 'package:maouidi/components/partner_card_widget.dart';
 import 'package:maouidi/components/empty_state_widget.dart';
-import 'package:maouidi/flutter_flow/flutter_flow_theme.dart';
-import 'package:maouidi/flutter_flow/flutter_flow_util.dart';
 import 'package:maouidi/features/search/presentation/partner_search_controller.dart';
 import 'package:maouidi/features/search/presentation/search_state.dart';
 
@@ -48,16 +47,19 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final l10n = AppLocalizations.of(context)!;
     final searchState = ref.watch(partnerSearchControllerProvider);
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: theme.primaryBackground,
-        iconTheme: IconThemeData(color: theme.primaryText),
+        backgroundColor: colorScheme.surface,
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
         title: Text(
-          FFLocalizations.of(context).getText('srchptr'),
-          style: theme.headlineSmall,
+          l10n.srchptr,
+          style: textTheme.headlineSmall,
         ),
         elevation: 2,
       ),
@@ -73,11 +75,15 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage> {
                     .updateQuery(value.trim());
               },
               decoration: InputDecoration(
-                hintText: FFLocalizations.of(context).getText('refinesrch'),
-                prefixIcon: Icon(Icons.search, color: theme.secondaryText),
+                hintText: l10n.refinesrch,
+                prefixIcon:
+                    Icon(Icons.search, color: colorScheme.onSurfaceVariant),
                 suffixIcon: searchState.query.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.clear, color: theme.secondaryText),
+                        icon: Icon(
+                          Icons.clear,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                         onPressed: () {
                           _searchController.clear();
                           ref
@@ -87,7 +93,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage> {
                       )
                     : null,
                 filled: true,
-                fillColor: theme.secondaryBackground,
+                fillColor: colorScheme.surface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -131,14 +137,26 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage> {
             ),
 
           Expanded(
-            child: _buildSearchResults(searchState, theme),
+            child: _buildSearchResults(
+              searchState,
+              theme,
+              textTheme,
+              colorScheme,
+              l10n,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSearchResults(SearchState searchState, FlutterFlowTheme theme) {
+  Widget _buildSearchResults(
+    SearchState searchState,
+    ThemeData theme,
+    TextTheme textTheme,
+    ColorScheme colorScheme,
+    AppLocalizations l10n,
+  ) {
     if (searchState.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -148,11 +166,11 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: theme.error),
+            Icon(Icons.error_outline, size: 64, color: colorScheme.error),
             const SizedBox(height: 16),
             Text(
               'Error: ${searchState.errorMessage}',
-              style: theme.bodyMedium,
+              style: textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ],
@@ -163,8 +181,8 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage> {
     if (searchState.results.isEmpty) {
       return EmptyStateWidget(
         icon: Icons.search_off_rounded,
-        title: FFLocalizations.of(context).getText('noresults'),
-        message: FFLocalizations.of(context).getText('noresultsmsg'),
+        title: l10n.noresults,
+        message: l10n.noresultsmsg,
       );
     }
 

@@ -1,5 +1,3 @@
-// lib/main.dart
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'generated/l10n/app_localizations.dart';
 import 'core/router/router_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/locale_provider.dart';
-import 'flutter_flow/internationalization.dart';
 import 'services/notification_service.dart';
 
 void main() async {
@@ -56,13 +54,13 @@ class MyApp extends ConsumerWidget {
 
       // Localization
       localizationsDelegates: const [
-        FFLocalizationsDelegate(),
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       locale: locale,
-      supportedLocales: const [Locale('en'), Locale('ar'), Locale('fr')],
+      supportedLocales: AppLocalizations.supportedLocales,
 
       // Material 3 Theme
       theme: AppTheme.lightTheme,

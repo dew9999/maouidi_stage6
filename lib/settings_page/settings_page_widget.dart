@@ -6,11 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../auth/supabase_auth/auth_util.dart';
 import '../../core/constants.dart';
-import '../../flutter_flow/flutter_flow_drop_down.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
-import 'package:maouidi/flutter_flow/flutter_flow_util.dart';
-import '../../flutter_flow/flutter_flow_widgets.dart';
-import '../../flutter_flow/form_field_controller.dart';
+import '../../core/extensions/extensions.dart';
+import '../../core/utils/app_helpers.dart';
+
+import 'package:maouidi/generated/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import '../../features/auth/presentation/user_role_provider.dart';
 import '../../features/settings/presentation/settings_controller.dart';
 import '../../index.dart';
@@ -34,18 +34,18 @@ class SettingsPageWidget extends ConsumerStatefulWidget {
 class _SettingsPageWidgetState extends ConsumerState<SettingsPageWidget> {
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final userRoleAsync = ref.watch(userRoleProvider);
 
     return Scaffold(
-      backgroundColor: theme.primaryBackground,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: theme.primaryBackground,
+        backgroundColor: theme.colorScheme.surface,
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Text(
-          FFLocalizations.of(context).getText('settings'),
-          style: theme.headlineMedium.override(fontFamily: 'Inter'),
+          AppLocalizations.of(context)!.settings,
+          style: theme.textTheme.headlineMedium?.copyWith(fontFamily: 'Inter'),
         ),
         centerTitle: true,
       ),
@@ -74,7 +74,7 @@ class _PatientSettingsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final settingsAsync = ref.watch(patientSettingsControllerProvider);
 
     return settingsAsync.when(
@@ -88,15 +88,15 @@ class _PatientSettingsView extends ConsumerWidget {
               onTap: () => context.pushNamed(UserProfileWidget.routeName),
             ),
             SettingsGroup(
-              title: FFLocalizations.of(context).getText('notifications'),
+              title: AppLocalizations.of(context)!.notifications,
               children: [
                 SettingsItem(
                   icon: Icons.notifications_active_outlined,
-                  title: FFLocalizations.of(context).getText('pushnotif'),
-                  subtitle: FFLocalizations.of(context).getText('rcvalerts'),
+                  title: AppLocalizations.of(context)!.pushnotif,
+                  subtitle: AppLocalizations.of(context)!.rcvalerts,
                   trailing: Switch.adaptive(
                     value: settings.notificationsEnabled,
-                    thumbColor: WidgetStateProperty.all(theme.primary),
+                    thumbColor: WidgetStateProperty.all(theme.colorScheme.primary),
                     onChanged: (newValue) {
                       ref
                           .read(patientSettingsControllerProvider.notifier)
@@ -108,12 +108,12 @@ class _PatientSettingsView extends ConsumerWidget {
             ),
             const _GeneralAndLegalSettings(),
             SettingsGroup(
-              title: FFLocalizations.of(context).getText('acctlegal'),
+              title: AppLocalizations.of(context)!.acctlegal,
               children: [
                 SettingsItem(
                   icon: Icons.work_outline,
-                  title: FFLocalizations.of(context).getText('becomeptr'),
-                  subtitle: FFLocalizations.of(context).getText('listservices'),
+                  title: AppLocalizations.of(context)!.becomeptr,
+                  subtitle: AppLocalizations.of(context)!.listservices,
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () => showDialog(
                     context: context,
@@ -125,16 +125,16 @@ class _PatientSettingsView extends ConsumerWidget {
                 ),
                 SettingsItem(
                   icon: Icons.delete_forever_outlined,
-                  title: FFLocalizations.of(context).getText('delacct'),
-                  iconColor: theme.error,
-                  iconBackgroundColor: theme.error.withAlpha(25),
+                  title: AppLocalizations.of(context)!.delacct,
+                  iconColor: theme.colorScheme.error,
+                  iconBackgroundColor: theme.colorScheme.error.withAlpha(25),
                   onTap: () => showDeleteAccountDialog(context),
                 ),
               ],
             ),
             Padding(
               padding: const EdgeInsets.all(24.0),
-              child: FFButtonWidget(
+              child: FilledButton(
                 onPressed: () async {
                   await ref
                       .read(patientSettingsControllerProvider.notifier)
@@ -143,13 +143,13 @@ class _PatientSettingsView extends ConsumerWidget {
                     context.go(WelcomeScreenWidget.routePath);
                   }
                 },
-                text: FFLocalizations.of(context).getText('logout'),
-                options: FFButtonOptions(
-                  width: double.infinity,
-                  height: 50,
-                  color: theme.error,
-                  textStyle: theme.titleSmall.copyWith(color: Colors.white),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor: theme.colorScheme.error,
+                  foregroundColor: Colors.white,
+                  textStyle: theme.textTheme.titleSmall,
                 ),
+                child: Text(AppLocalizations.of(context)!.logout),
               ),
             ),
           ],
@@ -172,7 +172,7 @@ class _PartnerSettingsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final settingsAsync = ref.watch(partnerSettingsControllerProvider);
 
     return settingsAsync.when(
@@ -207,15 +207,15 @@ class _PartnerSettingsView extends ConsumerWidget {
                 children: [_EmergencyCard()],
               ),
               SettingsGroup(
-                title: FFLocalizations.of(context).getText('notifications'),
+                title: AppLocalizations.of(context)!.notifications,
                 children: [
                   SettingsItem(
                     icon: Icons.notifications_active_outlined,
-                    title: FFLocalizations.of(context).getText('pushnotif'),
+                    title: AppLocalizations.of(context)!.pushnotif,
                     subtitle: 'Receive alerts for new bookings',
                     trailing: Switch.adaptive(
                       value: settings.notificationsEnabled,
-                      activeTrackColor: theme.primary,
+                      activeTrackColor: theme.colorScheme.primary,
                       onChanged: (newValue) {
                         ref
                             .read(partnerSettingsControllerProvider.notifier)
@@ -229,7 +229,7 @@ class _PartnerSettingsView extends ConsumerWidget {
               Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16),
-                child: FFButtonWidget(
+                child: FilledButton(
                   onPressed: settings.isSaving
                       ? null
                       : () async {
@@ -258,20 +258,22 @@ class _PartnerSettingsView extends ConsumerWidget {
                             }
                           }
                         },
-                  text: settings.isSaving
-                      ? FFLocalizations.of(context).getText('saving')
-                      : FFLocalizations.of(context).getText('saveall'),
-                  options: FFButtonOptions(
-                    width: double.infinity,
-                    height: 50,
-                    color: theme.primary,
-                    textStyle: theme.titleSmall.copyWith(color: Colors.white),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    textStyle: theme.textTheme.titleSmall,
+                  ),
+                  child: Text(
+                    settings.isSaving
+                        ? AppLocalizations.of(context)!.saving
+                        : AppLocalizations.of(context)!.saveall,
                   ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                child: FFButtonWidget(
+                child: FilledButton(
                   onPressed: () async {
                     await ref
                         .read(partnerSettingsControllerProvider.notifier)
@@ -280,13 +282,13 @@ class _PartnerSettingsView extends ConsumerWidget {
                       context.go(WelcomeScreenWidget.routePath);
                     }
                   },
-                  text: FFLocalizations.of(context).getText('logout'),
-                  options: FFButtonOptions(
-                    width: double.infinity,
-                    height: 50,
-                    color: theme.error,
-                    textStyle: theme.titleSmall.copyWith(color: Colors.white),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: theme.colorScheme.error,
+                    foregroundColor: Colors.white,
+                    textStyle: theme.textTheme.titleSmall,
                   ),
+                  child: Text(AppLocalizations.of(context)!.logout),
                 ),
               ),
             ],
@@ -307,7 +309,7 @@ class _PartnerSettingsView extends ConsumerWidget {
 
 class _ProfessionalDetailsSection extends ConsumerStatefulWidget {
   final dynamic settings;
-  final FlutterFlowTheme theme;
+  final ThemeData theme;
 
   const _ProfessionalDetailsSection({
     required this.settings,
@@ -321,23 +323,14 @@ class _ProfessionalDetailsSection extends ConsumerStatefulWidget {
 
 class _ProfessionalDetailsSectionState
     extends ConsumerState<_ProfessionalDetailsSection> {
-  late FormFieldController<String> _specialtyController;
-  late FormFieldController<String> _clinicController;
+  String? _selectedSpecialty;
+  String? _selectedClinic;
 
   @override
   void initState() {
     super.initState();
-    _specialtyController =
-        FormFieldController<String>(widget.settings.specialty);
-    _clinicController =
-        FormFieldController<String>(widget.settings.parentClinicId);
-  }
-
-  @override
-  void dispose() {
-    _specialtyController.dispose();
-    _clinicController.dispose();
-    super.dispose();
+    _selectedSpecialty = widget.settings.specialty;
+    _selectedClinic = widget.settings.parentClinicId;
   }
 
   @override
@@ -350,25 +343,30 @@ class _ProfessionalDetailsSectionState
           title: 'Specialty',
           trailing: SizedBox(
             width: 180,
-            child: FlutterFlowDropDown<String>(
-              controller: _specialtyController,
-              options: medicalSpecialties,
-              onChanged: (val) {
-                setState(() => _specialtyController.value = val);
-                ref
-                    .read(partnerSettingsControllerProvider.notifier)
-                    .updateSpecialty(val);
+            child: DropdownButton<String>(
+              value: _selectedSpecialty,
+              items: medicalSpecialties.map((String specialty) {
+                return DropdownMenuItem<String>(
+                  value: specialty,
+                  child: Text(
+                    specialty,
+                    style: widget.theme.textTheme.bodyMedium?.copyWith(
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                );
+              }).toList(),
+              onChanged: (String? val) {
+                if (val != null) {
+                  setState(() => _selectedSpecialty = val);
+                  ref
+                      .read(partnerSettingsControllerProvider.notifier)
+                      .updateSpecialty(val);
+                }
               },
-              textStyle: widget.theme.bodyMedium
-                  .copyWith(overflow: TextOverflow.ellipsis),
-              hintText: 'Select...',
-              fillColor: widget.theme.secondaryBackground,
-              elevation: 2,
-              borderColor: Colors.transparent,
-              borderWidth: 0,
-              borderRadius: 8,
-              margin: const EdgeInsets.fromLTRB(12, 4, 0, 4),
-              hidesUnderline: true,
+              hint: const Text('Select...'),
+              isExpanded: true,
+              underline: const SizedBox.shrink(),
             ),
           ),
         ),
@@ -377,34 +375,35 @@ class _ProfessionalDetailsSectionState
           title: 'Clinic',
           trailing: SizedBox(
             width: 180,
-            child: FlutterFlowDropDown<String>(
-              controller: _clinicController,
-              options: [
-                'None',
-                ...widget.settings.availableClinics.map((c) => c.id),
+            child: DropdownButton<String>(
+              value: _selectedClinic ?? 'None',
+              items: [
+                const DropdownMenuItem<String>(
+                  value: 'None',
+                  child: Text('None'),
+                ),
+                ...widget.settings.availableClinics.map((c) {
+                  return DropdownMenuItem<String>(
+                    value: c.id,
+                    child: Text(
+                      c.fullName ?? 'Unnamed Clinic',
+                      style: widget.theme.textTheme.bodyMedium?.copyWith(
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  );
+                }).toList(),
               ],
-              optionLabels: [
-                'None',
-                ...widget.settings.availableClinics
-                    .map((c) => c.fullName ?? 'Unnamed Clinic'),
-              ],
-              onChanged: (val) {
-                setState(
-                    () => _clinicController.value = val == 'None' ? null : val,);
+              onChanged: (String? val) {
+                final newValue = val == 'None' ? null : val;
+                setState(() => _selectedClinic = newValue);
                 ref
                     .read(partnerSettingsControllerProvider.notifier)
-                    .updateClinic(val == 'None' ? null : val);
+                    .updateClinic(newValue);
               },
-              textStyle: widget.theme.bodyMedium
-                  .copyWith(overflow: TextOverflow.ellipsis),
-              hintText: 'Select...',
-              fillColor: widget.theme.secondaryBackground,
-              elevation: 2,
-              borderColor: Colors.transparent,
-              borderWidth: 0,
-              borderRadius: 8,
-              margin: const EdgeInsets.fromLTRB(12, 4, 0, 4),
-              hidesUnderline: true,
+              hint: const Text('Select...'),
+              isExpanded: true,
+              underline: const SizedBox.shrink(),
             ),
           ),
         ),
@@ -415,7 +414,7 @@ class _ProfessionalDetailsSectionState
 
 class _BookingConfigurationSection extends ConsumerStatefulWidget {
   final dynamic settings;
-  final FlutterFlowTheme theme;
+  final ThemeData theme;
 
   const _BookingConfigurationSection({
     required this.settings,
@@ -457,7 +456,7 @@ class _BookingConfigurationSectionState
               widget.settings.isActive ? 'You are open' : 'You are closed',
           trailing: Switch.adaptive(
             value: widget.settings.isActive,
-            activeTrackColor: widget.theme.primary,
+            activeTrackColor: widget.theme.colorScheme.primary,
             onChanged: (newValue) {
               ref
                   .read(partnerSettingsControllerProvider.notifier)
@@ -473,7 +472,7 @@ class _BookingConfigurationSectionState
               : 'Manual Confirm',
           trailing: SegmentedButton<String>(
             style: SegmentedButton.styleFrom(
-              backgroundColor: widget.theme.primaryBackground,
+              backgroundColor: widget.theme.colorScheme.surface,
             ),
             segments: const [
               ButtonSegment(value: 'auto', label: Text('Auto')),
@@ -496,12 +495,12 @@ class _BookingConfigurationSectionState
           trailing: widget.settings.category == 'Homecare'
               ? Text(
                   'Queue (Required)',
-                  style: widget.theme.bodyMedium
-                      .copyWith(color: widget.theme.secondaryText),
+                  style: widget.theme.textTheme.bodyMedium
+                      ?.copyWith(color: widget.theme.colorScheme.onSurfaceVariant),
                 )
               : SegmentedButton<String>(
                   style: SegmentedButton.styleFrom(
-                    backgroundColor: widget.theme.primaryBackground,
+                    backgroundColor: widget.theme.colorScheme.surface,
                   ),
                   segments: const [
                     ButtonSegment(
@@ -552,7 +551,7 @@ class _BookingConfigurationSectionState
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: 'e.g., 20',
-                  hintStyle: widget.theme.labelMedium,
+                  hintStyle: widget.theme.textTheme.labelMedium,
                 ),
               ),
             ),
@@ -597,19 +596,19 @@ class _GeneralAndLegalSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       children: [
         SettingsGroup(
-          title: FFLocalizations.of(context).getText('general'),
+          title: AppLocalizations.of(context)!.general,
           children: [
             SettingsItem(
               icon: Icons.translate_rounded,
-              title: FFLocalizations.of(context).getText('language'),
+              title: AppLocalizations.of(context)!.language,
               trailing: DropdownButton<String>(
-                value: FFLocalizations.of(context).languageCode,
+                value: Localizations.localeOf(context).languageCode,
                 items: const [
                   DropdownMenuItem(value: 'en', child: Text('English')),
                   DropdownMenuItem(value: 'ar', child: Text('العربية')),
@@ -621,17 +620,17 @@ class _GeneralAndLegalSettings extends StatelessWidget {
                   }
                 },
                 underline: const SizedBox.shrink(),
-                icon: Icon(Icons.arrow_drop_down, color: theme.secondaryText),
-                dropdownColor: theme.secondaryBackground,
-                style: theme.bodyMedium,
+                icon: Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
+                dropdownColor: theme.colorScheme.surface,
+                style: theme.textTheme.bodyMedium,
               ),
             ),
             SettingsItem(
               icon: Icons.brightness_6_outlined,
-              title: FFLocalizations.of(context).getText('darkmode'),
+              title: AppLocalizations.of(context)!.darkmode,
               trailing: Switch.adaptive(
                 value: isDarkMode,
-                thumbColor: WidgetStateProperty.all(theme.primary),
+                thumbColor: WidgetStateProperty.all(theme.colorScheme.primary),
                 onChanged: (isDarkMode) {
                   final newMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
                   setDarkModeSetting(context, newMode);
@@ -640,7 +639,7 @@ class _GeneralAndLegalSettings extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.contact_support_outlined,
-              title: FFLocalizations.of(context).getText('contactus'),
+              title: AppLocalizations.of(context)!.contactus,
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () => showContactUsDialog(context),
             ),
@@ -651,13 +650,13 @@ class _GeneralAndLegalSettings extends StatelessWidget {
           children: [
             SettingsItem(
               icon: Icons.shield_outlined,
-              title: FFLocalizations.of(context).getText('privpolicy'),
+              title: AppLocalizations.of(context)!.privpolicy,
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () => context.pushNamed(PrivacyPolicyPage.routeName),
             ),
             SettingsItem(
               icon: Icons.description_outlined,
-              title: FFLocalizations.of(context).getText('termsserv'),
+              title: AppLocalizations.of(context)!.termsserv,
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () => context.pushNamed(TermsOfServicePage.routeName),
             ),
@@ -810,9 +809,9 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
 
           return ExpansionTile(
             key: PageStorageKey(dayName),
-            iconColor: FlutterFlowTheme.of(context).primaryText,
-            collapsedIconColor: FlutterFlowTheme.of(context).secondaryText,
-            title: Text(dayName, style: FlutterFlowTheme.of(context).bodyLarge),
+            iconColor: Theme.of(context).colorScheme.onSurface,
+            collapsedIconColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            title: Text(dayName, style: Theme.of(context).textTheme.bodyLarge),
             trailing: Switch(
               value: isEnabled,
               onChanged: (enabled) {
@@ -827,7 +826,7 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
                 });
                 widget.onChanged(_hours);
               },
-              activeTrackColor: FlutterFlowTheme.of(context).primary,
+              activeTrackColor: Theme.of(context).colorScheme.primary,
             ),
             children: [
               if (isEnabled)
@@ -845,8 +844,7 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
                           ),
                           margin: const EdgeInsets.only(bottom: 8),
                           decoration: BoxDecoration(
-                            color:
-                                FlutterFlowTheme.of(context).primaryBackground,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -854,7 +852,7 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
                             children: [
                               Text(
                                 timeSlot,
-                                style: FlutterFlowTheme.of(context).bodyMedium,
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               Row(
                                 children: [
@@ -862,8 +860,8 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
                                     icon: Icon(
                                       Icons.edit,
                                       size: 20,
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryText,
+                                      color: Theme.of(context)
+                                          .colorScheme.onSurfaceVariant,
                                     ),
                                     onPressed: () =>
                                         _editTimeSlot(context, dayKey, idx),
@@ -872,7 +870,7 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
                                     icon: Icon(
                                       Icons.delete_outline,
                                       size: 20,
-                                      color: FlutterFlowTheme.of(context).error,
+                                      color: Theme.of(context).colorScheme.error,
                                     ),
                                     onPressed: () {
                                       setState(() {
@@ -895,7 +893,7 @@ class _WorkingHoursEditorState extends State<_WorkingHoursEditor> {
                         child: OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(
                             foregroundColor:
-                                FlutterFlowTheme.of(context).primary,
+                                Theme.of(context).colorScheme.primary,
                           ),
                           icon: const Icon(Icons.add),
                           label: const Text('Add Time Slot'),
@@ -971,13 +969,13 @@ class _ClosedDaysEditorState extends ConsumerState<_ClosedDaysEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Specific Closed Days', style: theme.titleMedium),
+          Text('Specific Closed Days', style: theme.textTheme.titleMedium),
           const SizedBox(height: 16),
           widget.closedDays.isEmpty
               ? const Center(
@@ -994,9 +992,9 @@ class _ClosedDaysEditorState extends ConsumerState<_ClosedDaysEditor> {
                         (day) => Chip(
                           label: Text(DateFormat.yMMMd().format(day)),
                           onDeleted: () => _removeDay(day),
-                          deleteIconColor: theme.error,
-                          backgroundColor: theme.primaryBackground,
-                          labelStyle: theme.bodyMedium,
+                          deleteIconColor: theme.colorScheme.error,
+                          backgroundColor: theme.colorScheme.surface,
+                          labelStyle: theme.textTheme.bodyMedium,
                         ),
                       )
                       .toList(),
@@ -1005,13 +1003,12 @@ class _ClosedDaysEditorState extends ConsumerState<_ClosedDaysEditor> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(foregroundColor: theme.primary),
+              style: OutlinedButton.styleFrom(foregroundColor: theme.colorScheme.primary),
               icon: _isAdding
-                  ? Container(
+                  ? const SizedBox(
                       width: 24,
                       height: 24,
-                      padding: const EdgeInsets.all(2.0),
-                      child: const CircularProgressIndicator(strokeWidth: 3),
+                      child: CircularProgressIndicator(strokeWidth: 3),
                     )
                   : const Icon(Icons.add),
               label: Text(_isAdding ? 'Processing...' : 'Add a Closed Day'),
@@ -1048,7 +1045,7 @@ class _EmergencyCard extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(FFLocalizations.of(context).getText('cancel')),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -1077,7 +1074,7 @@ class _EmergencyCard extends ConsumerWidget {
                 }
               }
             },
-            child: const Text('Confirm', style: TextStyle(color: Colors.red)),
+            child: const Text('Confirm', style: TextStyle(backgroundColor: Colors.red)),
           ),
         ],
       ),
@@ -1100,3 +1097,7 @@ Future<void> showContactUsDialog(BuildContext context) async {
     ),
   );
 }
+
+
+
+

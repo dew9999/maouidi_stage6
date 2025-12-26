@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 
 class SettingsGroup extends StatelessWidget {
   final String title;
@@ -9,7 +8,10 @@ class SettingsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -17,13 +19,14 @@ class SettingsGroup extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
           child: Text(
             title.toUpperCase(),
-            style: theme.labelMedium.copyWith(color: theme.secondaryText),
+            style: textTheme.labelMedium
+                ?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
         ),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: theme.secondaryBackground,
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -33,7 +36,7 @@ class SettingsGroup extends StatelessWidget {
                 children: [
                   children[index],
                   if (index != children.length - 1)
-                    Divider(height: 1, color: theme.alternate, indent: 56),
+                    Divider(height: 1, color: colorScheme.outline, indent: 56),
                 ],
               );
             }),

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 
-class BecomePartnerDialog extends StatefulWidget {
-  // MODIFIED: Added parameters to receive user data
+// Riverpod provider for loading state
+final _becomePartnerLoadingProvider =
+    StateProvider.autoDispose<bool>((ref) => false);
+
+class BecomePartnerDialog extends ConsumerWidget {
   final String currentDisplayName;
   final String currentPhoneNumber;
 
@@ -13,84 +16,81 @@ class BecomePartnerDialog extends StatefulWidget {
     required this.currentPhoneNumber,
   });
 
-  @override
-  State<BecomePartnerDialog> createState() => _BecomePartnerDialogState();
-}
-
-class _BecomePartnerDialogState extends State<BecomePartnerDialog> {
-  final formKey = GlobalKey<FormState>();
-  late final TextEditingController firstNameController;
-  late final TextEditingController lastNameController;
-  late final TextEditingController phoneController;
-  final addressController = TextEditingController();
-  final nationalIdController = TextEditingController();
-  final licenseController = TextEditingController();
-  bool isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // MODIFIED: Use the passed-in widget data to initialize controllers
-    final nameParts = widget.currentDisplayName.split(' ');
-    firstNameController = TextEditingController(
-        text: nameParts.isNotEmpty ? nameParts.first : '',);
-    lastNameController = TextEditingController(
-        text: nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',);
-    phoneController = TextEditingController(text: widget.currentPhoneNumber);
-  }
-
-  @override
-  void dispose() {
-    firstNameController.dispose();
-    lastNameController.dispose();
-    phoneController.dispose();
-    addressController.dispose();
-    nationalIdController.dispose();
-    licenseController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submitApplication() async {
-    if (formKey.currentState!.validate() && !isLoading) {
-      setState(() => isLoading = true);
+  Future<void> _submitApplication(
+    BuildContext context,
+    WidgetRef ref,
+    GlobalKey<FormState> formKey,
+    TextEditingController firstNameController,
+    TextEditingController lastNameController,
+    TextEditingController phoneController,
+    TextEditingController addressController,
+    TextEditingController nationalIdController,
+    TextEditingController licenseController,
+  ) async {
+    if (formKey.currentState!.validate()) {
+      ref.read(_becomePartnerLoadingProvider.notifier).state = true;
       try {
-        await Supabase.instance.client
-            .rpc('submit_partner_application', params: {
-          'first_name_arg': firstNameController.text,
-          'last_name_arg': lastNameController.text,
-          'phone_arg': phoneController.text,
-          'address_arg': addressController.text,
-          'national_id_arg': nationalIdController.text,
-          'license_id_arg': licenseController.text,
-        },);
+        await Supabase.instance.client.rpc(
+          'submit_partner_application',
+          params: {
+            'first_name_arg': firstNameController.text,
+            'last_name_arg': lastNameController.text,
+            'phone_arg': phoneController.text,
+            'address_arg': addressController.text,
+            'national_id_arg': nationalIdController.text,
+            'license_id_arg': licenseController.text,
+          },
+        );
 
-        if (!mounted) return;
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Application submitted! We will contact you soon.'),
-          backgroundColor: Colors.green,
-        ),);
-      } catch (e) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              'Error: ${e is PostgrestException ? e.message : e.toString()}',),
-          backgroundColor: FlutterFlowTheme.of(context).error,
-        ),);
-      } finally {
-        if (mounted) {
-          setState(() => isLoading = false);
+        if (context.mounted) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Application submitted! We will contact you soon.'),
+              backgroundColor: Colors.green,
+            ),
+          );
         }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Error: ${e is PostgrestException ? e.message : e.toString()}',
+              ),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+      } finally {
+        ref.read(_becomePartnerLoadingProvider.notifier).state = false;
       }
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final isLoading = ref.watch(_becomePartnerLoadingProvider);
+
+    final formKey = GlobalKey<FormState>();
+    final nameParts = currentDisplayName.split(' ');
+    final firstNameController = TextEditingController(
+      text: nameParts.isNotEmpty ? nameParts.first : '',
+    );
+    final lastNameController = TextEditingController(
+      text: nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',
+    );
+    final phoneController = TextEditingController(text: currentPhoneNumber);
+    final addressController = TextEditingController();
+    final nationalIdController = TextEditingController();
+    final licenseController = TextEditingController();
+
     return AlertDialog(
-      backgroundColor: theme.secondaryBackground,
-      title: Text('Partner Application', style: theme.headlineSmall),
+      backgroundColor: colorScheme.surface,
+      title: Text('Partner Application', style: textTheme.headlineSmall),
       content: Form(
         key: formKey,
         child: SingleChildScrollView(
@@ -141,17 +141,34 @@ class _BecomePartnerDialogState extends State<BecomePartnerDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text('Cancel', style: TextStyle(color: theme.secondaryText)),
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
+          ),
         ),
         ElevatedButton(
-          onPressed: _submitApplication,
-          style: ElevatedButton.styleFrom(backgroundColor: theme.primary),
+          onPressed: isLoading
+              ? null
+              : () => _submitApplication(
+                    context,
+                    ref,
+                    formKey,
+                    firstNameController,
+                    lastNameController,
+                    phoneController,
+                    addressController,
+                    nationalIdController,
+                    licenseController,
+                  ),
+          style: ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
           child: isLoading
               ? const SizedBox(
                   width: 20,
                   height: 20,
                   child: CircularProgressIndicator(
-                      color: Colors.white, strokeWidth: 2,),
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
                 )
               : const Text('Submit'),
         ),

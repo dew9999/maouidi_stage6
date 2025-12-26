@@ -1,7 +1,6 @@
 // lib/settings_page/components/profile_card.dart
 
 import 'package:flutter/material.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 
 class ProfileCard extends StatelessWidget {
   const ProfileCard({
@@ -17,7 +16,10 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: InkWell(
@@ -26,7 +28,7 @@ class ProfileCard extends StatelessWidget {
         child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: theme.secondaryBackground,
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
@@ -35,10 +37,11 @@ class ProfileCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 24,
-                  backgroundColor: theme.primary,
+                  backgroundColor: colorScheme.primary,
                   child: Text(
                     name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?',
-                    style: theme.titleLarge.copyWith(color: Colors.white),
+                    style: textTheme.titleLarge
+                        ?.copyWith(color: colorScheme.onPrimary),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -46,16 +49,23 @@ class ProfileCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name.isNotEmpty ? name : 'User Profile',
-                          style: theme.titleLarge,),
-                      Text(email,
-                          style: theme.bodyMedium
-                              .copyWith(color: theme.secondaryText),),
+                      Text(
+                        name.isNotEmpty ? name : 'User Profile',
+                        style: textTheme.titleLarge,
+                      ),
+                      Text(
+                        email,
+                        style: textTheme.bodyMedium
+                            ?.copyWith(color: colorScheme.onSurfaceVariant),
+                      ),
                     ],
                   ),
                 ),
-                Icon(Icons.arrow_forward_ios,
-                    color: theme.secondaryText, size: 18,),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: colorScheme.onSurfaceVariant,
+                  size: 18,
+                ),
               ],
             ),
           ),
