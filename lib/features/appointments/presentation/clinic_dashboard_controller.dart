@@ -1,6 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../data/appointment_model.dart';
 import '../../../backend/supabase/database/tables/medical_partners.dart';
 
 part 'clinic_dashboard_controller.g.dart';
@@ -78,7 +77,7 @@ class ClinicDashboardController extends _$ClinicDashboardController {
   }
 
   Future<List<Map<String, dynamic>>> _fetchAppointments(
-      String? doctorId) async {
+      String? doctorId,) async {
     final data = await Supabase.instance.client.rpc(
       'get_clinic_appointments',
       params: {
@@ -101,12 +100,12 @@ class ClinicDashboardController extends _$ClinicDashboardController {
         selectedDoctorId: doctorId,
         appointments: appointments,
         isLoading: false,
-      ));
+      ),);
     } catch (e) {
       state = AsyncValue.data(currentState.copyWith(
         isLoading: false,
         errorMessage: 'Failed to filter appointments: ${e.toString()}',
-      ));
+      ),);
     }
   }
 

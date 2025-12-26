@@ -457,7 +457,7 @@ class _ReviewSheet extends ConsumerWidget {
   final VoidCallback onSuccess;
 
   Future<void> _submitReview(BuildContext context, WidgetRef ref,
-      TextEditingController reviewController) async {
+      TextEditingController reviewController,) async {
     final isSubmitting = ref.read(_reviewIsSubmittingProvider);
     if (isSubmitting) return;
 

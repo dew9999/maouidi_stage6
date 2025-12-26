@@ -103,7 +103,7 @@ class UserProfileController extends AsyncNotifier<UserProfileState> {
               : null,
           gender: _validateGender(original['gender']?.toString()),
           wilaya: original['wilaya']?.toString(),
-        ));
+        ),);
       } else {
         state = AsyncValue.data(state.value!.copyWith(isEditing: false));
       }
@@ -128,7 +128,7 @@ class UserProfileController extends AsyncNotifier<UserProfileState> {
       dateOfBirth: dateOfBirth,
       gender: gender,
       wilaya: wilaya,
-    ));
+    ),);
   }
 
   Future<bool> saveProfile() async {

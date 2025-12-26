@@ -24,12 +24,8 @@ GoRouter router(RouterRef ref) {
     redirect: (context, state) async {
       final path = state.uri.path;
 
-      final user = authState.when(
-        data: (user) => user,
-        loading: () => null,
-        error: (_, __) => null,
-      );
-
+      // Get current user synchronously to avoid redirect loops during stream loading
+      final user = Supabase.instance.client.auth.currentUser;
       final isLoggedIn = user != null;
 
       final publicRoutes = [
@@ -40,6 +36,11 @@ GoRouter router(RouterRef ref) {
         '/privacyPolicy',
         '/termsOfService',
       ];
+
+      // 0. Redirect from initial route based on auth status
+      if (path == '/') {
+        return isLoggedIn ? '/home' : '/welcomeScreen';
+      }
 
       // 1. Block unauthenticated users
       if (!isLoggedIn && !publicRoutes.contains(path)) {
@@ -137,7 +138,7 @@ GoRouter router(RouterRef ref) {
       ),
       GoRoute(
         name: 'HomePage',
-        path: '/homePage',
+        path: '/home',
         builder: (context, state) => const MainLayout(initialPageIndex: 0),
       ),
       GoRoute(

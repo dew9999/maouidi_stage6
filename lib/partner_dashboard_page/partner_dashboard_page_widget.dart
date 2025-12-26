@@ -227,7 +227,7 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
               }
             },
             style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary),
+                backgroundColor: theme.colorScheme.primary,),
             child: Text(AppLocalizations.of(context)!.submitreq),
           ),
         ],
@@ -386,7 +386,7 @@ class _ClinicDashboardView extends ConsumerWidget {
                 onSelectionChanged: (newSelection) {
                   ref
                       .read(
-                          clinicDashboardControllerProvider(partnerId).notifier)
+                          clinicDashboardControllerProvider(partnerId).notifier,)
                       .setView(newSelection.first);
                 },
                 style: SegmentedButton.styleFrom(
@@ -751,7 +751,7 @@ class _NumberQueueView extends ConsumerWidget {
                   style: theme.textTheme.titleMedium,
                 ),
                 Icon(Icons.calendar_month_outlined,
-                    color: theme.colorScheme.primary),
+                    color: theme.colorScheme.primary,),
               ],
             ),
           ),
@@ -962,7 +962,7 @@ class _AnalyticsViewContent extends StatelessWidget {
       child: Column(
         children: [
           Text('Completed Appointments - Last 7 Days',
-              style: theme.textTheme.titleLarge),
+              style: theme.textTheme.titleLarge,),
           const SizedBox(height: 24),
           SizedBox(
             height: 200,
@@ -1125,7 +1125,7 @@ class _AnalyticsCard extends StatelessWidget {
           Text(value.toString(), style: theme.textTheme.displaySmall),
           const SizedBox(height: 8),
           Text(label,
-              style: theme.textTheme.labelMedium, textAlign: TextAlign.center),
+              style: theme.textTheme.labelMedium, textAlign: TextAlign.center,),
         ],
       ),
     );
@@ -1298,7 +1298,7 @@ class _AppointmentInfoCard extends ConsumerWidget {
           ),
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert,
-                color: theme.colorScheme.onSurfaceVariant),
+                color: theme.colorScheme.onSurfaceVariant,),
             onSelected: (value) async {
               if (value == 'no-show') {
                 await controller.noShow(appointmentId);
@@ -1378,7 +1378,7 @@ class _UpNextQueueCard extends ConsumerWidget {
               title: Text(displayName, style: theme.textTheme.titleMedium),
               trailing: PopupMenuButton<String>(
                 icon: Icon(Icons.more_vert,
-                    color: theme.colorScheme.onSurfaceVariant),
+                    color: theme.colorScheme.onSurfaceVariant,),
                 onSelected: (value) async {
                   final controller = ref.read(
                     partnerDashboardControllerProvider(partnerId).notifier,

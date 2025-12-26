@@ -484,7 +484,7 @@ class _BookingConfigurationSectionState
               ? Text(
                   'Queue (Required)',
                   style: widget.theme.textTheme.bodyMedium?.copyWith(
-                      color: widget.theme.colorScheme.onSurfaceVariant),
+                      color: widget.theme.colorScheme.onSurfaceVariant,),
                 )
               : SegmentedButton<String>(
                   style: SegmentedButton.styleFrom(
@@ -602,7 +602,7 @@ class _GeneralAndLegalSettings extends StatelessWidget {
                 },
                 underline: const SizedBox.shrink(),
                 icon: Icon(Icons.arrow_drop_down,
-                    color: theme.colorScheme.onSurfaceVariant),
+                    color: theme.colorScheme.onSurfaceVariant,),
                 dropdownColor: theme.colorScheme.surface,
                 style: theme.textTheme.bodyMedium,
               ),
@@ -720,7 +720,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
   }
 
   Future<void> _addTimeSlot(
-      BuildContext context, WidgetRef ref, String dayKey) async {
+      BuildContext context, WidgetRef ref, String dayKey,) async {
     const startTime = TimeOfDay(hour: 9, minute: 0);
     const endTime = TimeOfDay(hour: 17, minute: 0);
 
@@ -814,7 +814,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
                   collapsedIconColor:
                       Theme.of(context).colorScheme.onSurfaceVariant,
                   title: Text(dayName,
-                      style: Theme.of(context).textTheme.bodyLarge),
+                      style: Theme.of(context).textTheme.bodyLarge,),
                   trailing: Switch(
                     value: isEnabled,
                     onChanged: (enabled) {
@@ -867,7 +867,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
                                                 .onSurfaceVariant,
                                           ),
                                           onPressed: () => _editTimeSlot(
-                                              context, ref, hours, dayKey, idx),
+                                              context, ref, hours, dayKey, idx,),
                                         ),
                                         IconButton(
                                           icon: Icon(
@@ -881,9 +881,9 @@ class _WorkingHoursEditor extends ConsumerWidget {
                                             ref
                                                 .read(
                                                     partnerSettingsControllerProvider
-                                                        .notifier)
+                                                        .notifier,)
                                                 .removeWorkingHourSlot(
-                                                    dayKey, idx);
+                                                    dayKey, idx,);
                                           },
                                         ),
                                       ],
@@ -913,7 +913,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
               }).toList(),
             ),
           );
-        });
+        },);
   }
 }
 
@@ -1004,7 +1004,7 @@ class _ClosedDaysEditor extends ConsumerWidget {
             width: double.infinity,
             child: OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.colorScheme.primary),
+                  foregroundColor: theme.colorScheme.primary,),
               icon: const Icon(Icons.add),
               label: const Text('Add a Closed Day'),
               onPressed: () => _addDay(context, ref),
@@ -1070,7 +1070,7 @@ class _EmergencyCard extends ConsumerWidget {
               }
             },
             child: const Text('Confirm',
-                style: TextStyle(backgroundColor: Colors.red)),
+                style: TextStyle(backgroundColor: Colors.red),),
           ),
         ],
       ),

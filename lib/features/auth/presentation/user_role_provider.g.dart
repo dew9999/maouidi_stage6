@@ -6,7 +6,7 @@ part of 'user_role_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$userRoleHash() => r'f823c5ce7eab2aab87f9dfdf8dffc49487f7461b';
+String _$userRoleHash() => r'64d38a6b303c334c0d40bc52b275529b2491d667';
 
 /// FutureProvider that reactively fetches the user's role.
 ///

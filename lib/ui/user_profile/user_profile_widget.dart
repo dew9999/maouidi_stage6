@@ -56,8 +56,8 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
 
       if (nextState != null) {
         // Initial load or if we just cancelled editing
-        bool justLoaded = prevState == null;
-        bool cancelledEditing =
+        final bool justLoaded = prevState == null;
+        final bool cancelledEditing =
             (prevState?.isEditing == true && !nextState.isEditing);
 
         if (justLoaded || cancelledEditing) {
@@ -181,7 +181,7 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text(
-                                          'Profile updated successfully!')),
+                                          'Profile updated successfully!',),),
                                 );
                               }
                             } catch (e) {
@@ -189,7 +189,7 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content:
-                                          Text('Error saving profile: $e')),
+                                          Text('Error saving profile: $e'),),
                                 );
                               }
                             }

@@ -45,7 +45,7 @@ class PatientSettingsController extends _$PatientSettingsController {
     final previousState = state;
     if (state.hasValue) {
       state = AsyncValue.data(
-          state.value!.copyWith(notificationsEnabled: isEnabled));
+          state.value!.copyWith(notificationsEnabled: isEnabled),);
     }
     // Optimistic update - in real app, save to DB here
   }
@@ -102,7 +102,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
 
   Map<String, List<String>> _parseWorkingHours(dynamic data) {
     if (data == null) return {};
-    Map<String, List<String>> result = {};
+    final Map<String, List<String>> result = {};
 
     if (data is Map) {
       data.forEach((key, value) {
@@ -179,7 +179,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
       hours[day] = [];
     }
     // Default slot
-    hours[day]!.add("09:00-17:00");
+    hours[day]!.add('09:00-17:00');
     _updateHoursState(hours);
   }
 
@@ -199,7 +199,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
   }
 
   Future<void> updateWorkingHourSlot(
-      String day, int index, String newSlot) async {
+      String day, int index, String newSlot,) async {
     if (!state.hasValue) return;
     final hours = _getCurrentHours();
     if (hours.containsKey(day) && hours[day]!.length > index) {
@@ -213,7 +213,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     final hours = _getCurrentHours();
     if (isOpen) {
       if (!hours.containsKey(day)) {
-        hours[day] = ["09:00-17:00"];
+        hours[day] = ['09:00-17:00'];
       }
     } else {
       hours.remove(day);
@@ -232,7 +232,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     final currentDays = List<DateTime>.from(state.value!.closedDays);
 
     if (!currentDays.any((d) =>
-        d.year == day.year && d.month == day.month && d.day == day.day)) {
+        d.year == day.year && d.month == day.month && d.day == day.day,)) {
       currentDays.add(day);
       state = AsyncValue.data(state.value!.copyWith(closedDays: currentDays));
     }
@@ -243,7 +243,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     final currentDays = List<DateTime>.from(state.value!.closedDays);
 
     currentDays.removeWhere(
-        (d) => d.year == day.year && d.month == day.month && d.day == day.day);
+        (d) => d.year == day.year && d.month == day.month && d.day == day.day,);
 
     state = AsyncValue.data(state.value!.copyWith(closedDays: currentDays));
   }
@@ -280,7 +280,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
       state = AsyncValue.data(currentState.copyWith(
         isSaving: false,
         errorMessage: 'Failed to save: ${e.toString()}',
-      ));
+      ),);
       rethrow;
     }
   }

@@ -17,17 +17,11 @@ part 'user_role_provider.g.dart';
 /// - null - User is not authenticated
 @riverpod
 Future<String?> userRole(UserRoleRef ref) async {
-  // Watch auth state - this will cause the provider to rebuild when auth changes
-  final authStateAsync = ref.watch(authStateProvider);
+  // Watch auth state future directly - this will cause the provider to rebuild when auth changes
+  final user = await ref.watch(authStateProvider.future);
 
-  return authStateAsync.when(
-    data: (user) async {
-      if (user == null) return null;
+  if (user == null) return null;
 
-      final repository = ref.watch(authRepositoryProvider);
-      return await repository.getUserRole(user.id);
-    },
-    loading: () => null,
-    error: (_, __) => null,
-  );
+  final repository = ref.watch(authRepositoryProvider);
+  return await repository.getUserRole(user.id);
 }
