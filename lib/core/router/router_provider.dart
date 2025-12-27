@@ -35,6 +35,7 @@ GoRouter router(RouterRef ref) {
         '/forgotPassword',
         '/privacyPolicy',
         '/termsOfService',
+        '/verifyEmail', // Allow access to verify email page
       ];
 
       // 0. Redirect from initial route based on auth status
@@ -42,22 +43,23 @@ GoRouter router(RouterRef ref) {
         return isLoggedIn ? '/home' : '/welcomeScreen';
       }
 
-      // 1. Block unauthenticated users
+      // 1. Block unauthenticated users from protected routes
       if (!isLoggedIn && !publicRoutes.contains(path)) {
         return '/welcomeScreen';
       }
 
-      // 2. Redirect authenticated users AWAY from login screens
-      if (isLoggedIn &&
-          (path == '/login' || path == '/welcomeScreen' || path == '/create')) {
-        return '/home';
-      }
-
-      // 3. Check if email is verified
+      // 2. Check if email needs verification FIRST (before other redirects)
       if (isLoggedIn &&
           user.emailConfirmedAt == null &&
           path != '/verifyEmail') {
         return '/verifyEmail';
+      }
+
+      // 3. Redirect authenticated users with VERIFIED emails away from auth screens
+      if (isLoggedIn &&
+          user.emailConfirmedAt != null &&
+          (path == '/login' || path == '/welcomeScreen' || path == '/create')) {
+        return '/home';
       }
 
       return null;

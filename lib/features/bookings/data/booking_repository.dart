@@ -77,10 +77,12 @@ class BookingRepository {
       );
 
       final List<TimeSlot> availableSlots = (response as List<dynamic>)
-          .map((item) => TimeSlot(
-                time: DateTime.parse(item['available_slot'] as String),
-                status: SlotStatus.available,
-              ),)
+          .map(
+            (item) => TimeSlot(
+              time: DateTime.parse(item['available_slot'] as String),
+              status: SlotStatus.available,
+            ),
+          )
           .toList();
 
       return availableSlots;
@@ -98,7 +100,8 @@ class BookingRepository {
       final response = await _supabase
           .from('medical_partners')
           .select(
-              'booking_system_type, full_name, closed_days, category, working_hours',)
+            'booking_system_type, full_name, closed_days, category, working_hours',
+          )
           .eq('id', partnerId)
           .maybeSingle();
 
@@ -137,6 +140,42 @@ class BookingRepository {
         'patient_location_arg': patientLocation,
       },
     );
+  }
+
+  /// Create a homecare request (goes to homecare_requests table, NOT appointments).
+  ///
+  /// Homecare requests are sent to a SPECIFIC partner through their profile.
+  /// The partner can then accept or decline the request.
+  ///
+  /// Throws [PostgrestException] if creation fails.
+  Future<void> createHomecareRequest({
+    required String partnerId,
+    required String caseDescription,
+    required String patientLocation,
+    required String wilaya,
+    DateTime? preferredDate,
+    String? preferredTime,
+    String? onBehalfOfName,
+    String? onBehalfOfPhone,
+  }) async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) {
+      throw Exception('User not authenticated');
+    }
+
+    await _supabase.from('homecare_requests').insert({
+      'patient_id': userId,
+      'partner_id': partnerId, // Request sent to specific partner
+      'service_type': 'General Homecare',
+      'case_description': caseDescription,
+      'address': patientLocation,
+      'wilaya': wilaya,
+      'preferred_date': preferredDate?.toIso8601String(),
+      'preferred_time': preferredTime,
+      'status': 'pending',
+      'on_behalf_of_name': onBehalfOfName,
+      'on_behalf_of_phone': onBehalfOfPhone,
+    });
   }
 }
 

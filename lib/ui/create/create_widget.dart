@@ -145,10 +145,30 @@ class _CreateWidgetState extends ConsumerState<CreateWidget> {
         },
       );
 
+      // Debug: Check signup response
+      print('Signup response - User: ${response.user?.id}');
+      print('Email confirmed at: ${response.user?.emailConfirmedAt}');
+
+      // Check if signup was successful
+      if (response.user == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account creation failed. Please try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Navigate to verify email page
       if (context.mounted) {
+        print('Navigating to verify email page');
         context.go('/verifyEmail');
       }
     } on AuthException catch (e) {
+      print('AuthException during signup: ${e.message}');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -158,6 +178,7 @@ class _CreateWidgetState extends ConsumerState<CreateWidget> {
         );
       }
     } catch (e) {
+      print('Error during signup: ${e.toString()}');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -242,8 +263,10 @@ class _CreateWidgetState extends ConsumerState<CreateWidget> {
                     decoration: InputDecoration(
                       labelText: 'First Name *',
                       hintText: 'Enter your first name',
-                      prefixIcon: Icon(Icons.person_outline,
-                          color: colorScheme.primary),
+                      prefixIcon: Icon(
+                        Icons.person_outline,
+                        color: colorScheme.primary,
+                      ),
                       filled: true,
                       fillColor: colorScheme.surfaceContainerHighest,
                       border: OutlineInputBorder(
@@ -276,8 +299,10 @@ class _CreateWidgetState extends ConsumerState<CreateWidget> {
                     decoration: InputDecoration(
                       labelText: 'Last Name *',
                       hintText: 'Enter your last name',
-                      prefixIcon: Icon(Icons.person_outline,
-                          color: colorScheme.primary),
+                      prefixIcon: Icon(
+                        Icons.person_outline,
+                        color: colorScheme.primary,
+                      ),
                       filled: true,
                       fillColor: colorScheme.surfaceContainerHighest,
                       border: OutlineInputBorder(
@@ -306,8 +331,10 @@ class _CreateWidgetState extends ConsumerState<CreateWidget> {
                     decoration: InputDecoration(
                       labelText: 'Email Address *',
                       hintText: 'Enter your email',
-                      prefixIcon: Icon(Icons.email_outlined,
-                          color: colorScheme.primary),
+                      prefixIcon: Icon(
+                        Icons.email_outlined,
+                        color: colorScheme.primary,
+                      ),
                       filled: true,
                       fillColor: colorScheme.surfaceContainerHighest,
                       border: OutlineInputBorder(
@@ -347,8 +374,10 @@ class _CreateWidgetState extends ConsumerState<CreateWidget> {
                     decoration: InputDecoration(
                       labelText: 'Phone Number *',
                       hintText: '05XXXXXXXX',
-                      prefixIcon: Icon(Icons.phone_outlined,
-                          color: colorScheme.primary),
+                      prefixIcon: Icon(
+                        Icons.phone_outlined,
+                        color: colorScheme.primary,
+                      ),
                       filled: true,
                       fillColor: colorScheme.surfaceContainerHighest,
                       border: OutlineInputBorder(

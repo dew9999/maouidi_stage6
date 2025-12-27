@@ -134,7 +134,9 @@ class HomePageWidget extends ConsumerWidget {
                     // Glassmorphic Search Bar
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 8.0),
+                        horizontal: 20.0,
+                        vertical: 8.0,
+                      ),
                       child: TweenAnimationBuilder<double>(
                         tween: Tween(begin: 0.0, end: 1.0),
                         duration: const Duration(milliseconds: 600),
@@ -176,7 +178,7 @@ class HomePageWidget extends ConsumerWidget {
                                     context.pushNamed(
                                       'SearchResultsPage',
                                       queryParameters: {
-                                        'searchTerm': value.trim()
+                                        'searchTerm': value.trim(),
                                       },
                                     );
                                   }
@@ -281,9 +283,9 @@ class HomePageWidget extends ConsumerWidget {
                           _ModernCategoryCard(
                             icon: Icons.local_hospital_rounded,
                             label: l10n.clinics,
-                            gradientColors: [
-                              const Color(0xFF4F46E5),
-                              const Color(0xFF6366F1),
+                            gradientColors: const [
+                              Color(0xFF4F46E5),
+                              Color(0xFF6366F1),
                             ],
                             onTap: () {
                               context.pushNamed(
@@ -295,9 +297,9 @@ class HomePageWidget extends ConsumerWidget {
                           _ModernCategoryCard(
                             icon: Icons.home_work_rounded,
                             label: l10n.homecare,
-                            gradientColors: [
-                              const Color(0xFF059669),
-                              const Color(0xFF10B981),
+                            gradientColors: const [
+                              Color(0xFF059669),
+                              Color(0xFF10B981),
                             ],
                             onTap: () {
                               context.pushNamed(
@@ -309,9 +311,9 @@ class HomePageWidget extends ConsumerWidget {
                           _ModernCategoryCard(
                             icon: Icons.favorite_rounded,
                             label: l10n.charities,
-                            gradientColors: [
-                              const Color(0xFFDC2626),
-                              const Color(0xFFEF4444),
+                            gradientColors: const [
+                              Color(0xFFDC2626),
+                              Color(0xFFEF4444),
                             ],
                             onTap: () {
                               context.pushNamed(

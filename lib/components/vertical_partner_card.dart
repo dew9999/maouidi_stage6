@@ -171,10 +171,10 @@ class _VerticalPartnerCardState extends State<VerticalPartnerCard>
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
+                                gradient: const LinearGradient(
                                   colors: [
-                                    const Color(0xFF1E40AF),
-                                    const Color(0xFF3B82F6),
+                                    Color(0xFF1E40AF),
+                                    Color(0xFF3B82F6),
                                   ],
                                 ),
                                 borderRadius: BorderRadius.circular(20),

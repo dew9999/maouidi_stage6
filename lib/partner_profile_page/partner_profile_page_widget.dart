@@ -148,7 +148,7 @@ class PartnerProfilePageWidget extends ConsumerWidget {
                                 ),
                               ),
                             const SizedBox(width: 12),
-                            Icon(
+                            const Icon(
                               Icons.star,
                               color: Colors.amber,
                               size: 20,

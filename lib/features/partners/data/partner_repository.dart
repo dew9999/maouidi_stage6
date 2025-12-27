@@ -103,7 +103,7 @@ class PartnerRepository {
         .maybeSingle();
 
     if (response == null) return null;
-    return MedicalPartnersRow(response as Map<String, dynamic>);
+    return MedicalPartnersRow(response);
   }
 }
 

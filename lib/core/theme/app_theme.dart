@@ -62,7 +62,10 @@ class AppTheme {
         ThemeData.dark().textTheme,
       ).copyWith(
         displayLarge: GoogleFonts.inter(
-            fontSize: 57, fontWeight: FontWeight.w400, letterSpacing: -0.25),
+          fontSize: 57,
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.25,
+        ),
         displayMedium:
             GoogleFonts.inter(fontSize: 45, fontWeight: FontWeight.w400),
         displaySmall:
