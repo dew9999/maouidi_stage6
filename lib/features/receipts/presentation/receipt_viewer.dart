@@ -83,7 +83,8 @@ class ReceiptViewer extends ConsumerWidget {
                         if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content: Text('Error generating receipt: $e')),
+                            content: Text('Error generating receipt: $e'),
+                          ),
                         );
                       }
                     },
@@ -96,7 +97,7 @@ class ReceiptViewer extends ConsumerWidget {
           }
 
           final receiptNumber = receipt['receipt_number'] as String;
-          final servicePr ice = (receipt['service_price'] as num).toDouble();
+          final servicePrice = (receipt['service_price'] as num).toDouble();
           final platformFee = (receipt['platform_fee'] as num).toDouble();
           final totalPaid = (receipt['total_paid'] as num).toDouble();
           final partnerAmount = (receipt['partner_amount'] as num).toDouble();
@@ -149,7 +150,10 @@ class ReceiptViewer extends ConsumerWidget {
                         ),
                         const SizedBox(height: 16),
                         _buildPriceRow(
-                            'Service Price:', servicePrice, textTheme),
+                          'Service Price:',
+                          servicePrice,
+                          textTheme,
+                        ),
                         const SizedBox(height: 12),
                         _buildPriceRow(
                           'Platform Fee:',
@@ -184,9 +188,15 @@ class ReceiptViewer extends ConsumerWidget {
                               ),
                               const SizedBox(height: 8),
                               _buildPriceRow(
-                                  'To be paid:', partnerAmount, textTheme),
+                                'To be paid:',
+                                partnerAmount,
+                                textTheme,
+                              ),
                               _buildPriceRow(
-                                  'Platform keeps:', platformFee, textTheme),
+                                'Platform keeps:',
+                                platformFee,
+                                textTheme,
+                              ),
                             ],
                           ),
                         ),
@@ -206,7 +216,8 @@ class ReceiptViewer extends ConsumerWidget {
                           try {
                             final service = ref.read(receiptServiceProvider);
                             final file = await service.generateReceipt(
-                                requestId: requestId);
+                              requestId: requestId,
+                            );
 
                             if (!context.mounted) return;
 
@@ -239,7 +250,8 @@ class ReceiptViewer extends ConsumerWidget {
                           try {
                             final service = ref.read(receiptServiceProvider);
                             final file = await service.generateReceipt(
-                                requestId: requestId);
+                              requestId: requestId,
+                            );
 
                             await Printing.sharePdf(
                               bytes: await file.readAsBytes(),

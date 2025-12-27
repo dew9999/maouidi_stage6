@@ -120,8 +120,8 @@ class BookingController extends _$BookingController {
 
         await repository.createHomecareRequest(
           partnerId: partnerId, // Request sent to THIS specific partner
-          caseDescription: caseDescription!,
-          patientLocation: patientLocation!,
+          caseDescription: caseDescription,
+          patientLocation: patientLocation,
           wilaya: wilaya,
           preferredDate: appointmentTime,
           preferredTime: null,

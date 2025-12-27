@@ -109,7 +109,7 @@ class _CreateDisputeDialogState extends ConsumerState<CreateDisputeDialog> {
               child: Row(
                 children: [
                   Icon(Icons.info_outline,
-                      color: Colors.blue.shade700, size: 20),
+                      color: Colors.blue.shade700, size: 20,),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(

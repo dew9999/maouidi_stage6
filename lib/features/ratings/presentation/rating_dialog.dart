@@ -87,7 +87,7 @@ class _RatingDialogState extends ConsumerState<RatingDialog> {
     return AlertDialog(
       title: Column(
         children: [
-          Icon(Icons.star, size: 48, color: Colors.amber),
+          const Icon(Icons.star, size: 48, color: Colors.amber),
           const SizedBox(height: 12),
           Text('Rate ${widget.partnerName}'),
         ],

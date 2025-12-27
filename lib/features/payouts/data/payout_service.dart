@@ -59,7 +59,7 @@ class PayoutService {
 
   /// Get partner's current period earnings (not yet paid out)
   Future<Map<String, dynamic>> getCurrentPeriodEarnings(
-      String partnerId) async {
+      String partnerId,) async {
     final schedule = await getPayoutSchedule(partnerId);
 
     DateTime startDate;
@@ -145,7 +145,7 @@ class PayoutService {
   /// Get total lifetime earnings
   Future<double> getTotalLifetimeEarnings(String partnerId) async {
     final result = await _supabase.rpc('get_partner_lifetime_earnings',
-        params: {'partner_id_arg': partnerId});
+        params: {'partner_id_arg': partnerId},);
 
     return (result as num?)?.toDouble() ?? 0;
   }

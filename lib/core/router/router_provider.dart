@@ -10,6 +10,8 @@ import '../../pages/privacy_policy_page.dart';
 import '../../pages/terms_of_service_page.dart';
 import '../../search/search_results_page.dart';
 import '../../core/layouts/main_layout.dart';
+import '../../features/homecare_negotiation/presentation/negotiation_screen.dart';
+import '../../features/payments/presentation/payment_screen.dart';
 
 part 'router_provider.g.dart';
 
@@ -172,6 +174,32 @@ GoRouter router(RouterRef ref) {
         builder: (context, state) => SearchResultsPage(
           searchTerm: state.uri.queryParameters['searchTerm']!,
         ),
+      ),
+      GoRoute(
+        name: 'NegotiationScreen',
+        path: '/negotiation',
+        builder: (context, state) => NegotiationScreen(
+          requestId: state.uri.queryParameters['requestId']!,
+          userRole: state.uri.queryParameters['userRole'] ?? 'patient',
+        ),
+      ),
+      GoRoute(
+        name: 'PaymentScreen',
+        path: '/payment',
+        builder: (context, state) {
+          final requestId = state.uri.queryParameters['requestId']!;
+          final negotiatedPrice = double.parse(
+            state.uri.queryParameters['negotiatedPrice'] ?? '0',
+          );
+          final platformFee = double.parse(
+            state.uri.queryParameters['platformFee'] ?? '500',
+          );
+          return PaymentScreen(
+            requestId: requestId,
+            negotiatedPrice: negotiatedPrice,
+            platformFee: platformFee,
+          );
+        },
       ),
     ],
   );

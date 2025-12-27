@@ -10,68 +10,31 @@ class RefundService {
 
   RefundService(this._supabase, this._chargilyService);
 
-  /// Process refund for a homecare request
-  Future<void> processRefund({
+  /// Process refund for a homecare request via Edge Function
+  ///
+  /// The Edge Function validates eligibility and processes the refund securely
+  Future<Map<String, dynamic>> processRefund({
     required String requestId,
-    required String cancelledBy,
+    required String cancelledBy, // 'patient' or 'partner'
     required String reason,
   }) async {
-    // Get request details
-    final request = await _supabase
-        .from('homecare_requests')
-        .select(
-            'payment_status, chargily_checkout_id, total_amount, service_started_at, status')
-        .eq('id', requestId)
-        .single();
-
-    final paymentStatus = request['payment_status'] as String;
-    final chargilyCheckoutId = request['chargily_checkout_id'] as String?;
-    final totalAmount = (request['total_amount'] as num?)?.toDouble();
-    final serviceStartedAt = request['service_started_at'] as String?;
-
-    // Validate payment was made
-    if (paymentStatus != 'paid' ||
-        chargilyCheckoutId == null ||
-        totalAmount == null) {
-      throw Exception('No payment to refund');
-    }
-
-    // Determine refund amount based on scenario
-    double refundAmount;
-    String refundReason;
-
-    if (cancelledBy == 'partner' && serviceStartedAt == null) {
-      // Partner cancels before service → 100% refund
-      refundAmount = totalAmount;
-      refundReason = 'Partner cancelled - Full refund';
-    } else if (cancelledBy == 'patient' && serviceStartedAt == null) {
-      // Patient cancels before service → 50% refund
-      refundAmount = totalAmount * 0.5;
-      refundReason = 'Patient cancelled before service - 50% refund';
-    } else if (cancelledBy == 'patient' && serviceStartedAt != null) {
-      // Patient cancels after service started → NO REFUND
-      throw Exception(
-          'Cannot cancel after service has started. No refund available.');
-    } else {
-      throw Exception('Invalid refund scenario');
-    }
-
-    // Process refund via Chargily
-    await _chargilyService.processRefund(
-      checkoutId: chargilyCheckoutId,
-      amount: refundAmount,
+    // Call Edge Function to process refund
+    // It will:
+    // 1. Validate refund eligibility (100%/50%/0%)
+    // 2. Process refund via Chargily API
+    // 3. Update database
+    final result = await _chargilyService.processRefund(
+      requestId: requestId,
+      cancelledBy: cancelledBy,
+      cancellationReason: reason,
     );
 
-    // Update request in database
-    await _supabase.from('homecare_requests').update({
-      'status': cancelledBy == 'partner'
-          ? 'cancelled_by_partner'
-          : 'cancelled_by_patient',
-      'refund_status': 'completed',
-      'refund_amount': refundAmount,
-      'refunded_at': DateTime.now().toIso8601String(),
-      'cancellation_reason': reason,
-    }).eq('id', requestId);
+    // Check if refund was eligible
+    if (result['eligible'] == false) {
+      throw Exception(result['reason'] ?? 'Refund not eligible');
+    }
+
+    return result;
   }
 
   /// Get refund details for a request
@@ -79,7 +42,7 @@ class RefundService {
     final request = await _supabase
         .from('homecare_requests')
         .select(
-            'refund_status, refund_amount, refunded_at, cancellation_reason')
+            'refund_status, refund_amount, refunded_at, cancellation_reason',)
         .eq('id', requestId)
         .single();
 

@@ -13,7 +13,7 @@ class NegotiationScreen extends ConsumerStatefulWidget {
   const NegotiationScreen({
     super.key,
     required this.requestId,
-    required this.userRole, // 'patient' or 'partner'
+    required this.userRole,
   });
 
   final String requestId;

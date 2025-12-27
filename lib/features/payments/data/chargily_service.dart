@@ -3,123 +3,102 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-/// Service for Chargily payment integration
+/// Service for secure Chargily payment integration via Edge Functions
+///
+/// This service calls Supabase Edge Functions instead of directly calling
+/// Chargily API to keep the secret key secure on the server side.
 class ChargilyService {
-  static const String _baseUrl = 'https://pay.chargily.net/api/v2';
-  final String _publicKey;
-  final String _secretKey;
+  final String _supabaseUrl;
+  final String _supabaseAnonKey;
 
   ChargilyService({
-    required String publicKey,
-    required String secretKey,
-  })  : _publicKey = publicKey,
-        _secretKey = secretKey;
+    required String supabaseUrl,
+    required String supabaseAnonKey,
+  })  : _supabaseUrl = supabaseUrl,
+        _supabaseAnonKey = supabaseAnonKey;
 
-  /// Create a checkout session for payment
+  /// Create a checkout session for payment via Edge Function
+  ///
+  /// This calls the `create-payment` Edge Function which securely
+  /// accesses the Chargily secret key from the database.
   ///
   /// Returns the checkout URL to redirect the patient to
   Future<Map<String, dynamic>> createCheckout({
     required String requestId,
-    required double amount, // Total amount in DZD (negotiated + 500 DA)
-    required String successUrl,
-    required String failureUrl,
-    required String webhookUrl,
-    Map<String, dynamic>? metadata,
   }) async {
     try {
-      // Convert amount to cents (Chargily expects amount in cents)
-      final amountInCents = (amount * 100).toInt();
-
       final response = await http.post(
-        Uri.parse('$_baseUrl/checkouts'),
+        Uri.parse('$_supabaseUrl/functions/v1/create-payment'),
         headers: {
-          'Authorization': 'Bearer $_secretKey',
+          'Authorization': 'Bearer $_supabaseAnonKey',
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'amount': amountInCents,
-          'currency': 'dzd',
-          'success_url': successUrl,
-          'failure_url': failureUrl,
-          'webhook_url': webhookUrl,
-          'metadata': {
-            'homecare_request_id': requestId,
-            'type': 'homecare_payment',
-            ...?metadata,
-          },
-          'locale': 'ar', // Arabic locale for Algerian users
+          'requestId': requestId,
         }),
-      );
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        throw ChargilyException(
-          'Failed to create checkout: ${response.body}',
-        );
-      }
-
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-      return data;
-    } catch (e) {
-      throw ChargilyException('Error creating Chargily checkout: $e');
-    }
-  }
-
-  /// Process a refund
-  ///
-  /// Returns the refund details
-  Future<Map<String, dynamic>> processRefund({
-    required String checkoutId,
-    required double amount,
-  }) async {
-    try {
-      final amountInCents = (amount * 100).toInt();
-
-      final response = await http.post(
-        Uri.parse('$_baseUrl/refunds'),
-        headers: {
-          'Authorization': 'Bearer $_secretKey',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'checkout_id': checkoutId,
-          'amount': amountInCents,
-        }),
-      );
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        throw ChargilyException(
-          'Failed to process refund: ${response.body}',
-        );
-      }
-
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-      return data;
-    } catch (e) {
-      throw ChargilyException('Error processing Chargily refund: $e');
-    }
-  }
-
-  /// Get checkout details
-  Future<Map<String, dynamic>> getCheckout(String checkoutId) async {
-    try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/checkouts/$checkoutId'),
-        headers: {
-          'Authorization': 'Bearer $_secretKey',
-          'Content-Type': 'application/json',
-        },
       );
 
       if (response.statusCode != 200) {
+        final errorBody = jsonDecode(response.body);
         throw ChargilyException(
-          'Failed to get checkout: ${response.body}',
+          errorBody['error'] ?? 'Failed to create checkout',
         );
       }
 
       final data = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (data['success'] != true) {
+        throw ChargilyException(
+          data['error'] ?? 'Checkout creation failed',
+        );
+      }
+
       return data;
     } catch (e) {
-      throw ChargilyException('Error getting Chargily checkout: $e');
+      if (e is ChargilyException) rethrow;
+      throw ChargilyException('Error creating payment checkout: $e');
+    }
+  }
+
+  /// Process a refund via Edge Function
+  ///
+  /// This calls the `process-refund` Edge Function which:
+  /// - Validates refund eligibility (100%/50%/0% based on timing)
+  /// - Processes the refund via Chargily API
+  /// - Updates the database
+  ///
+  /// Returns the refund details including eligibility and amount
+  Future<Map<String, dynamic>> processRefund({
+    required String requestId,
+    required String cancelledBy, // 'patient' or 'partner'
+    required String cancellationReason,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_supabaseUrl/functions/v1/process-refund'),
+        headers: {
+          'Authorization': 'Bearer $_supabaseAnonKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'requestId': requestId,
+          'cancelledBy': cancelledBy,
+          'cancellationReason': cancellationReason,
+        }),
+      );
+
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode != 200) {
+        throw ChargilyException(
+          data['error'] ?? 'Failed to process refund',
+        );
+      }
+
+      return data;
+    } catch (e) {
+      if (e is ChargilyException) rethrow;
+      throw ChargilyException('Error processing refund: $e');
     }
   }
 }

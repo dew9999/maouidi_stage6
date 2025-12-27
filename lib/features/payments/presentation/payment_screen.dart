@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../generated/l10n/app_localizations.dart';
 import '../providers/payment_providers.dart';
 
 /// Payment screen showing price breakdown and payment agreement
@@ -32,8 +31,8 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   Future<void> _proceedToPayment() async {
     if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.agreetoterms),
+        const SnackBar(
+          content: Text('Please agree to the terms before proceeding'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -45,30 +44,34 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     try {
       final chargilyService = await ref.read(chargilyServiceProvider.future);
 
-      // Create checkout session
-      final checkout = await chargilyService.createCheckout(
+      // Edge Function handles all the details:
+      // - Fetches total_amount from database
+      // - Gets patient details
+      // - Configures URLs
+      // - Uses secret key securely
+      final result = await chargilyService.createCheckout(
         requestId: widget.requestId,
-        amount: totalAmount,
-        successUrl:
-            'https://yourapp.com/payment/success?request_id=${widget.requestId}',
-        failureUrl: 'https://yourapp.com/payment/failed',
-        webhookUrl: 'https://yourapp.com/webhooks/chargily',
-        metadata: {
-          'negotiated_price': widget.negotiatedPrice,
-          'platform_fee': widget.platformFee,
-        },
       );
 
-      // Get checkout URL
-      final checkoutUrl = checkout['checkout_url'] as String?;
-      if (checkoutUrl == null) {
-        throw Exception('No checkout URL returned');
+      // Get checkout URL from Edge Function response
+      final checkoutUrl = result['checkoutUrl'] as String?;
+      if (checkoutUrl == null || checkoutUrl.isEmpty) {
+        throw Exception('No checkout URL returned from payment service');
       }
 
       // Open Chargily payment page
       final uri = Uri.parse(checkoutUrl);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+        // Show success message
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Redirecting to secure payment...'),
+            backgroundColor: Colors.green,
+          ),
+        );
       } else {
         throw Exception('Could not launch payment URL');
       }
@@ -76,7 +79,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: $e'),
+          content: Text('Payment error: $e'),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );

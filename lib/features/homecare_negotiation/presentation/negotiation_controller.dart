@@ -1,5 +1,6 @@
 // lib/features/homecare_negotiation/presentation/negotiation_controller.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../providers/negotiation_providers.dart';
 
@@ -51,8 +52,12 @@ class NegotiationController extends _$NegotiationController {
   }
 
   /// Accept the current offer
+  ///
+  /// When both parties accept, navigation to payment screen should happen
+  /// The screen will handle navigation using the callback
   Future<void> acceptOffer({
     required String requestId,
+    VoidCallback? onComplete,
   }) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
@@ -61,6 +66,9 @@ class NegotiationController extends _$NegotiationController {
 
       // Refresh negotiation state
       ref.invalidate(negotiationStateProvider(requestId));
+
+      // Call completion callback (screen will navigate)
+      onComplete?.call();
     });
   }
 

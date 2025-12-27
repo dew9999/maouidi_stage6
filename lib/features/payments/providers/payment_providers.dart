@@ -1,6 +1,7 @@
 // lib/features/payments/providers/payment_providers.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/providers/supabase_provider.dart';
 import '../data/chargily_service.dart';
 import '../data/refund_service.dart';
@@ -24,18 +25,30 @@ Future<String> chargilyPublicKey(ChargilyPublicKeyRef ref) async {
   return result['value'] as String;
 }
 
-/// Provider for Chargily service
-/// IMPORTANT: This is for CLIENT-SIDE operations only (viewing checkout)
-/// Payment creation should be done via Supabase Edge Function for security
+/// Provider for Chargily service (calls Edge Functions)
+/// SECURE: All payments go through Edge Functions, secret key never exposed
 @riverpod
 Future<ChargilyService> chargilyService(ChargilyServiceRef ref) async {
-  final publicKey = await ref.watch(chargilyPublicKeyProvider.future);
+  final supabase = ref.watch(supabaseClientProvider);
 
-  // Secret key will be accessed from Edge Function
-  // Using empty string here as it's only needed for server-side operations
+  // Get Supabase URL from environment or use default
+  const supabaseUrl = String.fromEnvironment(
+    'SUPABASE_URL',
+    defaultValue: '', // Will be set in .env or build args
+  );
+
+  // Get anon key from environment (public key, safe to use client-side)
+  const supabaseAnonKey = String.fromEnvironment(
+    'SUPABASE_ANON_KEY',
+    defaultValue: '', // Will be set in .env or build args
+  );
+
+  // Service now calls Edge Functions instead of Chargily directly
   return ChargilyService(
-    publicKey: publicKey,
-    secretKey: '', // Not used client-side
+    supabaseUrl: supabaseUrl,
+    supabaseAnonKey: supabaseAnonKey.isEmpty
+        ? supabase.headers['apikey'] ?? ''
+        : supabaseAnonKey,
   );
 }
 

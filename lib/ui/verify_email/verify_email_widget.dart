@@ -223,7 +223,7 @@ class VerifyEmailWidget extends StatelessWidget {
   }
 
   Widget _buildInstructionStep(
-      BuildContext context, String number, String text, TextTheme textTheme) {
+      BuildContext context, String number, String text, TextTheme textTheme,) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

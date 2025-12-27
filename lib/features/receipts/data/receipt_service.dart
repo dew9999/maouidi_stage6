@@ -18,12 +18,13 @@ class ReceiptService {
     final year = DateTime.now().year;
 
     // Get the count of receipts this year
-    final count = await _supabase
+    final response = await _supabase
         .from('payment_receipts')
-        .select('id', const FetchOptions(count: CountOption.exact))
+        .select()
         .like('receipt_number', 'HC-$year-%')
-        .count();
+        .count(CountOption.exact);
 
+    final count = response.count;
     final nextNumber = (count + 1).toString().padLeft(5, '0');
     return 'HC-$year-$nextNumber';
   }
@@ -139,7 +140,7 @@ class ReceiptService {
                     _buildPriceRow('Negotiated Price:', negotiatedPrice),
                     pw.SizedBox(height: 8),
                     _buildPriceRow('Platform Fee:', platformFee,
-                        isHighlighted: true),
+                        isHighlighted: true,),
                     pw.Divider(thickness: 2),
                     _buildPriceRow('TOTAL PAID:', totalAmount, isTotal: true),
                   ],
@@ -186,7 +187,7 @@ class ReceiptService {
                     pw.SizedBox(height: 4),
                     pw.Text(
                       'Support: support@maouidi.dz',
-                      style: pw.TextStyle(
+                      style: const pw.TextStyle(
                         fontSize: 10,
                         color: PdfColors.grey700,
                       ),
@@ -245,7 +246,7 @@ class ReceiptService {
           ...content.map((line) => pw.Padding(
                 padding: const pw.EdgeInsets.only(bottom: 4),
                 child: pw.Text(line, style: const pw.TextStyle(fontSize: 11)),
-              )),
+              ),),
         ],
       ),
     );

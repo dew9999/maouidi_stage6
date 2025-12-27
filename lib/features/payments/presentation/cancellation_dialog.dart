@@ -81,7 +81,7 @@ class _CancellationDialogState extends ConsumerState<CancellationDialog> {
           .then((service) => service.calculateRefundAmount(
                 requestId: widget.requestId,
                 cancelledBy: widget.cancelledBy,
-              )),
+              ),),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const AlertDialog(

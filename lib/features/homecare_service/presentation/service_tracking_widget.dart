@@ -111,7 +111,7 @@ class ServiceTrackingWidget extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                  'Service marked as completed! Waiting for patient confirmation'),
+                                  'Service marked as completed! Waiting for patient confirmation',),
                               backgroundColor: Colors.blue,
                             ),
                           );
@@ -141,7 +141,7 @@ class ServiceTrackingWidget extends ConsumerWidget {
                           Row(
                             children: [
                               Icon(Icons.info_outline,
-                                  color: Colors.orange.shade700),
+                                  color: Colors.orange.shade700,),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(

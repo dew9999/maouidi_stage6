@@ -1,7 +1,6 @@
 // lib/features/homecare_negotiation/data/negotiation_repository.dart
 
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../core/providers/supabase_provider.dart';
 
 /// Repository for homecare price negotiation operations
 class NegotiationRepository {
