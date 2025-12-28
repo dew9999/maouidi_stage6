@@ -27,6 +27,13 @@ class AppointmentModel with _$AppointmentModel {
     String? patientFirstName,
     String? patientLastName,
     String? patientPhone,
+    // New fields for unified schema (Database 2.0)
+    @Default('clinic') String bookingType, // 'clinic', 'homecare', 'online'
+    String? homecareAddress,
+    double? negotiatedPrice,
+    @Default('none')
+    String negotiationStatus, // 'pending', 'accepted', 'rejected', 'none'
+    DateTime? createdAt,
   }) = _AppointmentModel;
 
   factory AppointmentModel.fromJson(Map<String, dynamic> json) =>
@@ -53,6 +60,18 @@ class AppointmentModel with _$AppointmentModel {
       patientFirstName: data['patient_first_name'] as String?,
       patientLastName: data['patient_last_name'] as String?,
       patientPhone: data['patient_phone'] as String?,
+      // New fields for Database 2.0
+      bookingType: data['booking_type'] as String? ?? 'clinic',
+      homecareAddress: data['homecare_address'] as String?,
+      negotiatedPrice: data['negotiated_price'] != null
+          ? (data['negotiated_price'] is int
+              ? (data['negotiated_price'] as int).toDouble()
+              : data['negotiated_price'] as double)
+          : null,
+      negotiationStatus: data['negotiation_status'] as String? ?? 'none',
+      createdAt: data['created_at'] != null
+          ? DateTime.parse(data['created_at'] as String)
+          : null,
     );
   }
 }

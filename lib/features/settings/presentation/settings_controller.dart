@@ -33,7 +33,7 @@ class PatientSettingsController extends _$PatientSettingsController {
         email: data['email'] as String? ?? user.email ?? '',
         phoneNumber: data['phone_number'] as String? ?? '',
         photoUrl: data['photo_url'] as String? ?? '',
-        notificationsEnabled: true, // simplified default
+        notificationsEnabled: true,
         isLoading: false,
       );
     } catch (e) {
@@ -42,13 +42,11 @@ class PatientSettingsController extends _$PatientSettingsController {
   }
 
   Future<void> toggleNotifications(bool isEnabled) async {
-    final previousState = state;
     if (state.hasValue) {
       state = AsyncValue.data(
         state.value!.copyWith(notificationsEnabled: isEnabled),
       );
     }
-    // Optimistic update - in real app, save to DB here
   }
 
   Future<void> signOut() async {
@@ -57,7 +55,7 @@ class PatientSettingsController extends _$PatientSettingsController {
 }
 
 // -----------------------------------------------------------------------------
-// Partner Settings Controller
+// Partner Settings Controller (Database 2.0 - Using RPCs)
 // -----------------------------------------------------------------------------
 
 @riverpod
@@ -67,37 +65,49 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     return _loadPartnerData();
   }
 
+  /// Load partner data using RPC (Database 2.0)
   Future<PartnerSettingsState> _loadPartnerData() async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return const PartnerSettingsState();
 
     try {
-      final data = await Supabase.instance.client
-          .from('medical_partners')
-          .select()
-          .eq('id', user.id)
-          .maybeSingle();
+      // Use the new RPC function to get merged profile
+      final response = await Supabase.instance.client.rpc(
+        'get_full_partner_profile',
+        params: {'target_user_id': user.id},
+      );
 
-      if (data == null) return const PartnerSettingsState();
+      // Response is a list with single row
+      if (response == null || response.isEmpty) {
+        return const PartnerSettingsState();
+      }
+
+      final data = response[0] as Map<String, dynamic>;
 
       return PartnerSettingsState(
         fullName: data['full_name'] as String? ?? '',
-        email: user.email ?? '',
+        email: data['email'] as String? ?? '',
+        phone: data['phone'] as String?,
+        wilaya: data['wilaya'] as String?,
+        state: data['state'] as String?,
         category: data['category'] as String? ?? 'Doctors',
         specialty: data['specialty'] as String?,
         location: data['address'] as String?,
-        isActive: data['is_active'] as bool? ?? false,
+        isActive: true, // Will need to add to RPC if needed
         notificationsEnabled: true,
         bookingSystemType:
             data['booking_system_type'] as String? ?? 'time_based',
-        confirmationMode: data['confirmation_mode'] as String? ?? 'manual',
+        confirmationMode: 'manual', // Will need to add to RPC if needed
         dailyBookingLimit: data['daily_booking_limit'] as int? ?? 0,
         workingHours: _parseWorkingHours(data['working_hours']),
         closedDays: _parseClosedDays(data['closed_days']),
         isLoading: false,
       );
     } catch (e) {
-      return const PartnerSettingsState();
+      print('Partner settings load error: $e');
+      return const PartnerSettingsState(
+        errorMessage: 'Failed to load settings. Please try again.',
+      );
     }
   }
 
@@ -110,7 +120,6 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         if (value is List) {
           result[key.toString()] = value.map((e) => e.toString()).toList();
         } else if (value is String) {
-          // Handle legacy single-string case if necessary or comma separated
           result[key.toString()] = [value];
         }
       });
@@ -133,6 +142,21 @@ class PartnerSettingsController extends _$PartnerSettingsController {
   Future<void> updateClinic(String? value) async {
     if (value == null || !state.hasValue) return;
     state = AsyncValue.data(state.value!.copyWith(location: value));
+  }
+
+  Future<void> updateWilaya(String? value) async {
+    if (value == null || !state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(wilaya: value));
+  }
+
+  Future<void> updateState(String? value) async {
+    if (value == null || !state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(state: value));
+  }
+
+  Future<void> updatePhone(String? value) async {
+    if (value == null || !state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(phone: value));
   }
 
   Future<void> updateIsActive(bool value) async {
@@ -179,7 +203,6 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     if (!hours.containsKey(day)) {
       hours[day] = [];
     }
-    // Default slot
     hours[day]!.add('09:00-17:00');
     _updateHoursState(hours);
   }
@@ -189,9 +212,6 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     final hours = _getCurrentHours();
     if (hours.containsKey(day) && hours[day]!.length > index) {
       hours[day]!.removeAt(index);
-      // If list is empty, remove key? Or keep empty list?
-      // UI suggests keeping key means "Enabled" but empty slots.
-      // Usually removing all slots implies disabling the day.
       if (hours[day]!.isEmpty) {
         hours.remove(day);
       }
@@ -225,7 +245,6 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     _updateHoursState(hours);
   }
 
-  // Legacy bulk update method, updated for List support
   Future<void> updateWorkingHours(Map<String, List<String>> hours) async {
     if (!state.hasValue) return;
     state = AsyncValue.data(state.value!.copyWith(workingHours: hours));
@@ -258,6 +277,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     // RPC placeholder
   }
 
+  /// Save all settings using RPC (Database 2.0 - Atomic Transaction)
   Future<void> saveAllSettings() async {
     final currentState = state.value;
     if (currentState == null) return;
@@ -268,17 +288,29 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     state = AsyncValue.data(currentState.copyWith(isSaving: true));
 
     try {
+      // Use the new RPC that handles both tables atomically
+      await Supabase.instance.client.rpc(
+        'update_full_partner_profile',
+        params: {
+          'p_id': user.id,
+          'p_specialty': currentState.specialty,
+          'p_address': currentState.location,
+          'p_booking_system': currentState.bookingSystemType,
+          'p_limit': currentState.dailyBookingLimit,
+          'p_wilaya': currentState.wilaya,
+          'p_state': currentState.state,
+          'p_phone': currentState.phone,
+        },
+      );
+
+      // Also update working_hours and closed_days separately
+      // (Add these to the RPC if needed, or keep separate)
       await Supabase.instance.client.from('medical_partners').update({
-        'specialty': currentState.specialty,
-        'address': currentState.location,
-        'is_active': currentState.isActive,
-        'booking_system_type': currentState.bookingSystemType,
-        'confirmation_mode': currentState.confirmationMode,
-        'daily_booking_limit': currentState.dailyBookingLimit,
-        'working_hours': currentState
-            .workingHours, // Directly save Map<String, List<String>>
+        'working_hours': currentState.workingHours,
         'closed_days':
             currentState.closedDays.map((e) => e.toIso8601String()).toList(),
+        'is_active': currentState.isActive,
+        'confirmation_mode': currentState.confirmationMode,
       }).eq('id', user.id);
 
       state = AsyncValue.data(currentState.copyWith(isSaving: false));

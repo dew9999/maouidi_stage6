@@ -65,6 +65,29 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
 
 
+CREATE TYPE "public"."appointment_status" AS ENUM (
+    'pending',
+    'confirmed',
+    'in_progress',
+    'completed',
+    'cancelled',
+    'rejected'
+);
+
+
+ALTER TYPE "public"."appointment_status" OWNER TO "postgres";
+
+
+CREATE TYPE "public"."booking_type" AS ENUM (
+    'clinic',
+    'homecare',
+    'online'
+);
+
+
+ALTER TYPE "public"."booking_type" OWNER TO "postgres";
+
+
 CREATE TYPE "public"."gender_enum" AS ENUM (
     'Male',
     'Female',
@@ -702,6 +725,21 @@ $$;
 ALTER FUNCTION "public"."get_filtered_partners"("category_arg" "text", "state_arg" "text", "specialty_arg" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."get_full_partner_profile"("target_user_id" "uuid") RETURNS TABLE("id" "uuid", "full_name" "text", "email" "text", "phone" "text", "wilaya" "text", "state" "text", "specialty" "text", "category" "text", "address" "text", "booking_system_type" "text", "daily_booking_limit" integer, "working_hours" "jsonb", "closed_days" "jsonb")
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+  RETURN QUERY SELECT 
+    mp.id, mp.full_name, u.email, u.phone, u.wilaya, u.state, mp.specialty,
+    mp.category, mp.address, mp.booking_system_type, mp.daily_booking_limit,
+    mp.working_hours, mp.closed_days
+  FROM medical_partners mp JOIN users u ON u.id = mp.id WHERE mp.id = target_user_id;
+END; $$;
+
+
+ALTER FUNCTION "public"."get_full_partner_profile"("target_user_id" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."get_partner_analytics"("partner_id_arg" "uuid") RETURNS json
     LANGUAGE "plpgsql"
     AS $$
@@ -1283,6 +1321,19 @@ $$;
 ALTER FUNCTION "public"."update_completed_appointments"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_wilaya" "text", "p_state" "text", "p_phone" "text") RETURNS "void"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+  UPDATE medical_partners SET specialty = p_specialty, address = p_address, 
+    booking_system_type = p_booking_system, daily_booking_limit = p_limit WHERE id = p_id;
+  UPDATE users SET wilaya = p_wilaya, state = p_state, phone = p_phone WHERE id = p_id;
+END; $$;
+
+
+ALTER FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_wilaya" "text", "p_state" "text", "p_phone" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."update_partner_fts"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$
@@ -1416,7 +1467,13 @@ CREATE TABLE IF NOT EXISTS "public"."appointments" (
     "completed_at" timestamp with time zone,
     "has_review" boolean DEFAULT false,
     "case_description" "text",
-    "patient_location" "text"
+    "patient_location" "text",
+    "booking_type" "public"."booking_type" DEFAULT 'clinic'::"public"."booking_type",
+    "homecare_address" "text",
+    "negotiated_price" numeric(10,2),
+    "negotiation_status" "text" DEFAULT 'none'::"text",
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    CONSTRAINT "appointments_negotiation_status_check" CHECK (("negotiation_status" = ANY (ARRAY['pending'::"text", 'accepted'::"text", 'rejected'::"text", 'none'::"text"])))
 );
 
 
@@ -1455,48 +1512,6 @@ CREATE TABLE IF NOT EXISTS "public"."disputes" (
 
 
 ALTER TABLE "public"."disputes" OWNER TO "postgres";
-
-
-CREATE TABLE IF NOT EXISTS "public"."homecare_requests" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "patient_id" "uuid" NOT NULL,
-    "service_type" "text" NOT NULL,
-    "gender_preference" "text",
-    "address" "text" NOT NULL,
-    "wilaya" "text" NOT NULL,
-    "baladyia" "text",
-    "preferred_date" timestamp with time zone,
-    "preferred_time" "text",
-    "case_description" "text" NOT NULL,
-    "status" "text" DEFAULT 'pending'::"text",
-    "created_at" timestamp with time zone DEFAULT "now"(),
-    "updated_at" timestamp with time zone DEFAULT "now"(),
-    "partner_id" "uuid",
-    "on_behalf_of_name" "text",
-    "on_behalf_of_phone" "text",
-    "base_price" numeric(10,2) DEFAULT 0,
-    "negotiated_price" numeric(10,2),
-    "platform_fee" numeric(10,2) DEFAULT 500,
-    "total_amount" numeric(10,2),
-    "current_offer" numeric(10,2),
-    "offered_by" "text",
-    "negotiation_history" "jsonb" DEFAULT '[]'::"jsonb",
-    "negotiation_round" integer DEFAULT 0,
-    "payment_status" "text" DEFAULT 'pending'::"text",
-    "chargily_checkout_id" "text",
-    "chargily_transaction_id" "text",
-    "paid_at" timestamp with time zone,
-    "service_started_at" timestamp with time zone,
-    "service_completed_at" timestamp with time zone,
-    "patient_confirmed_at" timestamp with time zone,
-    "refund_status" "text",
-    "refund_amount" numeric(10,2),
-    "refunded_at" timestamp with time zone,
-    "cancellation_reason" "text"
-);
-
-
-ALTER TABLE "public"."homecare_requests" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."notifications" (
@@ -1690,11 +1705,6 @@ ALTER TABLE ONLY "public"."disputes"
 
 
 
-ALTER TABLE ONLY "public"."homecare_requests"
-    ADD CONSTRAINT "homecare_requests_pkey" PRIMARY KEY ("id");
-
-
-
 ALTER TABLE ONLY "public"."medical_partners"
     ADD CONSTRAINT "medical_partners_pkey" PRIMARY KEY ("id");
 
@@ -1778,26 +1788,6 @@ CREATE INDEX "idx_disputes_status" ON "public"."disputes" USING "btree" ("status
 
 
 
-CREATE INDEX "idx_homecare_requests_partner_id" ON "public"."homecare_requests" USING "btree" ("partner_id", "created_at" DESC);
-
-
-
-CREATE INDEX "idx_homecare_requests_patient_id" ON "public"."homecare_requests" USING "btree" ("patient_id", "created_at" DESC);
-
-
-
-CREATE INDEX "idx_homecare_requests_payment_status" ON "public"."homecare_requests" USING "btree" ("payment_status");
-
-
-
-CREATE INDEX "idx_homecare_requests_status_partner" ON "public"."homecare_requests" USING "btree" ("status", "partner_id");
-
-
-
-CREATE INDEX "idx_homecare_requests_wilaya" ON "public"."homecare_requests" USING "btree" ("wilaya");
-
-
-
 CREATE INDEX "idx_notifications_user_id" ON "public"."notifications" USING "btree" ("user_id");
 
 
@@ -1854,15 +1844,7 @@ CREATE OR REPLACE TRIGGER "on_partner_insert_update" BEFORE INSERT OR UPDATE ON 
 
 
 
-CREATE OR REPLACE TRIGGER "set_total_amount" BEFORE INSERT OR UPDATE ON "public"."homecare_requests" FOR EACH ROW EXECUTE FUNCTION "public"."calculate_total_amount"();
-
-
-
 CREATE OR REPLACE TRIGGER "trigger_apply_new_partner_hold" BEFORE INSERT ON "public"."partner_payouts" FOR EACH ROW EXECUTE FUNCTION "public"."apply_new_partner_hold"();
-
-
-
-CREATE OR REPLACE TRIGGER "trigger_increment_completed_services" AFTER UPDATE ON "public"."homecare_requests" FOR EACH ROW WHEN (("new"."status" = 'completed'::"text")) EXECUTE FUNCTION "public"."increment_completed_services"();
 
 
 
@@ -1881,27 +1863,12 @@ ALTER TABLE ONLY "public"."appointments"
 
 
 ALTER TABLE ONLY "public"."disputes"
-    ADD CONSTRAINT "disputes_homecare_request_id_fkey" FOREIGN KEY ("homecare_request_id") REFERENCES "public"."homecare_requests"("id") ON DELETE CASCADE;
-
-
-
-ALTER TABLE ONLY "public"."disputes"
     ADD CONSTRAINT "disputes_raised_by_fkey" FOREIGN KEY ("raised_by") REFERENCES "public"."users"("id");
 
 
 
 ALTER TABLE ONLY "public"."disputes"
     ADD CONSTRAINT "disputes_resolved_by_fkey" FOREIGN KEY ("resolved_by") REFERENCES "public"."users"("id");
-
-
-
-ALTER TABLE ONLY "public"."homecare_requests"
-    ADD CONSTRAINT "homecare_requests_partner_id_fkey" FOREIGN KEY ("partner_id") REFERENCES "public"."medical_partners"("id") ON DELETE CASCADE;
-
-
-
-ALTER TABLE ONLY "public"."homecare_requests"
-    ADD CONSTRAINT "homecare_requests_patient_id_fkey" FOREIGN KEY ("patient_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;
 
 
 
@@ -1931,22 +1898,12 @@ ALTER TABLE ONLY "public"."partner_payouts"
 
 
 ALTER TABLE ONLY "public"."partner_ratings"
-    ADD CONSTRAINT "partner_ratings_homecare_request_id_fkey" FOREIGN KEY ("homecare_request_id") REFERENCES "public"."homecare_requests"("id") ON DELETE CASCADE;
-
-
-
-ALTER TABLE ONLY "public"."partner_ratings"
     ADD CONSTRAINT "partner_ratings_partner_id_fkey" FOREIGN KEY ("partner_id") REFERENCES "public"."medical_partners"("id") ON DELETE CASCADE;
 
 
 
 ALTER TABLE ONLY "public"."partner_ratings"
     ADD CONSTRAINT "partner_ratings_patient_id_fkey" FOREIGN KEY ("patient_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;
-
-
-
-ALTER TABLE ONLY "public"."payment_receipts"
-    ADD CONSTRAINT "payment_receipts_homecare_request_id_fkey" FOREIGN KEY ("homecare_request_id") REFERENCES "public"."homecare_requests"("id") ON DELETE CASCADE;
 
 
 
@@ -2036,15 +1993,7 @@ CREATE POLICY "Anyone can view ratings" ON "public"."partner_ratings" FOR SELECT
 
 
 
-CREATE POLICY "Partners can update their own homecare requests" ON "public"."homecare_requests" FOR UPDATE TO "authenticated" USING (("auth"."uid"() = "partner_id")) WITH CHECK (("auth"."uid"() = "partner_id"));
-
-
-
 CREATE POLICY "Partners can view own payouts" ON "public"."partner_payouts" FOR SELECT TO "authenticated" USING (("auth"."uid"() = "partner_id"));
-
-
-
-CREATE POLICY "Partners can view their own homecare requests" ON "public"."homecare_requests" FOR SELECT TO "authenticated" USING (("auth"."uid"() = "partner_id"));
 
 
 
@@ -2072,15 +2021,7 @@ CREATE POLICY "Users can create disputes" ON "public"."disputes" FOR INSERT TO "
 
 
 
-CREATE POLICY "Users can create homecare requests" ON "public"."homecare_requests" FOR INSERT TO "authenticated" WITH CHECK (("auth"."uid"() = "patient_id"));
-
-
-
 CREATE POLICY "Users can view own disputes" ON "public"."disputes" FOR SELECT TO "authenticated" USING (("auth"."uid"() = "raised_by"));
-
-
-
-CREATE POLICY "Users can view own requests" ON "public"."homecare_requests" FOR SELECT TO "authenticated" USING (("auth"."uid"() = "patient_id"));
 
 
 
@@ -2095,9 +2036,6 @@ ALTER TABLE "public"."appointments" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."disputes" ENABLE ROW LEVEL SECURITY;
-
-
-ALTER TABLE "public"."homecare_requests" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."medical_partners" ENABLE ROW LEVEL SECURITY;
@@ -2134,10 +2072,6 @@ ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
 
 
 ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."appointments";
-
-
-
-ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."homecare_requests";
 
 
 
@@ -2417,6 +2351,12 @@ GRANT ALL ON FUNCTION "public"."get_filtered_partners"("category_arg" "text", "s
 
 
 
+GRANT ALL ON FUNCTION "public"."get_full_partner_profile"("target_user_id" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."get_full_partner_profile"("target_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_full_partner_profile"("target_user_id" "uuid") TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."get_partner_analytics"("partner_id_arg" "uuid") TO "anon";
 GRANT ALL ON FUNCTION "public"."get_partner_analytics"("partner_id_arg" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."get_partner_analytics"("partner_id_arg" "uuid") TO "service_role";
@@ -2519,6 +2459,12 @@ GRANT ALL ON FUNCTION "public"."update_completed_appointments"() TO "service_rol
 
 
 
+GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_wilaya" "text", "p_state" "text", "p_phone" "text") TO "anon";
+GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_wilaya" "text", "p_state" "text", "p_phone" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_wilaya" "text", "p_state" "text", "p_phone" "text") TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."update_partner_fts"() TO "anon";
 GRANT ALL ON FUNCTION "public"."update_partner_fts"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."update_partner_fts"() TO "service_role";
@@ -2591,12 +2537,6 @@ GRANT ALL ON SEQUENCE "public"."appointments_id_seq" TO "service_role";
 GRANT ALL ON TABLE "public"."disputes" TO "anon";
 GRANT ALL ON TABLE "public"."disputes" TO "authenticated";
 GRANT ALL ON TABLE "public"."disputes" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."homecare_requests" TO "anon";
-GRANT ALL ON TABLE "public"."homecare_requests" TO "authenticated";
-GRANT ALL ON TABLE "public"."homecare_requests" TO "service_role";
 
 
 

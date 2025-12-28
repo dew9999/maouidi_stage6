@@ -20,10 +20,13 @@ class PartnerSettingsState with _$PartnerSettingsState {
   const factory PartnerSettingsState({
     @Default('') String fullName,
     @Default('') String email,
-    @Default('') String category, // <--- ADDED THIS
+    String? phone, // From users table
+    String? wilaya, // From users table
+    String? state, // From users table
+    @Default('') String category,
     String? specialty,
     String? location,
-    @Default(true) bool notificationsEnabled, // <--- ADDED THIS
+    @Default(true) bool notificationsEnabled,
     @Default(false) bool isActive,
     @Default('time_based') String bookingSystemType,
     @Default('manual') String confirmationMode,

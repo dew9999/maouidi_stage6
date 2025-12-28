@@ -9,9 +9,9 @@ part of 'appointment_repository.dart';
 String _$appointmentRepositoryHash() =>
     r'6516c0424a16cbfe1b4707b9c945a33c7566a0dd';
 
-/// Repository for appointment-related operations.
+/// Repository for appointment-related operations (Database 2.0).
 ///
-/// Abstracts all Supabase interactions for appointments following Clean Architecture.
+/// Now uses unified `appointments` table for ALL booking types.
 ///
 /// Copied from [appointmentRepository].
 @ProviderFor(appointmentRepository)

@@ -7,9 +7,9 @@ import 'appointment_model.dart';
 
 part 'appointment_repository.g.dart';
 
-/// Repository for appointment-related operations.
+/// Repository for appointment-related operations (Database 2.0).
 ///
-/// Abstracts all Supabase interactions for appointments following Clean Architecture.
+/// Now uses unified `appointments` table for ALL booking types.
 @riverpod
 AppointmentRepository appointmentRepository(AppointmentRepositoryRef ref) {
   final supabase = ref.watch(supabaseClientProvider);
@@ -21,9 +21,9 @@ class AppointmentRepository {
 
   final SupabaseClient _supabase;
 
-  /// Fetches all appointments for a specific partner.
+  /// Fetches all appointments for a specific partner (unified query).
   ///
-  /// Calls the `get_partner_dashboard_appointments` RPC function.
+  /// Includes clinic, homecare, and online bookings from single table.
   Future<List<AppointmentModel>> getPartnerDashboardAppointments(
     String partnerId,
   ) async {
@@ -105,6 +105,48 @@ class AppointmentRepository {
       return stats;
     } catch (e) {
       throw AppointmentException('Failed to fetch dashboard stats: $e');
+    }
+  }
+
+  /// Creates a new appointment (unified for all types).
+  ///
+  /// Use `bookingType` parameter to specify: 'clinic', 'homecare', or 'online'.
+  Future<void> createAppointment({
+    required String partnerId,
+    required DateTime appointmentTime,
+    required String bookingType, // 'clinic', 'homecare', 'online'
+    String? onBehalfOfName,
+    String? onBehalfOfPhone,
+    String? caseDescription,
+    String? homecareAddress,
+    bool isPartnerOverride = false,
+  }) async {
+    try {
+      final appointmentData = <String, dynamic>{
+        'partner_id': partnerId,
+        'appointment_time': appointmentTime.toUtc().toIso8601String(),
+        'booking_type': bookingType,
+        'on_behalf_of_patient_name': onBehalfOfName,
+        'on_behalf_of_patient_phone': onBehalfOfPhone,
+        'case_description': caseDescription,
+        'homecare_address': homecareAddress,
+      };
+
+      // Use the book_appointment RPC (it should handle the new fields)
+      await _supabase.rpc(
+        'book_appointment',
+        params: {
+          'partner_id_arg': partnerId,
+          'appointment_time_arg': appointmentTime.toUtc().toIso8601String(),
+          'on_behalf_of_name_arg': onBehalfOfName,
+          'on_behalf_of_phone_arg': onBehalfOfPhone,
+          'is_partner_override': isPartnerOverride,
+          'case_description_arg': caseDescription,
+          'patient_location_arg': homecareAddress,
+        },
+      );
+    } catch (e) {
+      throw AppointmentException('Failed to create appointment: $e');
     }
   }
 

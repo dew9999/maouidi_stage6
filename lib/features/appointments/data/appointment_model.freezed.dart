@@ -35,7 +35,15 @@ mixin _$AppointmentModel {
   String? get patientLocation => throw _privateConstructorUsedError;
   String? get patientFirstName => throw _privateConstructorUsedError;
   String? get patientLastName => throw _privateConstructorUsedError;
-  String? get patientPhone => throw _privateConstructorUsedError;
+  String? get patientPhone =>
+      throw _privateConstructorUsedError; // New fields for unified schema (Database 2.0)
+  String get bookingType =>
+      throw _privateConstructorUsedError; // 'clinic', 'homecare', 'online'
+  String? get homecareAddress => throw _privateConstructorUsedError;
+  double? get negotiatedPrice => throw _privateConstructorUsedError;
+  String get negotiationStatus =>
+      throw _privateConstructorUsedError; // 'pending', 'accepted', 'rejected', 'none'
+  DateTime? get createdAt => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -65,7 +73,12 @@ abstract class $AppointmentModelCopyWith<$Res> {
       String? patientLocation,
       String? patientFirstName,
       String? patientLastName,
-      String? patientPhone});
+      String? patientPhone,
+      String bookingType,
+      String? homecareAddress,
+      double? negotiatedPrice,
+      String negotiationStatus,
+      DateTime? createdAt});
 }
 
 /// @nodoc
@@ -97,6 +110,11 @@ class _$AppointmentModelCopyWithImpl<$Res, $Val extends AppointmentModel>
     Object? patientFirstName = freezed,
     Object? patientLastName = freezed,
     Object? patientPhone = freezed,
+    Object? bookingType = null,
+    Object? homecareAddress = freezed,
+    Object? negotiatedPrice = freezed,
+    Object? negotiationStatus = null,
+    Object? createdAt = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -163,6 +181,26 @@ class _$AppointmentModelCopyWithImpl<$Res, $Val extends AppointmentModel>
           ? _value.patientPhone
           : patientPhone // ignore: cast_nullable_to_non_nullable
               as String?,
+      bookingType: null == bookingType
+          ? _value.bookingType
+          : bookingType // ignore: cast_nullable_to_non_nullable
+              as String,
+      homecareAddress: freezed == homecareAddress
+          ? _value.homecareAddress
+          : homecareAddress // ignore: cast_nullable_to_non_nullable
+              as String?,
+      negotiatedPrice: freezed == negotiatedPrice
+          ? _value.negotiatedPrice
+          : negotiatedPrice // ignore: cast_nullable_to_non_nullable
+              as double?,
+      negotiationStatus: null == negotiationStatus
+          ? _value.negotiationStatus
+          : negotiationStatus // ignore: cast_nullable_to_non_nullable
+              as String,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ) as $Val);
   }
 }
@@ -191,7 +229,12 @@ abstract class _$$AppointmentModelImplCopyWith<$Res>
       String? patientLocation,
       String? patientFirstName,
       String? patientLastName,
-      String? patientPhone});
+      String? patientPhone,
+      String bookingType,
+      String? homecareAddress,
+      double? negotiatedPrice,
+      String negotiationStatus,
+      DateTime? createdAt});
 }
 
 /// @nodoc
@@ -221,6 +264,11 @@ class __$$AppointmentModelImplCopyWithImpl<$Res>
     Object? patientFirstName = freezed,
     Object? patientLastName = freezed,
     Object? patientPhone = freezed,
+    Object? bookingType = null,
+    Object? homecareAddress = freezed,
+    Object? negotiatedPrice = freezed,
+    Object? negotiationStatus = null,
+    Object? createdAt = freezed,
   }) {
     return _then(_$AppointmentModelImpl(
       id: null == id
@@ -287,6 +335,26 @@ class __$$AppointmentModelImplCopyWithImpl<$Res>
           ? _value.patientPhone
           : patientPhone // ignore: cast_nullable_to_non_nullable
               as String?,
+      bookingType: null == bookingType
+          ? _value.bookingType
+          : bookingType // ignore: cast_nullable_to_non_nullable
+              as String,
+      homecareAddress: freezed == homecareAddress
+          ? _value.homecareAddress
+          : homecareAddress // ignore: cast_nullable_to_non_nullable
+              as String?,
+      negotiatedPrice: freezed == negotiatedPrice
+          ? _value.negotiatedPrice
+          : negotiatedPrice // ignore: cast_nullable_to_non_nullable
+              as double?,
+      negotiationStatus: null == negotiationStatus
+          ? _value.negotiationStatus
+          : negotiationStatus // ignore: cast_nullable_to_non_nullable
+              as String,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -310,7 +378,12 @@ class _$AppointmentModelImpl implements _AppointmentModel {
       this.patientLocation,
       this.patientFirstName,
       this.patientLastName,
-      this.patientPhone});
+      this.patientPhone,
+      this.bookingType = 'clinic',
+      this.homecareAddress,
+      this.negotiatedPrice,
+      this.negotiationStatus = 'none',
+      this.createdAt});
 
   factory _$AppointmentModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppointmentModelImplFromJson(json);
@@ -349,10 +422,25 @@ class _$AppointmentModelImpl implements _AppointmentModel {
   final String? patientLastName;
   @override
   final String? patientPhone;
+// New fields for unified schema (Database 2.0)
+  @override
+  @JsonKey()
+  final String bookingType;
+// 'clinic', 'homecare', 'online'
+  @override
+  final String? homecareAddress;
+  @override
+  final double? negotiatedPrice;
+  @override
+  @JsonKey()
+  final String negotiationStatus;
+// 'pending', 'accepted', 'rejected', 'none'
+  @override
+  final DateTime? createdAt;
 
   @override
   String toString() {
-    return 'AppointmentModel(id: $id, partnerId: $partnerId, bookingUserId: $bookingUserId, onBehalfOfPatientName: $onBehalfOfPatientName, appointmentTime: $appointmentTime, status: $status, onBehalfOfPatientPhone: $onBehalfOfPatientPhone, appointmentNumber: $appointmentNumber, isRescheduled: $isRescheduled, completedAt: $completedAt, hasReview: $hasReview, caseDescription: $caseDescription, patientLocation: $patientLocation, patientFirstName: $patientFirstName, patientLastName: $patientLastName, patientPhone: $patientPhone)';
+    return 'AppointmentModel(id: $id, partnerId: $partnerId, bookingUserId: $bookingUserId, onBehalfOfPatientName: $onBehalfOfPatientName, appointmentTime: $appointmentTime, status: $status, onBehalfOfPatientPhone: $onBehalfOfPatientPhone, appointmentNumber: $appointmentNumber, isRescheduled: $isRescheduled, completedAt: $completedAt, hasReview: $hasReview, caseDescription: $caseDescription, patientLocation: $patientLocation, patientFirstName: $patientFirstName, patientLastName: $patientLastName, patientPhone: $patientPhone, bookingType: $bookingType, homecareAddress: $homecareAddress, negotiatedPrice: $negotiatedPrice, negotiationStatus: $negotiationStatus, createdAt: $createdAt)';
   }
 
   @override
@@ -389,29 +477,45 @@ class _$AppointmentModelImpl implements _AppointmentModel {
             (identical(other.patientLastName, patientLastName) ||
                 other.patientLastName == patientLastName) &&
             (identical(other.patientPhone, patientPhone) ||
-                other.patientPhone == patientPhone));
+                other.patientPhone == patientPhone) &&
+            (identical(other.bookingType, bookingType) ||
+                other.bookingType == bookingType) &&
+            (identical(other.homecareAddress, homecareAddress) ||
+                other.homecareAddress == homecareAddress) &&
+            (identical(other.negotiatedPrice, negotiatedPrice) ||
+                other.negotiatedPrice == negotiatedPrice) &&
+            (identical(other.negotiationStatus, negotiationStatus) ||
+                other.negotiationStatus == negotiationStatus) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      partnerId,
-      bookingUserId,
-      onBehalfOfPatientName,
-      appointmentTime,
-      status,
-      onBehalfOfPatientPhone,
-      appointmentNumber,
-      isRescheduled,
-      completedAt,
-      hasReview,
-      caseDescription,
-      patientLocation,
-      patientFirstName,
-      patientLastName,
-      patientPhone);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        partnerId,
+        bookingUserId,
+        onBehalfOfPatientName,
+        appointmentTime,
+        status,
+        onBehalfOfPatientPhone,
+        appointmentNumber,
+        isRescheduled,
+        completedAt,
+        hasReview,
+        caseDescription,
+        patientLocation,
+        patientFirstName,
+        patientLastName,
+        patientPhone,
+        bookingType,
+        homecareAddress,
+        negotiatedPrice,
+        negotiationStatus,
+        createdAt
+      ]);
 
   @JsonKey(ignore: true)
   @override
@@ -445,7 +549,12 @@ abstract class _AppointmentModel implements AppointmentModel {
       final String? patientLocation,
       final String? patientFirstName,
       final String? patientLastName,
-      final String? patientPhone}) = _$AppointmentModelImpl;
+      final String? patientPhone,
+      final String bookingType,
+      final String? homecareAddress,
+      final double? negotiatedPrice,
+      final String negotiationStatus,
+      final DateTime? createdAt}) = _$AppointmentModelImpl;
 
   factory _AppointmentModel.fromJson(Map<String, dynamic> json) =
       _$AppointmentModelImpl.fromJson;
@@ -482,6 +591,16 @@ abstract class _AppointmentModel implements AppointmentModel {
   String? get patientLastName;
   @override
   String? get patientPhone;
+  @override // New fields for unified schema (Database 2.0)
+  String get bookingType;
+  @override // 'clinic', 'homecare', 'online'
+  String? get homecareAddress;
+  @override
+  double? get negotiatedPrice;
+  @override
+  String get negotiationStatus;
+  @override // 'pending', 'accepted', 'rejected', 'none'
+  DateTime? get createdAt;
   @override
   @JsonKey(ignore: true)
   _$$AppointmentModelImplCopyWith<_$AppointmentModelImpl> get copyWith =>

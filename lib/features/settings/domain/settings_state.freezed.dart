@@ -275,11 +275,13 @@ abstract class _PatientSettingsState implements PatientSettingsState {
 mixin _$PartnerSettingsState {
   String get fullName => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
-  String get category => throw _privateConstructorUsedError; // <--- ADDED THIS
+  String? get phone => throw _privateConstructorUsedError; // From users table
+  String? get wilaya => throw _privateConstructorUsedError; // From users table
+  String? get state => throw _privateConstructorUsedError; // From users table
+  String get category => throw _privateConstructorUsedError;
   String? get specialty => throw _privateConstructorUsedError;
   String? get location => throw _privateConstructorUsedError;
-  bool get notificationsEnabled =>
-      throw _privateConstructorUsedError; // <--- ADDED THIS
+  bool get notificationsEnabled => throw _privateConstructorUsedError;
   bool get isActive => throw _privateConstructorUsedError;
   String get bookingSystemType => throw _privateConstructorUsedError;
   String get confirmationMode => throw _privateConstructorUsedError;
@@ -305,6 +307,9 @@ abstract class $PartnerSettingsStateCopyWith<$Res> {
   $Res call(
       {String fullName,
       String email,
+      String? phone,
+      String? wilaya,
+      String? state,
       String category,
       String? specialty,
       String? location,
@@ -336,6 +341,9 @@ class _$PartnerSettingsStateCopyWithImpl<$Res,
   $Res call({
     Object? fullName = null,
     Object? email = null,
+    Object? phone = freezed,
+    Object? wilaya = freezed,
+    Object? state = freezed,
     Object? category = null,
     Object? specialty = freezed,
     Object? location = freezed,
@@ -359,6 +367,18 @@ class _$PartnerSettingsStateCopyWithImpl<$Res,
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
+      phone: freezed == phone
+          ? _value.phone
+          : phone // ignore: cast_nullable_to_non_nullable
+              as String?,
+      wilaya: freezed == wilaya
+          ? _value.wilaya
+          : wilaya // ignore: cast_nullable_to_non_nullable
+              as String?,
+      state: freezed == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as String?,
       category: null == category
           ? _value.category
           : category // ignore: cast_nullable_to_non_nullable
@@ -426,6 +446,9 @@ abstract class _$$PartnerSettingsStateImplCopyWith<$Res>
   $Res call(
       {String fullName,
       String email,
+      String? phone,
+      String? wilaya,
+      String? state,
       String category,
       String? specialty,
       String? location,
@@ -454,6 +477,9 @@ class __$$PartnerSettingsStateImplCopyWithImpl<$Res>
   $Res call({
     Object? fullName = null,
     Object? email = null,
+    Object? phone = freezed,
+    Object? wilaya = freezed,
+    Object? state = freezed,
     Object? category = null,
     Object? specialty = freezed,
     Object? location = freezed,
@@ -477,6 +503,18 @@ class __$$PartnerSettingsStateImplCopyWithImpl<$Res>
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
+      phone: freezed == phone
+          ? _value.phone
+          : phone // ignore: cast_nullable_to_non_nullable
+              as String?,
+      wilaya: freezed == wilaya
+          ? _value.wilaya
+          : wilaya // ignore: cast_nullable_to_non_nullable
+              as String?,
+      state: freezed == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as String?,
       category: null == category
           ? _value.category
           : category // ignore: cast_nullable_to_non_nullable
@@ -539,6 +577,9 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
   const _$PartnerSettingsStateImpl(
       {this.fullName = '',
       this.email = '',
+      this.phone,
+      this.wilaya,
+      this.state,
       this.category = '',
       this.specialty,
       this.location,
@@ -562,9 +603,17 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
   @JsonKey()
   final String email;
   @override
+  final String? phone;
+// From users table
+  @override
+  final String? wilaya;
+// From users table
+  @override
+  final String? state;
+// From users table
+  @override
   @JsonKey()
   final String category;
-// <--- ADDED THIS
   @override
   final String? specialty;
   @override
@@ -572,7 +621,6 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
   @override
   @JsonKey()
   final bool notificationsEnabled;
-// <--- ADDED THIS
   @override
   @JsonKey()
   final bool isActive;
@@ -614,7 +662,7 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
 
   @override
   String toString() {
-    return 'PartnerSettingsState(fullName: $fullName, email: $email, category: $category, specialty: $specialty, location: $location, notificationsEnabled: $notificationsEnabled, isActive: $isActive, bookingSystemType: $bookingSystemType, confirmationMode: $confirmationMode, dailyBookingLimit: $dailyBookingLimit, workingHours: $workingHours, closedDays: $closedDays, isSaving: $isSaving, isLoading: $isLoading, errorMessage: $errorMessage)';
+    return 'PartnerSettingsState(fullName: $fullName, email: $email, phone: $phone, wilaya: $wilaya, state: $state, category: $category, specialty: $specialty, location: $location, notificationsEnabled: $notificationsEnabled, isActive: $isActive, bookingSystemType: $bookingSystemType, confirmationMode: $confirmationMode, dailyBookingLimit: $dailyBookingLimit, workingHours: $workingHours, closedDays: $closedDays, isSaving: $isSaving, isLoading: $isLoading, errorMessage: $errorMessage)';
   }
 
   @override
@@ -625,6 +673,9 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
             (identical(other.fullName, fullName) ||
                 other.fullName == fullName) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.phone, phone) || other.phone == phone) &&
+            (identical(other.wilaya, wilaya) || other.wilaya == wilaya) &&
+            (identical(other.state, state) || other.state == state) &&
             (identical(other.category, category) ||
                 other.category == category) &&
             (identical(other.specialty, specialty) ||
@@ -658,6 +709,9 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
       runtimeType,
       fullName,
       email,
+      phone,
+      wilaya,
+      state,
       category,
       specialty,
       location,
@@ -685,6 +739,9 @@ abstract class _PartnerSettingsState implements PartnerSettingsState {
   const factory _PartnerSettingsState(
       {final String fullName,
       final String email,
+      final String? phone,
+      final String? wilaya,
+      final String? state,
       final String category,
       final String? specialty,
       final String? location,
@@ -704,14 +761,20 @@ abstract class _PartnerSettingsState implements PartnerSettingsState {
   @override
   String get email;
   @override
+  String? get phone;
+  @override // From users table
+  String? get wilaya;
+  @override // From users table
+  String? get state;
+  @override // From users table
   String get category;
-  @override // <--- ADDED THIS
+  @override
   String? get specialty;
   @override
   String? get location;
   @override
   bool get notificationsEnabled;
-  @override // <--- ADDED THIS
+  @override
   bool get isActive;
   @override
   String get bookingSystemType;
