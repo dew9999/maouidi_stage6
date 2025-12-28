@@ -67,7 +67,7 @@ class AppointmentRepository {
       }).toList();
 
       // Sort by appointment number (for queue-based) or time
-      todayAppointments.sort((a, b) {
+      todayAppointments.sort((AppointmentModel a, AppointmentModel b) {
         if (a.appointmentNumber != null && b.appointmentNumber != null) {
           return a.appointmentNumber!.compareTo(b.appointmentNumber!);
         }
@@ -160,8 +160,10 @@ class AppointmentRepository {
           .order('appointment_number', ascending: true);
 
       final appointments = (response as List)
-          .map((data) =>
-              AppointmentModel.fromSupabase(data as Map<String, dynamic>))
+          .map(
+            (data) =>
+                AppointmentModel.fromSupabase(data as Map<String, dynamic>),
+          )
           .toList();
 
       // Complete any existing 'In Progress' appointment
@@ -201,6 +203,45 @@ class AppointmentRepository {
       return nextAppt.id;
     } catch (e) {
       throw AppointmentException('Failed to call next patient: $e');
+    }
+  }
+
+  /// Pushes a patient to the back of the queue.
+  ///
+  /// Updates the appointment's queue_number to max + 1 and status to Pending.
+  /// Used when the current "Now Serving" patient needs to be repositioned.
+  Future<void> pushPatientToBack(int appointmentId, String partnerId) async {
+    try {
+      final now = DateTime.now();
+      final startOfDay = DateTime(now.year, now.month, now.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+
+      // Get today's appointments to find max queue number
+      final response = await _supabase
+          .from('appointments')
+          .select('appointment_number')
+          .eq('partner_id', partnerId)
+          .gte('appointment_time', startOfDay.toUtc().toIso8601String())
+          .lt('appointment_time', endOfDay.toUtc().toIso8601String())
+          .not('appointment_number', 'is', null);
+
+      final appointments = response as List;
+      final queueNumbers = appointments
+          .map((a) => a['appointment_number'] as int?)
+          .whereType<int>()
+          .toList();
+
+      final maxQueueNumber = queueNumbers.isEmpty
+          ? 0
+          : queueNumbers.reduce((a, b) => a > b ? a : b);
+
+      // Update appointment to back of queue with Pending status
+      await _supabase.from('appointments').update({
+        'appointment_number': maxQueueNumber + 1,
+        'status': 'Pending',
+      }).eq('id', appointmentId);
+    } catch (e) {
+      throw AppointmentException('Failed to push patient to back: $e');
     }
   }
 

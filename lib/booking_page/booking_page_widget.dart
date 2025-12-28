@@ -368,6 +368,26 @@ class _NumberQueueBookingView extends ConsumerWidget {
             lastDay: DateTime.utc(2030, 12, 31),
             focusedDay: selectedDate,
             selectedDayPredicate: (day) => isSameDay(day, selectedDate),
+            enabledDayPredicate: (day) {
+              // Disable past dates
+              if (day.isBefore(DateTime.now().startOfDay)) {
+                return false;
+              }
+
+              // Disable dates in closed_days array
+              final isClosedDay =
+                  partnerData.closedDays.any((d) => isSameDay(d, day));
+              if (isClosedDay) {
+                return false;
+              }
+
+              // Disable non-working days
+              final dayOfWeekKey = day.weekday.toString();
+              final isWorkingDay =
+                  partnerData.workingHours.containsKey(dayOfWeekKey);
+
+              return isWorkingDay;
+            },
             onDaySelected: (selectedDay, focusedDay) {
               ref
                   .read(bookingControllerProvider(partnerId).notifier)
@@ -382,6 +402,10 @@ class _NumberQueueBookingView extends ConsumerWidget {
                 color: colorScheme.primary.withOpacity(0.5),
                 shape: BoxShape.circle,
               ),
+              disabledDecoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              ),
               selectedTextStyle:
                   textTheme.titleSmall?.copyWith(color: Colors.white) ??
                       const TextStyle(color: Colors.white),
@@ -389,6 +413,10 @@ class _NumberQueueBookingView extends ConsumerWidget {
               defaultTextStyle: textTheme.bodyMedium ?? const TextStyle(),
               weekendTextStyle: textTheme.bodyMedium ?? const TextStyle(),
               outsideTextStyle: textTheme.labelMedium ?? const TextStyle(),
+              disabledTextStyle: textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSurface.withOpacity(0.3),
+                  ) ??
+                  TextStyle(color: colorScheme.onSurface.withOpacity(0.3)),
             ),
             headerStyle: HeaderStyle(
               titleTextStyle: textTheme.titleLarge ?? const TextStyle(),
@@ -535,6 +563,35 @@ class _TimeSlotBookingView extends ConsumerWidget {
             lastDay: DateTime.utc(2030, 12, 31),
             focusedDay: selectedDate,
             selectedDayPredicate: (day) => isSameDay(day, selectedDate),
+            enabledDayPredicate: (day) {
+              // Need to get partner data from booking state
+              final bookingState =
+                  ref.read(bookingControllerProvider(partnerId));
+              final partnerData = bookingState.partnerData;
+
+              if (partnerData == null) {
+                return true; // Allow selection if no data yet
+              }
+
+              // Disable past dates
+              if (day.isBefore(DateTime.now().startOfDay)) {
+                return false;
+              }
+
+              // Disable dates in closed_days array
+              final isClosedDay =
+                  partnerData.closedDays.any((d) => isSameDay(d, day));
+              if (isClosedDay) {
+                return false;
+              }
+
+              // Disable non-working days
+              final dayOfWeekKey = day.weekday.toString();
+              final isWorkingDay =
+                  partnerData.workingHours.containsKey(dayOfWeekKey);
+
+              return isWorkingDay;
+            },
             onDaySelected: (selectedDay, focusedDay) {
               ref
                   .read(bookingControllerProvider(partnerId).notifier)
@@ -549,6 +606,10 @@ class _TimeSlotBookingView extends ConsumerWidget {
                 color: colorScheme.primary.withOpacity(0.5),
                 shape: BoxShape.circle,
               ),
+              disabledDecoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              ),
               selectedTextStyle:
                   textTheme.titleSmall?.copyWith(color: Colors.white) ??
                       const TextStyle(color: Colors.white),
@@ -556,6 +617,10 @@ class _TimeSlotBookingView extends ConsumerWidget {
               defaultTextStyle: textTheme.bodyMedium ?? const TextStyle(),
               weekendTextStyle: textTheme.bodyMedium ?? const TextStyle(),
               outsideTextStyle: textTheme.labelMedium ?? const TextStyle(),
+              disabledTextStyle: textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSurface.withOpacity(0.3),
+                  ) ??
+                  TextStyle(color: colorScheme.onSurface.withOpacity(0.3)),
             ),
             headerStyle: HeaderStyle(
               titleTextStyle: textTheme.titleLarge ?? const TextStyle(),

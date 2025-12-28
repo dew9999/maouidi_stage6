@@ -7,6 +7,8 @@ import 'package:maouidi/core/localization_helpers.dart';
 import 'package:maouidi/generated/l10n/app_localizations.dart';
 
 import '../../components/empty_state_widget.dart';
+import '../../features/appointments/data/appointment_model.dart';
+import '../../features/appointments/data/appointment_repository.dart';
 import '../../features/appointments/presentation/partner_dashboard_controller.dart';
 import '../components/now_serving_card.dart';
 import '../components/appointment_card.dart';
@@ -72,8 +74,10 @@ class TimeSlotView extends ConsumerWidget {
     }).toList();
 
     // Sort by appointment time
-    filteredAppointments
-        .sort((a, b) => a.appointmentTime.compareTo(b.appointmentTime));
+    filteredAppointments.sort(
+      (AppointmentModel a, AppointmentModel b) =>
+          a.appointmentTime.compareTo(b.appointmentTime),
+    );
 
     return ListView(
       padding: EdgeInsets.zero,
@@ -249,7 +253,7 @@ class NumberQueueView extends ConsumerWidget {
                           ),
                         ),
                       ),
-                    if (currentPatient != null)
+                    if (currentPatient != null) ...[
                       NowServingCard(
                         appointmentData: {
                           'id': currentPatient.id,
@@ -275,6 +279,63 @@ class NumberQueueView extends ConsumerWidget {
                               .refresh();
                         },
                       ),
+                      const SizedBox(height: 12),
+                      // Push to Back button
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          try {
+                            await ref
+                                .read(appointmentRepositoryProvider)
+                                .pushPatientToBack(
+                                  currentPatient.id,
+                                  partnerId,
+                                );
+                            ref
+                                .read(
+                                  partnerDashboardControllerProvider(partnerId)
+                                      .notifier,
+                                )
+                                .refresh();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Patient moved to back of queue',
+                                  ),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Failed to move patient: ${e.toString()}',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        icon: Icon(
+                          Icons.arrow_downward,
+                          color: theme.colorScheme.primary,
+                        ),
+                        label: Text(
+                          'Push to Back of Queue',
+                          style: TextStyle(color: theme.colorScheme.primary),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 48),
+                          side: BorderSide(
+                            color: theme.colorScheme.primary,
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                    ],
                     if (upNextAppointments.isNotEmpty) ...[
                       Padding(
                         padding: EdgeInsets.only(

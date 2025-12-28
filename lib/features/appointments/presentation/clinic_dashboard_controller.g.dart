@@ -7,7 +7,7 @@ part of 'clinic_dashboard_controller.dart';
 // **************************************************************************
 
 String _$clinicDashboardControllerHash() =>
-    r'16fe292a6ca5a1754d5b05c032684b1aee03307a';
+    r'7bf7f8ce912235cfa1dbae7d4fad6151d91562ff';
 
 /// Copied from Dart SDK
 class _SystemHash {

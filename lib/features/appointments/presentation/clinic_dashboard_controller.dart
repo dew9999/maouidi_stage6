@@ -13,6 +13,7 @@ class ClinicDashboardState {
   final List<MedicalPartnersRow> doctors;
   final List<Map<String, dynamic>> appointments;
   final String? selectedDoctorId;
+  final DateTime? selectedDate;
   final ClinicDashboardView currentView;
   final bool isLoading;
   final String? errorMessage;
@@ -21,6 +22,7 @@ class ClinicDashboardState {
     this.doctors = const [],
     this.appointments = const [],
     this.selectedDoctorId,
+    this.selectedDate,
     this.currentView = ClinicDashboardView.schedule,
     this.isLoading = false,
     this.errorMessage,
@@ -29,7 +31,8 @@ class ClinicDashboardState {
   ClinicDashboardState copyWith({
     List<MedicalPartnersRow>? doctors,
     List<Map<String, dynamic>>? appointments,
-    String? selectedDoctorId,
+    Object? selectedDoctorId = _undefined,
+    Object? selectedDate = _undefined,
     ClinicDashboardView? currentView,
     bool? isLoading,
     String? errorMessage,
@@ -37,13 +40,20 @@ class ClinicDashboardState {
     return ClinicDashboardState(
       doctors: doctors ?? this.doctors,
       appointments: appointments ?? this.appointments,
-      selectedDoctorId: selectedDoctorId ?? this.selectedDoctorId,
+      selectedDoctorId: selectedDoctorId == _undefined
+          ? this.selectedDoctorId
+          : selectedDoctorId as String?,
+      selectedDate: selectedDate == _undefined
+          ? this.selectedDate
+          : selectedDate as DateTime?,
       currentView: currentView ?? this.currentView,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
     );
   }
 }
+
+const _undefined = Object();
 
 @riverpod
 class ClinicDashboardController extends _$ClinicDashboardController {
@@ -77,7 +87,8 @@ class ClinicDashboardController extends _$ClinicDashboardController {
   }
 
   Future<List<Map<String, dynamic>>> _fetchAppointments(
-      String? doctorId,) async {
+    String? doctorId,
+  ) async {
     final data = await Supabase.instance.client.rpc(
       'get_clinic_appointments',
       params: {
@@ -96,17 +107,29 @@ class ClinicDashboardController extends _$ClinicDashboardController {
 
     try {
       final appointments = await _fetchAppointments(doctorId);
-      state = AsyncValue.data(currentState.copyWith(
-        selectedDoctorId: doctorId,
-        appointments: appointments,
-        isLoading: false,
-      ),);
+      state = AsyncValue.data(
+        currentState.copyWith(
+          selectedDoctorId: doctorId,
+          appointments: appointments,
+          isLoading: false,
+        ),
+      );
     } catch (e) {
-      state = AsyncValue.data(currentState.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to filter appointments: ${e.toString()}',
-      ),);
+      state = AsyncValue.data(
+        currentState.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to filter appointments: ${e.toString()}',
+        ),
+      );
     }
+  }
+
+  void setSelectedDate(DateTime? date) {
+    final currentState = state.value;
+    if (currentState == null) return;
+
+    // Update state with new date filter
+    state = AsyncValue.data(currentState.copyWith(selectedDate: date));
   }
 
   void setView(ClinicDashboardView view) {
