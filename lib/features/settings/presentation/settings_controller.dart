@@ -45,7 +45,8 @@ class PatientSettingsController extends _$PatientSettingsController {
     final previousState = state;
     if (state.hasValue) {
       state = AsyncValue.data(
-          state.value!.copyWith(notificationsEnabled: isEnabled),);
+        state.value!.copyWith(notificationsEnabled: isEnabled),
+      );
     }
     // Optimistic update - in real app, save to DB here
   }
@@ -90,7 +91,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         bookingSystemType:
             data['booking_system_type'] as String? ?? 'time_based',
         confirmationMode: data['confirmation_mode'] as String? ?? 'manual',
-        dailyLimit: data['daily_limit'] as int? ?? 0,
+        dailyBookingLimit: data['daily_booking_limit'] as int? ?? 0,
         workingHours: _parseWorkingHours(data['working_hours']),
         closedDays: _parseClosedDays(data['closed_days']),
         isLoading: false,
@@ -151,7 +152,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
 
   Future<void> updateDailyLimit(int limit) async {
     if (!state.hasValue) return;
-    state = AsyncValue.data(state.value!.copyWith(dailyLimit: limit));
+    state = AsyncValue.data(state.value!.copyWith(dailyBookingLimit: limit));
   }
 
   Future<void> updateConfirmationMode(String value) async {
@@ -199,7 +200,10 @@ class PartnerSettingsController extends _$PartnerSettingsController {
   }
 
   Future<void> updateWorkingHourSlot(
-      String day, int index, String newSlot,) async {
+    String day,
+    int index,
+    String newSlot,
+  ) async {
     if (!state.hasValue) return;
     final hours = _getCurrentHours();
     if (hours.containsKey(day) && hours[day]!.length > index) {
@@ -231,8 +235,9 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     if (!state.hasValue) return;
     final currentDays = List<DateTime>.from(state.value!.closedDays);
 
-    if (!currentDays.any((d) =>
-        d.year == day.year && d.month == day.month && d.day == day.day,)) {
+    if (!currentDays.any(
+      (d) => d.year == day.year && d.month == day.month && d.day == day.day,
+    )) {
       currentDays.add(day);
       state = AsyncValue.data(state.value!.copyWith(closedDays: currentDays));
     }
@@ -243,7 +248,8 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     final currentDays = List<DateTime>.from(state.value!.closedDays);
 
     currentDays.removeWhere(
-        (d) => d.year == day.year && d.month == day.month && d.day == day.day,);
+      (d) => d.year == day.year && d.month == day.month && d.day == day.day,
+    );
 
     state = AsyncValue.data(state.value!.copyWith(closedDays: currentDays));
   }
@@ -268,7 +274,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         'is_active': currentState.isActive,
         'booking_system_type': currentState.bookingSystemType,
         'confirmation_mode': currentState.confirmationMode,
-        'daily_limit': currentState.dailyLimit,
+        'daily_booking_limit': currentState.dailyBookingLimit,
         'working_hours': currentState
             .workingHours, // Directly save Map<String, List<String>>
         'closed_days':
@@ -277,10 +283,12 @@ class PartnerSettingsController extends _$PartnerSettingsController {
 
       state = AsyncValue.data(currentState.copyWith(isSaving: false));
     } catch (e) {
-      state = AsyncValue.data(currentState.copyWith(
-        isSaving: false,
-        errorMessage: 'Failed to save: ${e.toString()}',
-      ),);
+      state = AsyncValue.data(
+        currentState.copyWith(
+          isSaving: false,
+          errorMessage: 'Failed to save: ${e.toString()}',
+        ),
+      );
       rethrow;
     }
   }

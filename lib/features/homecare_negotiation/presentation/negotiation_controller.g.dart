@@ -7,7 +7,7 @@ part of 'negotiation_controller.dart';
 // **************************************************************************
 
 String _$negotiationControllerHash() =>
-    r'e2b4473b53e44638725b94a77b06c28b8ef40f5c';
+    r'33674e229a75d65521c36bbeda19567bdcd5a456';
 
 /// Controller for managing negotiation actions
 ///

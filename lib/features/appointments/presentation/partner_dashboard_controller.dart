@@ -38,18 +38,19 @@ class PartnerDashboardController extends _$PartnerDashboardController {
       final todayAppointments = results[1] as List<AppointmentModel>;
       final stats = results[2] as Map<String, int>;
 
-      // Find current patient (first confirmed appointment for queue-based)
+      // Find current patient (first 'In Progress' for queue-based, fallback to 'Confirmed')
       final currentPatient = todayAppointments.firstWhere(
-        (appt) => appt.status == 'Confirmed',
-        orElse: () =>
-            todayAppointments.firstOrNull ??
-            AppointmentModel(
-              id: 0,
-              partnerId: '',
-              bookingUserId: '',
-              appointmentTime: DateTime.now(),
-              status: '',
-            ),
+        (appt) => appt.status == 'In Progress',
+        orElse: () => todayAppointments.firstWhere(
+          (appt) => appt.status == 'Confirmed',
+          orElse: () => AppointmentModel(
+            id: 0,
+            partnerId: '',
+            bookingUserId: '',
+            appointmentTime: DateTime.now(),
+            status: '',
+          ),
+        ),
       );
 
       return PartnerDashboardState(
@@ -69,20 +70,19 @@ class PartnerDashboardController extends _$PartnerDashboardController {
 
   /// Calls the next patient in the queue.
   ///
-  /// Marks the next pending appointment as 'Confirmed' (Now Serving).
+  /// Completes any previous 'In Progress' appointment and marks the next
+  /// pending/confirmed appointment as 'In Progress' (Now Serving).
   Future<void> nextPatient() async {
     final repository = ref.read(appointmentRepositoryProvider);
     final currentState = await future;
 
     try {
-      // Find the next pending appointment
-      final nextAppt = currentState.todayAppointments.firstWhere(
-        (appt) => appt.status == 'Pending',
-        orElse: () => throw Exception('No pending appointments in queue'),
-      );
+      // Use repository method that handles the full queue logic
+      final calledPatientId = await repository.callNextPatient(_partnerId);
 
-      // Call the patient (mark as Confirmed)
-      await repository.callPatient(nextAppt.id);
+      if (calledPatientId == null) {
+        throw Exception('No pending appointments in queue');
+      }
 
       // Reload dashboard data to get updated state
       state = AsyncValue.data(await loadDashboardData());

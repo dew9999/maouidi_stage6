@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '/features/auth/presentation/user_role_provider.dart';
 import '/core/providers/screen_utils_provider.dart';
 import '/index.dart';
-import '/auth/supabase_auth/auth_util.dart';
 
 // Riverpod provider for navigation index
 final _navIndexProvider = StateProvider.autoDispose<int>((ref) => 0);
@@ -152,7 +152,9 @@ class MainLayout extends ConsumerWidget {
         ],
         pages: [
           const HomePageWidget(),
-          PartnerDashboardPageWidget(partnerId: currentUserId),
+          PartnerDashboardPageWidget(
+            partnerId: Supabase.instance.client.auth.currentUser?.id ?? '',
+          ),
           const SettingsPageWidget(),
         ],
       );

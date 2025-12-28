@@ -93,10 +93,12 @@ class AppointmentRepository {
         'confirmed': appointments.where((a) => a.status == 'Confirmed').length,
         'completed': appointments.where((a) => a.status == 'Completed').length,
         'canceled': appointments
-            .where((a) =>
-                a.status == 'Cancelled_ByUser' ||
-                a.status == 'Cancelled_ByPartner' ||
-                a.status == 'NoShow',)
+            .where(
+              (a) =>
+                  a.status == 'Cancelled_ByUser' ||
+                  a.status == 'Cancelled_ByPartner' ||
+                  a.status == 'NoShow',
+            )
             .length,
       };
 
@@ -124,16 +126,81 @@ class AppointmentRepository {
     }
   }
 
-  /// Calls the next patient by updating their status to 'Confirmed'.
+  /// Calls the next patient by updating their status to 'In Progress'.
   ///
-  /// This triggers the "Now Serving" notification logic.
+  /// This triggers the "Now Serving" notification logic for queue-based systems.
   Future<void> callPatient(int id) async {
     try {
       await _supabase.from('appointments').update({
-        'status': 'Confirmed',
+        'status': 'In Progress',
       }).eq('id', id);
     } catch (e) {
       throw AppointmentException('Failed to call patient: $e');
+    }
+  }
+
+  /// Calls the next patient in the queue for a partner.
+  ///
+  /// Finds the next pending/confirmed appointment, completes any previous
+  /// 'In Progress' appointment, and updates the next one to 'In Progress'.
+  /// Returns the ID of the called patient or null if no pending appointments.
+  Future<int?> callNextPatient(String partnerId) async {
+    try {
+      final now = DateTime.now();
+      final startOfDay = DateTime(now.year, now.month, now.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+
+      // Get all today's appointments for this partner
+      final response = await _supabase
+          .from('appointments')
+          .select()
+          .eq('partner_id', partnerId)
+          .gte('appointment_time', startOfDay.toUtc().toIso8601String())
+          .lt('appointment_time', endOfDay.toUtc().toIso8601String())
+          .order('appointment_number', ascending: true);
+
+      final appointments = (response as List)
+          .map((data) =>
+              AppointmentModel.fromSupabase(data as Map<String, dynamic>))
+          .toList();
+
+      // Complete any existing 'In Progress' appointment
+      final inProgressAppt = appointments.firstWhere(
+        (appt) => appt.status == 'In Progress',
+        orElse: () => AppointmentModel(
+          id: 0,
+          partnerId: '',
+          bookingUserId: '',
+          appointmentTime: DateTime.now(),
+          status: '',
+        ),
+      );
+
+      if (inProgressAppt.id != 0) {
+        await markAsCompleted(inProgressAppt.id);
+      }
+
+      // Find next pending or confirmed appointment
+      final nextAppt = appointments.firstWhere(
+        (appt) => appt.status == 'Pending' || appt.status == 'Confirmed',
+        orElse: () => AppointmentModel(
+          id: 0,
+          partnerId: '',
+          bookingUserId: '',
+          appointmentTime: DateTime.now(),
+          status: '',
+        ),
+      );
+
+      if (nextAppt.id == 0) {
+        return null; // No pending appointments
+      }
+
+      // Update next appointment to 'In Progress'
+      await callPatient(nextAppt.id);
+      return nextAppt.id;
+    } catch (e) {
+      throw AppointmentException('Failed to call next patient: $e');
     }
   }
 
@@ -214,8 +281,11 @@ class AppointmentRepository {
     bool? isUpcoming,
   }) async* {
     // First, yield the initial data
-    final initialData = await fetchPatientAppointments(userId, statuses,
-        isUpcoming: isUpcoming,);
+    final initialData = await fetchPatientAppointments(
+      userId,
+      statuses,
+      isUpcoming: isUpcoming,
+    );
     yield initialData;
 
     // Set up realtime subscription

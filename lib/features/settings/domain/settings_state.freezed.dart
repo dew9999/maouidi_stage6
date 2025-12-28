@@ -283,7 +283,7 @@ mixin _$PartnerSettingsState {
   bool get isActive => throw _privateConstructorUsedError;
   String get bookingSystemType => throw _privateConstructorUsedError;
   String get confirmationMode => throw _privateConstructorUsedError;
-  int get dailyLimit => throw _privateConstructorUsedError;
+  int get dailyBookingLimit => throw _privateConstructorUsedError;
   Map<String, List<String>> get workingHours =>
       throw _privateConstructorUsedError;
   List<DateTime> get closedDays => throw _privateConstructorUsedError;
@@ -312,7 +312,7 @@ abstract class $PartnerSettingsStateCopyWith<$Res> {
       bool isActive,
       String bookingSystemType,
       String confirmationMode,
-      int dailyLimit,
+      int dailyBookingLimit,
       Map<String, List<String>> workingHours,
       List<DateTime> closedDays,
       bool isSaving,
@@ -343,7 +343,7 @@ class _$PartnerSettingsStateCopyWithImpl<$Res,
     Object? isActive = null,
     Object? bookingSystemType = null,
     Object? confirmationMode = null,
-    Object? dailyLimit = null,
+    Object? dailyBookingLimit = null,
     Object? workingHours = null,
     Object? closedDays = null,
     Object? isSaving = null,
@@ -387,9 +387,9 @@ class _$PartnerSettingsStateCopyWithImpl<$Res,
           ? _value.confirmationMode
           : confirmationMode // ignore: cast_nullable_to_non_nullable
               as String,
-      dailyLimit: null == dailyLimit
-          ? _value.dailyLimit
-          : dailyLimit // ignore: cast_nullable_to_non_nullable
+      dailyBookingLimit: null == dailyBookingLimit
+          ? _value.dailyBookingLimit
+          : dailyBookingLimit // ignore: cast_nullable_to_non_nullable
               as int,
       workingHours: null == workingHours
           ? _value.workingHours
@@ -433,7 +433,7 @@ abstract class _$$PartnerSettingsStateImplCopyWith<$Res>
       bool isActive,
       String bookingSystemType,
       String confirmationMode,
-      int dailyLimit,
+      int dailyBookingLimit,
       Map<String, List<String>> workingHours,
       List<DateTime> closedDays,
       bool isSaving,
@@ -461,7 +461,7 @@ class __$$PartnerSettingsStateImplCopyWithImpl<$Res>
     Object? isActive = null,
     Object? bookingSystemType = null,
     Object? confirmationMode = null,
-    Object? dailyLimit = null,
+    Object? dailyBookingLimit = null,
     Object? workingHours = null,
     Object? closedDays = null,
     Object? isSaving = null,
@@ -505,9 +505,9 @@ class __$$PartnerSettingsStateImplCopyWithImpl<$Res>
           ? _value.confirmationMode
           : confirmationMode // ignore: cast_nullable_to_non_nullable
               as String,
-      dailyLimit: null == dailyLimit
-          ? _value.dailyLimit
-          : dailyLimit // ignore: cast_nullable_to_non_nullable
+      dailyBookingLimit: null == dailyBookingLimit
+          ? _value.dailyBookingLimit
+          : dailyBookingLimit // ignore: cast_nullable_to_non_nullable
               as int,
       workingHours: null == workingHours
           ? _value._workingHours
@@ -546,7 +546,7 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
       this.isActive = false,
       this.bookingSystemType = 'time_based',
       this.confirmationMode = 'manual',
-      this.dailyLimit = 0,
+      this.dailyBookingLimit = 0,
       final Map<String, List<String>> workingHours = const {},
       final List<DateTime> closedDays = const [],
       this.isSaving = false,
@@ -584,7 +584,7 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
   final String confirmationMode;
   @override
   @JsonKey()
-  final int dailyLimit;
+  final int dailyBookingLimit;
   final Map<String, List<String>> _workingHours;
   @override
   @JsonKey()
@@ -614,7 +614,7 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
 
   @override
   String toString() {
-    return 'PartnerSettingsState(fullName: $fullName, email: $email, category: $category, specialty: $specialty, location: $location, notificationsEnabled: $notificationsEnabled, isActive: $isActive, bookingSystemType: $bookingSystemType, confirmationMode: $confirmationMode, dailyLimit: $dailyLimit, workingHours: $workingHours, closedDays: $closedDays, isSaving: $isSaving, isLoading: $isLoading, errorMessage: $errorMessage)';
+    return 'PartnerSettingsState(fullName: $fullName, email: $email, category: $category, specialty: $specialty, location: $location, notificationsEnabled: $notificationsEnabled, isActive: $isActive, bookingSystemType: $bookingSystemType, confirmationMode: $confirmationMode, dailyBookingLimit: $dailyBookingLimit, workingHours: $workingHours, closedDays: $closedDays, isSaving: $isSaving, isLoading: $isLoading, errorMessage: $errorMessage)';
   }
 
   @override
@@ -639,8 +639,8 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
                 other.bookingSystemType == bookingSystemType) &&
             (identical(other.confirmationMode, confirmationMode) ||
                 other.confirmationMode == confirmationMode) &&
-            (identical(other.dailyLimit, dailyLimit) ||
-                other.dailyLimit == dailyLimit) &&
+            (identical(other.dailyBookingLimit, dailyBookingLimit) ||
+                other.dailyBookingLimit == dailyBookingLimit) &&
             const DeepCollectionEquality()
                 .equals(other._workingHours, _workingHours) &&
             const DeepCollectionEquality()
@@ -665,7 +665,7 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
       isActive,
       bookingSystemType,
       confirmationMode,
-      dailyLimit,
+      dailyBookingLimit,
       const DeepCollectionEquality().hash(_workingHours),
       const DeepCollectionEquality().hash(_closedDays),
       isSaving,
@@ -692,7 +692,7 @@ abstract class _PartnerSettingsState implements PartnerSettingsState {
       final bool isActive,
       final String bookingSystemType,
       final String confirmationMode,
-      final int dailyLimit,
+      final int dailyBookingLimit,
       final Map<String, List<String>> workingHours,
       final List<DateTime> closedDays,
       final bool isSaving,
@@ -718,7 +718,7 @@ abstract class _PartnerSettingsState implements PartnerSettingsState {
   @override
   String get confirmationMode;
   @override
-  int get dailyLimit;
+  int get dailyBookingLimit;
   @override
   Map<String, List<String>> get workingHours;
   @override

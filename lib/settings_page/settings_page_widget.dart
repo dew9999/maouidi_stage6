@@ -21,6 +21,7 @@ import 'components/settings_item.dart';
 import 'components/become_partner_dialog.dart';
 import 'components/profile_card.dart';
 import 'components/settings_dialogs.dart';
+import 'components/location_field.dart';
 
 class SettingsPageWidget extends ConsumerStatefulWidget {
   const SettingsPageWidget({super.key});
@@ -355,45 +356,9 @@ class _ProfessionalDetailsSection extends ConsumerWidget {
             ),
           ),
         ),
-        SettingsItem(
-          icon: Icons.apartment_outlined,
-          title: 'Clinic',
-          trailing: SizedBox(
-            width: 180,
-            child: DropdownButton<String>(
-              value: settings.location ??
-                  'None', // 'None' is pseudo-value, real logic in controller
-              // NOTE: Dropdown requires unique values. We use a placeholder if null.
-              // Assuming settings.availableClinics logic is correct.
-              items: [
-                const DropdownMenuItem<String>(
-                  value: 'None',
-                  child: Text('None'),
-                ),
-                if (settings.availableClinics != null)
-                  ...settings.availableClinics.map((c) {
-                    return DropdownMenuItem<String>(
-                      value: c.id,
-                      child: Text(
-                        c.fullName ?? 'Unnamed Clinic',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-              ],
-              onChanged: (String? val) {
-                final newValue = val == 'None' ? null : val;
-                ref
-                    .read(partnerSettingsControllerProvider.notifier)
-                    .updateClinic(newValue);
-              },
-              hint: const Text('Select...'),
-              isExpanded: true,
-              underline: const SizedBox.shrink(),
-            ),
-          ),
+        LocationField(
+          settings: settings,
+          theme: theme,
         ),
       ],
     );
@@ -484,7 +449,8 @@ class _BookingConfigurationSectionState
               ? Text(
                   'Queue (Required)',
                   style: widget.theme.textTheme.bodyMedium?.copyWith(
-                      color: widget.theme.colorScheme.onSurfaceVariant,),
+                    color: widget.theme.colorScheme.onSurfaceVariant,
+                  ),
                 )
               : SegmentedButton<String>(
                   style: SegmentedButton.styleFrom(
@@ -601,8 +567,10 @@ class _GeneralAndLegalSettings extends StatelessWidget {
                   }
                 },
                 underline: const SizedBox.shrink(),
-                icon: Icon(Icons.arrow_drop_down,
-                    color: theme.colorScheme.onSurfaceVariant,),
+                icon: Icon(
+                  Icons.arrow_drop_down,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
                 dropdownColor: theme.colorScheme.surface,
                 style: theme.textTheme.bodyMedium,
               ),
@@ -720,7 +688,10 @@ class _WorkingHoursEditor extends ConsumerWidget {
   }
 
   Future<void> _addTimeSlot(
-      BuildContext context, WidgetRef ref, String dayKey,) async {
+    BuildContext context,
+    WidgetRef ref,
+    String dayKey,
+  ) async {
     const startTime = TimeOfDay(hour: 9, minute: 0);
     const endTime = TimeOfDay(hour: 17, minute: 0);
 
@@ -795,125 +766,132 @@ class _WorkingHoursEditor extends ConsumerWidget {
     final settingsAsync = ref.watch(partnerSettingsControllerProvider);
 
     return settingsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => const SizedBox.shrink(),
-        data: (settings) {
-          final hours = settings.workingHours;
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (settings) {
+        final hours = settings.workingHours;
 
-          return Theme(
-            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-            child: Column(
-              children: _daysOfWeek.entries.map((dayEntry) {
-                final dayName = dayEntry.key;
-                final dayKey = dayEntry.value;
-                final isEnabled = hours.containsKey(dayKey);
+        return Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: Column(
+            children: _daysOfWeek.entries.map((dayEntry) {
+              final dayName = dayEntry.key;
+              final dayKey = dayEntry.value;
+              final isEnabled = hours.containsKey(dayKey);
 
-                return ExpansionTile(
-                  key: PageStorageKey(dayName),
-                  iconColor: Theme.of(context).colorScheme.onSurface,
-                  collapsedIconColor:
-                      Theme.of(context).colorScheme.onSurfaceVariant,
-                  title: Text(dayName,
-                      style: Theme.of(context).textTheme.bodyLarge,),
-                  trailing: Switch(
-                    value: isEnabled,
-                    onChanged: (enabled) {
-                      ref
-                          .read(partnerSettingsControllerProvider.notifier)
-                          .setDayAvailability(dayKey, enabled);
-                    },
-                    activeTrackColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  children: [
-                    if (isEnabled)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 8.0),
-                        child: Column(
-                          children: [
-                            ...(hours[dayKey] ?? [])
-                                .asMap()
-                                .entries
-                                .map((entry) {
-                              final int idx = entry.key;
-                              final String timeSlot = entry.value;
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 4,
-                                  horizontal: 8,
-                                ),
-                                margin: const EdgeInsets.only(bottom: 8),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      timeSlot,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium,
-                                    ),
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.edit,
-                                            size: 20,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant,
-                                          ),
-                                          onPressed: () => _editTimeSlot(
-                                              context, ref, hours, dayKey, idx,),
-                                        ),
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.delete_outline,
-                                            size: 20,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .error,
-                                          ),
-                                          onPressed: () {
-                                            ref
-                                                .read(
-                                                    partnerSettingsControllerProvider
-                                                        .notifier,)
-                                                .removeWorkingHourSlot(
-                                                    dayKey, idx,);
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                            SizedBox(
-                              width: double.infinity,
-                              child: OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.primary,
-                                ),
-                                icon: const Icon(Icons.add),
-                                label: const Text('Add Time Slot'),
-                                onPressed: () =>
-                                    _addTimeSlot(context, ref, dayKey),
+              return ExpansionTile(
+                key: PageStorageKey(dayName),
+                iconColor: Theme.of(context).colorScheme.onSurface,
+                collapsedIconColor:
+                    Theme.of(context).colorScheme.onSurfaceVariant,
+                title: Text(
+                  dayName,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                trailing: Switch(
+                  value: isEnabled,
+                  onChanged: (enabled) {
+                    ref
+                        .read(partnerSettingsControllerProvider.notifier)
+                        .setDayAvailability(dayKey, enabled);
+                  },
+                  activeTrackColor: Theme.of(context).colorScheme.primary,
+                ),
+                children: [
+                  if (isEnabled)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 8.0),
+                      child: Column(
+                        children: [
+                          ...(hours[dayKey] ?? []).asMap().entries.map((entry) {
+                            final int idx = entry.key;
+                            final String timeSlot = entry.value;
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4,
+                                horizontal: 8,
                               ),
+                              margin: const EdgeInsets.only(bottom: 8),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.surface,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    timeSlot,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.edit,
+                                          size: 20,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                        onPressed: () => _editTimeSlot(
+                                          context,
+                                          ref,
+                                          hours,
+                                          dayKey,
+                                          idx,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.delete_outline,
+                                          size: 20,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .error,
+                                        ),
+                                        onPressed: () {
+                                          ref
+                                              .read(
+                                                partnerSettingsControllerProvider
+                                                    .notifier,
+                                              )
+                                              .removeWorkingHourSlot(
+                                                dayKey,
+                                                idx,
+                                              );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                              ),
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add Time Slot'),
+                              onPressed: () =>
+                                  _addTimeSlot(context, ref, dayKey),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                  ],
-                );
-              }).toList(),
-            ),
-          );
-        },);
+                    ),
+                ],
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -1004,7 +982,8 @@ class _ClosedDaysEditor extends ConsumerWidget {
             width: double.infinity,
             child: OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.colorScheme.primary,),
+                foregroundColor: theme.colorScheme.primary,
+              ),
               icon: const Icon(Icons.add),
               label: const Text('Add a Closed Day'),
               onPressed: () => _addDay(context, ref),
@@ -1069,8 +1048,10 @@ class _EmergencyCard extends ConsumerWidget {
                 }
               }
             },
-            child: const Text('Confirm',
-                style: TextStyle(backgroundColor: Colors.red),),
+            child: const Text(
+              'Confirm',
+              style: TextStyle(backgroundColor: Colors.red),
+            ),
           ),
         ],
       ),

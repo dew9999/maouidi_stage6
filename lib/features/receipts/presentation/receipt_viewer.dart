@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
 import '../providers/receipt_providers.dart';
-import 'dart:io';
 
 /// Widget for viewing and sharing receipts
 class ReceiptViewer extends ConsumerWidget {

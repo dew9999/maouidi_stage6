@@ -25,11 +25,10 @@ final chargilyPublicKeyProvider = AutoDisposeFutureProvider<String>.internal(
 );
 
 typedef ChargilyPublicKeyRef = AutoDisposeFutureProviderRef<String>;
-String _$chargilyServiceHash() => r'9aa8c713aefa56b2e43f93f9cea46c5cbc003682';
+String _$chargilyServiceHash() => r'6d44ade4b6a2f3ce8ddfc641f4cce1b7e668eefd';
 
-/// Provider for Chargily service
-/// IMPORTANT: This is for CLIENT-SIDE operations only (viewing checkout)
-/// Payment creation should be done via Supabase Edge Function for security
+/// Provider for Chargily service (calls Edge Functions)
+/// SECURE: All payments go through Edge Functions, secret key never exposed
 ///
 /// Copied from [chargilyService].
 @ProviderFor(chargilyService)
