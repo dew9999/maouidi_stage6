@@ -24,7 +24,7 @@ final serviceRepositoryProvider =
 );
 
 typedef ServiceRepositoryRef = AutoDisposeProviderRef<ServiceRepository>;
-String _$serviceStatusHash() => r'1a84b0b9fe6164fc4b2af0dc4ff8b2616f97c2df';
+String _$serviceStatusHash() => r'bdec7a021696d65a38bb57d0b62724bcfed79e0d';
 
 /// Copied from Dart SDK
 class _SystemHash {

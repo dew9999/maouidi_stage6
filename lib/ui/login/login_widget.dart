@@ -98,7 +98,7 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
 
             // Validate metadata exists before inserting
             if (metadata == null || metadata.isEmpty) {
-              print('Warning: User metadata is empty');
+              debugPrint('Warning: User metadata is empty');
             }
 
             await Supabase.instance.client.from('users').insert({
@@ -112,10 +112,11 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
               'wilaya': metadata?['wilaya'],
               'terms_validated_at': metadata?['terms_validated_at'],
             });
-            print('User record created on first login');
+            debugPrint('User record created on first login');
           } catch (e) {
             // User record already exists or creation failed - that's okay, continue
-            print('User record creation skipped (might already exist): $e');
+            debugPrint(
+                'User record creation skipped (might already exist): $e',);
           }
 
           // Navigate to home

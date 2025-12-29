@@ -1,0 +1,67 @@
+﻿Analyzing maouidi...                                            
+
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\booking_page\booking_page_widget.dart:741:5 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\booking_page\booking_page_widget.dart:773:12 - unawaited_futures
+warning - The value of the local variable 'l10n' isn't used - lib\core\localization_helpers.dart:25:9 - unused_local_variable
+warning - The value of the local variable 'key' isn't used - lib\core\localization_helpers.dart:28:9 - unused_local_variable
+warning - The value of the local variable 'appointmentData' isn't used - lib\features\appointments\data\appointment_repository.dart:125:13 - unused_local_variable
+warning - The value of the local variable 'colorScheme' isn't used - lib\features\disputes\presentation\create_dispute_dialog.dart:86:11 - unused_local_variable
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\features\homecare_negotiation\presentation\negotiation_screen.dart:99:17 - unawaited_futures
+  error - The named parameter 'appointmentId' is required, but there's no corresponding argument - lib\features\homecare_service\presentation\service_tracking_controller.dart:19:24 - missing_required_argument
+  error - The named parameter 'requestId' isn't defined - lib\features\homecare_service\presentation\service_tracking_controller.dart:19:43 - undefined_named_parameter
+  error - The named parameter 'appointmentId' is required, but there's no corresponding argument - lib\features\homecare_service\presentation\service_tracking_controller.dart:31:24 - missing_required_argument
+  error - The named parameter 'requestId' isn't defined - lib\features\homecare_service\presentation\service_tracking_controller.dart:31:45 - undefined_named_parameter
+  error - The named parameter 'appointmentId' is required, but there's no corresponding argument - lib\features\homecare_service\presentation\service_tracking_controller.dart:43:24 - missing_required_argument
+  error - The named parameter 'requestId' isn't defined - lib\features\homecare_service\presentation\service_tracking_controller.dart:43:47 - undefined_named_parameter
+  error - The named parameter 'appointmentId' is required, but there's no corresponding argument - lib\features\homecare_service\presentation\service_tracking_controller.dart:59:24 - missing_required_argument
+  error - The named parameter 'requestId' isn't defined - lib\features\homecare_service\presentation\service_tracking_controller.dart:60:9 - undefined_named_parameter
+warning - The value of the local variable 'serviceStartedAt' isn't used - lib\features\homecare_service\presentation\service_tracking_widget.dart:30:15 - unused_local_variable
+warning - The value of the local variable 'serviceCompletedAt' isn't used - lib\features\homecare_service\presentation\service_tracking_widget.dart:31:15 - unused_local_variable
+warning - The value of the local variable 'patientConfirmedAt' isn't used - lib\features\homecare_service\presentation\service_tracking_widget.dart:32:15 - unused_local_variable
+warning - The value of the local variable 'colorScheme' isn't used - lib\features\homecare_service\presentation\service_tracking_widget.dart:243:11 - unused_local_variable
+warning - The value of the local variable 'textTheme' isn't used - lib\features\homecare_service\presentation\service_tracking_widget.dart:244:11 - unused_local_variable
+  error - The named parameter 'appointmentId' is required, but there's no corresponding argument - lib\features\homecare_service\providers\service_providers.dart:23:27 - missing_required_argument
+  error - The named parameter 'requestId' isn't defined - lib\features\homecare_service\providers\service_providers.dart:23:44 - undefined_named_parameter
+warning - The value of the local variable 'colorScheme' isn't used - lib\features\payments\presentation\cancellation_dialog.dart:75:11 - unused_local_variable
+warning - The value of the local variable 'period' isn't used - lib\features\payouts\presentation\partner_earnings_dashboard.dart:309:29 - unused_local_variable
+  error - The named parameter 'appointmentId' is required, but there's no corresponding argument - lib\features\receipts\presentation\receipt_viewer.dart:65:43 - missing_required_argument
+  error - The named parameter 'requestId' isn't defined - lib\features\receipts\presentation\receipt_viewer.dart:65:59 - undefined_named_parameter
+  error - The named parameter 'appointmentId' is required, but there's no corresponding argument - lib\features\receipts\presentation\receipt_viewer.dart:217:56 - missing_required_argument
+  error - The named parameter 'requestId' isn't defined - lib\features\receipts\presentation\receipt_viewer.dart:218:31 - undefined_named_parameter
+  error - The named parameter 'appointmentId' is required, but there's no corresponding argument - lib\features\receipts\presentation\receipt_viewer.dart:251:56 - missing_required_argument
+  error - The named parameter 'requestId' isn't defined - lib\features\receipts\presentation\receipt_viewer.dart:252:31 - undefined_named_parameter
+  error - The method 'debugPrint' isn't defined for the type 'PartnerSettingsController' - lib\features\settings\presentation\settings_controller.dart:107:7 - undefined_method
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\main.dart:35:29 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\partner_dashboard_page\components\appointment_card.dart:290:34 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:213:26 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\partner_dashboard_page\partner_dashboard_page_widget.dart:264:28 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\partner_dashboard_page\views\schedule_view.dart:298:34 - unawaited_futures
+warning - The value of the local variable 'theme' isn't used - lib\patient_dashboard\patient_dashboard_widget.dart:500:11 - unused_local_variable
+warning - The value of the local variable 'rating' isn't used - lib\patient_dashboard\patient_dashboard_widget.dart:501:11 - unused_local_variable
+warning - The value of the local variable 'isSubmitting' isn't used - lib\patient_dashboard\patient_dashboard_widget.dart:502:11 - unused_local_variable
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\services\notification_service.dart:12:29 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\settings_page\settings_page_widget.dart:686:12 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\settings_page\settings_page_widget.dart:760:12 - unawaited_futures
+   info - Missing a required trailing comma - lib\ui\login\login_widget.dart:119:73 - require_trailing_commas
+
+flutter : 43 issues 
+found. (ran in 5.4s)
+At line:1 char:1
++ flutter analyze 
+--no-congratulate 
+2>&1 | Out-File 
+-FilePath error_log 
+...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (43 issu   
+ es found. (ran i    
+n 5.4s):String)     
+[], RemoteExcept    
+ion
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 

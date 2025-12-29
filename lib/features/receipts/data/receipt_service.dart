@@ -31,23 +31,26 @@ class ReceiptService {
 
   /// Generate PDF receipt
   Future<File> generateReceipt({
-    required String requestId,
+    required String appointmentId,
   }) async {
-    // Fetch all required data
-    final request = await _supabase.from('homecare_requests').select('''
+    // Fetch all required data - STRICTLY filter by homecare booking type
+    final appointment = await _supabase.from('appointments').select('''
           *,
           patient:patient_id(first_name, last_name, phone),
           partner:partner_id(full_name, phone)
-        ''').eq('id', requestId).single();
+        ''').eq('id', appointmentId).eq('booking_type', 'homecare').single();
 
-    final negotiatedPrice = (request['negotiated_price'] as num).toDouble();
-    final platformFee = (request['platform_fee'] as num?)?.toDouble() ?? 500.0;
-    final totalAmount = (request['total_amount'] as num).toDouble();
-    final paidAt = DateTime.parse(request['paid_at'] as String);
-    final patientLocation = request['address'] as String;
+    final negotiatedPrice = (appointment['negotiated_price'] as num).toDouble();
+    final platformFee =
+        (appointment['platform_fee'] as num?)?.toDouble() ?? 500.0;
+    final totalAmount = negotiatedPrice + platformFee;
+    final paidAt = DateTime.parse(appointment['paid_at'] as String);
+    final patientLocation = appointment['patient_address'] as String? ??
+        appointment['address'] as String? ??
+        'N/A';
 
-    final patient = request['patient'] as Map<String, dynamic>;
-    final partner = request['partner'] as Map<String, dynamic>;
+    final patient = appointment['patient'] as Map<String, dynamic>;
+    final partner = appointment['partner'] as Map<String, dynamic>;
 
     final receiptNumber = await _generateReceiptNumber();
 
@@ -112,7 +115,7 @@ class ReceiptService {
                 content: [
                   'Name: ${partner['full_name']}',
                   'Phone: ${partner['phone']}',
-                  'Service Type: ${request['service_type']}',
+                  'Service Type: Homecare',
                 ],
               ),
 
@@ -139,8 +142,11 @@ class ReceiptService {
                     pw.SizedBox(height: 12),
                     _buildPriceRow('Negotiated Price:', negotiatedPrice),
                     pw.SizedBox(height: 8),
-                    _buildPriceRow('Platform Fee:', platformFee,
-                        isHighlighted: true,),
+                    _buildPriceRow(
+                      'Platform Fee:',
+                      platformFee,
+                      isHighlighted: true,
+                    ),
                     pw.Divider(thickness: 2),
                     _buildPriceRow('TOTAL PAID:', totalAmount, isTotal: true),
                   ],
@@ -208,9 +214,9 @@ class ReceiptService {
 
     // Save receipt record to database
     await _supabase.from('payment_receipts').insert({
-      'homecare_request_id': requestId,
-      'patient_id': request['patient_id'],
-      'partner_id': request['partner_id'],
+      'appointment_id': appointmentId,
+      'patient_id': appointment['patient_id'],
+      'partner_id': appointment['partner_id'],
       'service_price': negotiatedPrice,
       'platform_fee': platformFee,
       'total_paid': totalAmount,
@@ -243,10 +249,12 @@ class ReceiptService {
             ),
           ),
           pw.SizedBox(height: 8),
-          ...content.map((line) => pw.Padding(
-                padding: const pw.EdgeInsets.only(bottom: 4),
-                child: pw.Text(line, style: const pw.TextStyle(fontSize: 11)),
-              ),),
+          ...content.map(
+            (line) => pw.Padding(
+              padding: const pw.EdgeInsets.only(bottom: 4),
+              child: pw.Text(line, style: const pw.TextStyle(fontSize: 11)),
+            ),
+          ),
         ],
       ),
     );
@@ -286,12 +294,12 @@ class ReceiptService {
     );
   }
 
-  /// Get receipt for a request
-  Future<Map<String, dynamic>?> getReceipt(String requestId) async {
+  /// Get receipt for an appointment
+  Future<Map<String, dynamic>?> getReceipt(String appointmentId) async {
     final receipts = await _supabase
         .from('payment_receipts')
         .select()
-        .eq('homecare_request_id', requestId);
+        .eq('appointment_id', appointmentId);
 
     if (receipts.isEmpty) return null;
     return receipts.first;

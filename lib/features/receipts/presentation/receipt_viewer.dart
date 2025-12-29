@@ -61,8 +61,8 @@ class ReceiptViewer extends ConsumerWidget {
                     onPressed: () async {
                       try {
                         final service = ref.read(receiptServiceProvider);
-                        final file =
-                            await service.generateReceipt(requestId: requestId);
+                        final file = await service.generateReceipt(
+                            appointmentId: requestId,);
 
                         if (!context.mounted) return;
 
@@ -215,7 +215,7 @@ class ReceiptViewer extends ConsumerWidget {
                           try {
                             final service = ref.read(receiptServiceProvider);
                             final file = await service.generateReceipt(
-                              requestId: requestId,
+                              appointmentId: requestId,
                             );
 
                             if (!context.mounted) return;
@@ -249,7 +249,7 @@ class ReceiptViewer extends ConsumerWidget {
                           try {
                             final service = ref.read(receiptServiceProvider);
                             final file = await service.generateReceipt(
-                              requestId: requestId,
+                              appointmentId: requestId,
                             );
 
                             await Printing.sharePdf(

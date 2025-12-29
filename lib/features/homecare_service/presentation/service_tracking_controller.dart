@@ -16,7 +16,7 @@ class ServiceTrackingController extends _$ServiceTrackingController {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final repository = ref.read(serviceRepositoryProvider);
-      await repository.markServiceStarted(requestId: requestId);
+      await repository.markServiceStarted(appointmentId: requestId);
 
       // Refresh service status
       ref.invalidate(serviceStatusProvider(requestId));
@@ -28,7 +28,7 @@ class ServiceTrackingController extends _$ServiceTrackingController {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final repository = ref.read(serviceRepositoryProvider);
-      await repository.markServiceCompleted(requestId: requestId);
+      await repository.markServiceCompleted(appointmentId: requestId);
 
       // Refresh service status
       ref.invalidate(serviceStatusProvider(requestId));
@@ -40,7 +40,7 @@ class ServiceTrackingController extends _$ServiceTrackingController {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final repository = ref.read(serviceRepositoryProvider);
-      await repository.confirmServiceReceived(requestId: requestId);
+      await repository.confirmServiceReceived(appointmentId: requestId);
 
       // Refresh service status
       ref.invalidate(serviceStatusProvider(requestId));
@@ -57,7 +57,7 @@ class ServiceTrackingController extends _$ServiceTrackingController {
     state = await AsyncValue.guard(() async {
       final repository = ref.read(serviceRepositoryProvider);
       await repository.cancelService(
-        requestId: requestId,
+        appointmentId: requestId,
         cancelledBy: cancelledBy,
         reason: reason,
       );

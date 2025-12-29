@@ -21,8 +21,7 @@ class PartnerSettingsState with _$PartnerSettingsState {
     @Default('') String fullName,
     @Default('') String email,
     String? phone, // From users table
-    String? wilaya, // From users table
-    String? state, // From users table
+    String? state, // From users table (wilaya/state)
     @Default('') String category,
     String? specialty,
     String? location,

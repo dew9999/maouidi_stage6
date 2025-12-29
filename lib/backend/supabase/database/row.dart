@@ -44,17 +44,16 @@ dynamic supaSerialize<T>(T? value) {
     return null;
   }
 
-  // FIX: Updated switch statement to modern pattern matching syntax
-  switch (T) {
-    case DateTime _:
-      return (value as DateTime).toIso8601String();
-    case PostgresTime _:
-      return (value as PostgresTime).toIso8601String();
-    case LatLng _:
-      final latLng = (value as LatLng);
-      return {'lat': latLng.latitude, 'lng': latLng.longitude};
-    default:
-      return value;
+  // FIX: Use type literal comparison instead of pattern matching on Type
+  if (T == DateTime) {
+    return (value as DateTime).toIso8601String();
+  } else if (T == PostgresTime) {
+    return (value as PostgresTime).toIso8601String();
+  } else if (T == LatLng) {
+    final latLng = (value as LatLng);
+    return {'lat': latLng.latitude, 'lng': latLng.longitude};
+  } else {
+    return value;
   }
 }
 
@@ -66,25 +65,24 @@ T? _supaDeserialize<T>(dynamic value) {
     return null;
   }
 
-  // FIX: Updated switch statement to modern pattern matching syntax
-  switch (T) {
-    case int _:
-      return (value as num).round() as T?;
-    case double _:
-      return (value as num).toDouble() as T?;
-    case DateTime _:
-      return DateTime.tryParse(value as String)?.toLocal() as T?;
-    case PostgresTime _:
-      return PostgresTime.tryParse(value as String) as T?;
-    case LatLng _:
-      final latLng = value is Map ? value : json.decode(value) as Map;
-      final lat = latLng['lat'] ?? latLng['latitude'];
-      final lng = latLng['lng'] ?? latLng['longitude'];
-      return lat is num && lng is num
-          ? LatLng(lat.toDouble(), lng.toDouble()) as T?
-          : null;
-    default:
-      return value as T;
+  // FIX: Use type literal comparison instead of pattern matching on Type
+  if (T == int) {
+    return (value as num).round() as T?;
+  } else if (T == double) {
+    return (value as num).toDouble() as T?;
+  } else if (T == DateTime) {
+    return DateTime.tryParse(value as String)?.toLocal() as T?;
+  } else if (T == PostgresTime) {
+    return PostgresTime.tryParse(value as String) as T?;
+  } else if (T == LatLng) {
+    final latLng = value is Map ? value : json.decode(value) as Map;
+    final lat = latLng['lat'] ?? latLng['latitude'];
+    final lng = latLng['lng'] ?? latLng['longitude'];
+    return lat is num && lng is num
+        ? LatLng(lat.toDouble(), lng.toDouble()) as T?
+        : null;
+  } else {
+    return value as T;
   }
 }
 

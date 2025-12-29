@@ -17,7 +17,7 @@ class DisputeService {
     List<String>? evidenceUrls,
   }) async {
     await _supabase.from('disputes').insert({
-      'homecare_request_id': requestId,
+      'appointment_id': requestId,
       'raised_by': raisedBy,
       'dispute_reason': reason,
       'dispute_description': description,
@@ -31,17 +31,21 @@ class DisputeService {
 
   /// Freeze payout when dispute is opened
   Future<void> _freezePayoutForDispute(String requestId) async {
-    // Update the homecare request to flag it as disputed
-    await _supabase.from('homecare_requests').update({
-      'status': 'disputed',
-    }).eq('id', requestId);
+    // Update the appointment to flag it as disputed
+    await _supabase
+        .from('appointments')
+        .update({
+          'status': 'disputed',
+        })
+        .eq('id', requestId)
+        .eq('booking_type', 'homecare');
   }
 
   /// Get disputes for a user
   Future<List<Map<String, dynamic>>> getUserDisputes(String userId) async {
     final disputes = await _supabase.from('disputes').select('''
           *,
-          homecare_request:homecare_request_id(
+          appointment:appointment_id(
             negotiated_price,
             partner:partner_id(full_name)
           )
@@ -55,7 +59,7 @@ class DisputeService {
     final disputes = await _supabase
         .from('disputes')
         .select()
-        .eq('homecare_request_id', requestId);
+        .eq('appointment_id', requestId);
 
     if (disputes.isEmpty) return null;
     return disputes.first;

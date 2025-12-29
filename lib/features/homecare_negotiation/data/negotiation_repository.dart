@@ -15,9 +15,10 @@ class NegotiationRepository {
   }) async {
     // Get current negotiation state
     final request = await _supabase
-        .from('homecare_requests')
-        .select('negotiation_round, status')
+        .from('appointments')
+        .select('negotiation_history, status')
         .eq('id', requestId)
+        .eq('booking_type', 'homecare')
         .single();
 
     // Validate request is in correct state
@@ -32,14 +33,26 @@ class NegotiationRepository {
       'timestamp': DateTime.now().toIso8601String(),
     };
 
+    // Get existing history
+    final history = List<Map<String, dynamic>>.from(
+      (request['negotiation_history'] as List? ?? [])
+          .map((e) => e as Map<String, dynamic>),
+    );
+
+    // Add new entry
+    history.add(negotiationEntry);
+
     // Update request with initial price proposal
-    await _supabase.from('homecare_requests').update({
-      'status': 'negotiating',
-      'current_offer': proposedPrice,
-      'offered_by': 'partner',
-      'negotiation_round': 1,
-      'negotiation_history': [negotiationEntry],
-    }).eq('id', requestId);
+    await _supabase
+        .from('appointments')
+        .update({
+          'status': 'negotiating',
+          'negotiated_price': proposedPrice,
+          'negotiation_status': 'pending',
+          'negotiation_history': history,
+        })
+        .eq('id', requestId)
+        .eq('booking_type', 'homecare');
   }
 
   /// Patient or partner makes a counter-offer
@@ -50,9 +63,10 @@ class NegotiationRepository {
   }) async {
     // Get current negotiation state
     final request = await _supabase
-        .from('homecare_requests')
-        .select('negotiation_round, negotiation_history, status, offered_by')
+        .from('appointments')
+        .select('negotiation_history, status')
         .eq('id', requestId)
+        .eq('booking_type', 'homecare')
         .single();
 
     // Validate request is in negotiating state
@@ -60,12 +74,18 @@ class NegotiationRepository {
       throw Exception('Request must be in negotiating state');
     }
 
+    // Get existing history
+    final history = List<Map<String, dynamic>>.from(
+      (request['negotiation_history'] as List? ?? [])
+          .map((e) => e as Map<String, dynamic>),
+    );
+
     // Validate it's not the same person offering again
-    if (request['offered_by'] == offeredBy) {
+    if (history.isNotEmpty && history.last['offered_by'] == offeredBy) {
       throw Exception('Cannot counter-offer your own offer');
     }
 
-    final currentRound = request['negotiation_round'] as int;
+    final currentRound = history.length;
 
     // Check max rounds limit (5 rounds)
     if (currentRound >= 5) {
@@ -79,22 +99,19 @@ class NegotiationRepository {
       'timestamp': DateTime.now().toIso8601String(),
     };
 
-    // Get existing history
-    final history = List<Map<String, dynamic>>.from(
-      (request['negotiation_history'] as List)
-          .map((e) => e as Map<String, dynamic>),
-    );
-
     // Add new entry
     history.add(negotiationEntry);
 
     // Update request
-    await _supabase.from('homecare_requests').update({
-      'current_offer': counterOfferPrice,
-      'offered_by': offeredBy,
-      'negotiation_round': currentRound + 1,
-      'negotiation_history': history,
-    }).eq('id', requestId);
+    await _supabase
+        .from('appointments')
+        .update({
+          'negotiated_price': counterOfferPrice,
+          'negotiation_status': 'pending',
+          'negotiation_history': history,
+        })
+        .eq('id', requestId)
+        .eq('booking_type', 'homecare');
   }
 
   /// Accept the current price offer
@@ -103,9 +120,10 @@ class NegotiationRepository {
   }) async {
     // Get current offer
     final request = await _supabase
-        .from('homecare_requests')
-        .select('current_offer, platform_fee, status')
+        .from('appointments')
+        .select('negotiated_price, platform_fee, status')
         .eq('id', requestId)
+        .eq('booking_type', 'homecare')
         .single();
 
     // Validate request is in negotiating state
@@ -113,17 +131,20 @@ class NegotiationRepository {
       throw Exception('Request must be in negotiating state');
     }
 
-    final negotiatedPrice = request['current_offer'] as double;
+    final negotiatedPrice = (request['negotiated_price'] as num).toDouble();
     final platformFee = (request['platform_fee'] as num?)?.toDouble() ?? 500.0;
 
     // Update request with agreed price
-    // total_amount is auto-calculated by trigger
-    await _supabase.from('homecare_requests').update({
-      'status': 'price_agreed',
-      'negotiated_price': negotiatedPrice,
-      'platform_fee': platformFee,
-      // total_amount will be auto-calculated by trigger
-    }).eq('id', requestId);
+    await _supabase
+        .from('appointments')
+        .update({
+          'status': 'confirmed',
+          'negotiation_status': 'accepted',
+          'negotiated_price': negotiatedPrice,
+          'platform_fee': platformFee,
+        })
+        .eq('id', requestId)
+        .eq('booking_type', 'homecare');
   }
 
   /// Decline the offer and cancel the request
@@ -132,14 +153,17 @@ class NegotiationRepository {
     required String declinedBy, // 'patient' or 'partner'
     String? reason,
   }) async {
-    final status = declinedBy == 'patient'
-        ? 'cancelled_by_patient'
-        : 'cancelled_by_partner';
+    final status = declinedBy == 'patient' ? 'cancelled' : 'cancelled';
 
-    await _supabase.from('homecare_requests').update({
-      'status': status,
-      'cancellation_reason': reason ?? 'Price negotiation declined',
-    }).eq('id', requestId);
+    await _supabase
+        .from('appointments')
+        .update({
+          'status': status,
+          'negotiation_status': 'rejected',
+          'cancellation_reason': reason ?? 'Price negotiation declined',
+        })
+        .eq('id', requestId)
+        .eq('booking_type', 'homecare');
   }
 
   /// Get negotiation history for a request
@@ -147,9 +171,10 @@ class NegotiationRepository {
     required String requestId,
   }) async {
     final request = await _supabase
-        .from('homecare_requests')
+        .from('appointments')
         .select('negotiation_history')
         .eq('id', requestId)
+        .eq('booking_type', 'homecare')
         .single();
 
     final history = request['negotiation_history'] as List?;
@@ -167,11 +192,12 @@ class NegotiationRepository {
     required String requestId,
   }) async {
     final request = await _supabase
-        .from('homecare_requests')
+        .from('appointments')
         .select(
-          'current_offer, offered_by, negotiation_round, status, negotiation_history',
+          'negotiated_price, negotiation_status, negotiation_history, status',
         )
         .eq('id', requestId)
+        .eq('booking_type', 'homecare')
         .single();
 
     return request;

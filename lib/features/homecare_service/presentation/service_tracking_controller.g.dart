@@ -7,7 +7,7 @@ part of 'service_tracking_controller.dart';
 // **************************************************************************
 
 String _$serviceTrackingControllerHash() =>
-    r'3d34f12ec3a7d8f75e76018c5c45bdf17690d38b';
+    r'4915696ad4414af48da247204ae4a40bcfb7279c';
 
 /// Controller for service tracking actions
 ///

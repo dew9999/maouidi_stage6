@@ -146,8 +146,8 @@ class _CreateWidgetState extends ConsumerState<CreateWidget> {
       );
 
       // Debug: Check signup response
-      print('Signup response - User: ${response.user?.id}');
-      print('Email confirmed at: ${response.user?.emailConfirmedAt}');
+      debugPrint('Signup response - User: ${response.user?.id}');
+      debugPrint('Email confirmed at: ${response.user?.emailConfirmedAt}');
 
       // Check if signup was successful
       if (response.user == null) {
@@ -164,11 +164,11 @@ class _CreateWidgetState extends ConsumerState<CreateWidget> {
 
       // Navigate to verify email page
       if (context.mounted) {
-        print('Navigating to verify email page');
+        debugPrint('Navigating to verify email page');
         context.go('/verifyEmail');
       }
     } on AuthException catch (e) {
-      print('AuthException during signup: ${e.message}');
+      debugPrint('AuthException during signup: ${e.message}');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -178,7 +178,7 @@ class _CreateWidgetState extends ConsumerState<CreateWidget> {
         );
       }
     } catch (e) {
-      print('Error during signup: ${e.toString()}');
+      debugPrint('Error during signup: ${e.toString()}');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

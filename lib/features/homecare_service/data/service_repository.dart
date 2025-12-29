@@ -10,47 +10,60 @@ class ServiceRepository {
 
   /// Partner marks service as started (arrived at patient location)
   Future<void> markServiceStarted({
-    required String requestId,
+    required String appointmentId,
   }) async {
-    await _supabase.from('homecare_requests').update({
-      'service_started_at': DateTime.now().toIso8601String(),
-      'status': 'in_progress',
-    }).eq('id', requestId);
+    await _supabase
+        .from('appointments')
+        .update({
+          'started_at': DateTime.now().toIso8601String(),
+          'status': 'in_progress',
+        })
+        .eq('id', appointmentId)
+        .eq('booking_type', 'homecare');
   }
 
   /// Partner marks service as completed
   Future<void> markServiceCompleted({
-    required String requestId,
+    required String appointmentId,
   }) async {
-    await _supabase.from('homecare_requests').update({
-      'service_completed_at': DateTime.now().toIso8601String(),
-      'status': 'service_completed',
-    }).eq('id', requestId);
+    await _supabase
+        .from('appointments')
+        .update({
+          'completed_at': DateTime.now().toIso8601String(),
+          'status': 'completed',
+        })
+        .eq('id', appointmentId)
+        .eq('booking_type', 'homecare');
   }
 
   /// Patient confirms service was received
   Future<void> confirmServiceReceived({
-    required String requestId,
+    required String appointmentId,
   }) async {
-    await _supabase.from('homecare_requests').update({
-      'patient_confirmed_at': DateTime.now().toIso8601String(),
-      'status': 'completed',
-    }).eq('id', requestId);
+    await _supabase
+        .from('appointments')
+        .update({
+          'patient_confirmed_at': DateTime.now().toIso8601String(),
+          'status': 'completed',
+        })
+        .eq('id', appointmentId)
+        .eq('booking_type', 'homecare');
   }
 
-  /// Get service status for a request
+  /// Get service status for an appointment
   Future<Map<String, dynamic>> getServiceStatus({
-    required String requestId,
+    required String appointmentId,
   }) async {
-    final request = await _supabase
-        .from('homecare_requests')
+    final appointment = await _supabase
+        .from('appointments')
         .select(
-          'status, service_started_at, service_completed_at, patient_confirmed_at, payment_status',
+          'status, started_at, completed_at, patient_confirmed_at, payment_status',
         )
-        .eq('id', requestId)
+        .eq('id', appointmentId)
+        .eq('booking_type', 'homecare')
         .single();
 
-    return request;
+    return appointment;
   }
 
   /// Auto-confirm services that have been completed for >24h
@@ -59,28 +72,45 @@ class ServiceRepository {
     final cutoffTime = DateTime.now().subtract(const Duration(hours: 24));
 
     await _supabase
-        .from('homecare_requests')
+        .from('appointments')
         .update({
           'patient_confirmed_at': DateTime.now().toIso8601String(),
           'status': 'completed',
         })
-        .eq('status', 'service_completed')
-        .lt('service_completed_at', cutoffTime.toIso8601String());
+        .eq('booking_type', 'homecare')
+        .eq('status', 'completed')
+        .lt('completed_at', cutoffTime.toIso8601String());
   }
 
   /// Cancel service before it starts (refund scenarios)
   Future<void> cancelService({
-    required String requestId,
+    required String appointmentId,
     required String cancelledBy, // 'patient' or 'partner'
     required String reason,
   }) async {
-    final status = cancelledBy == 'patient'
-        ? 'cancelled_by_patient'
-        : 'cancelled_by_partner';
+    await _supabase
+        .from('appointments')
+        .update({
+          'status': 'cancelled',
+          'cancellation_reason': reason,
+          'cancelled_by': cancelledBy,
+          'cancelled_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', appointmentId)
+        .eq('booking_type', 'homecare');
+  }
 
-    await _supabase.from('homecare_requests').update({
-      'status': status,
-      'cancellation_reason': reason,
-    }).eq('id', requestId);
+  /// Accept homecare request and move to confirmed status
+  Future<void> acceptRequest({
+    required String appointmentId,
+  }) async {
+    await _supabase
+        .from('appointments')
+        .update({
+          'status': 'confirmed',
+          'confirmed_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', appointmentId)
+        .eq('booking_type', 'homecare');
   }
 }

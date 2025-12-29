@@ -141,42 +141,6 @@ class BookingRepository {
       },
     );
   }
-
-  /// Create a homecare request (goes to homecare_requests table, NOT appointments).
-  ///
-  /// Homecare requests are sent to a SPECIFIC partner through their profile.
-  /// The partner can then accept or decline the request.
-  ///
-  /// Throws [PostgrestException] if creation fails.
-  Future<void> createHomecareRequest({
-    required String partnerId,
-    required String caseDescription,
-    required String patientLocation,
-    required String wilaya,
-    DateTime? preferredDate,
-    String? preferredTime,
-    String? onBehalfOfName,
-    String? onBehalfOfPhone,
-  }) async {
-    final userId = _supabase.auth.currentUser?.id;
-    if (userId == null) {
-      throw Exception('User not authenticated');
-    }
-
-    await _supabase.from('homecare_requests').insert({
-      'patient_id': userId,
-      'partner_id': partnerId, // Request sent to specific partner
-      'service_type': 'General Homecare',
-      'case_description': caseDescription,
-      'address': patientLocation,
-      'wilaya': wilaya,
-      'preferred_date': preferredDate?.toIso8601String(),
-      'preferred_time': preferredTime,
-      'status': 'pending',
-      'on_behalf_of_name': onBehalfOfName,
-      'on_behalf_of_phone': onBehalfOfPhone,
-    });
-  }
 }
 
 /// Provider for the BookingRepository.

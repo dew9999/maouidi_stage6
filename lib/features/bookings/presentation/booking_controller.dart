@@ -1,7 +1,6 @@
 // lib/features/bookings/presentation/booking_controller.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../core/providers/supabase_provider.dart';
 import '../data/booking_repository.dart';
 import 'booking_state.dart';
 
@@ -86,11 +85,11 @@ class BookingController extends _$BookingController {
     state = state.copyWith(selectedSlot: slot);
   }
 
-  /// Confirm and book the appointment OR create a homecare request.
+  /// Confirm and book the appointment (unified for all booking types).
   ///
-  /// Routes to the correct table based on whether it's a homecare request:
-  /// - Homecare requests (with case_description AND patient_location) → homecare_requests table
-  /// - Regular appointments → appointments table via book_appointment RPC
+  /// Uses the unified appointments table for both clinic and homecare bookings.
+  /// - Clinic appointments: bookingType = 'clinic'
+  /// - Homecare requests: bookingType = 'homecare' with address and case description
   Future<void> confirmBooking({
     required String partnerId,
     required DateTime appointmentTime,
@@ -111,35 +110,16 @@ class BookingController extends _$BookingController {
           patientLocation != null &&
           state.partnerData?.category == 'Homecare';
 
-      if (isHomecareRequest) {
-        // Route to homecare_requests table (sent to specific partner)
-        // Get wilaya from user metadata (stored during signup)
-        final supabase = ref.read(supabaseClientProvider);
-        final userMetadata = supabase.auth.currentUser?.userMetadata;
-        final wilaya = userMetadata?['wilaya'] as String? ?? 'Unknown';
-
-        await repository.createHomecareRequest(
-          partnerId: partnerId, // Request sent to THIS specific partner
-          caseDescription: caseDescription,
-          patientLocation: patientLocation,
-          wilaya: wilaya,
-          preferredDate: appointmentTime,
-          preferredTime: null,
-          onBehalfOfName: onBehalfOfName,
-          onBehalfOfPhone: onBehalfOfPhone,
-        );
-      } else {
-        // Route to appointments table (regular booking)
-        await repository.bookAppointment(
-          partnerId: partnerId,
-          appointmentTime: appointmentTime,
-          onBehalfOfName: onBehalfOfName,
-          onBehalfOfPhone: onBehalfOfPhone,
-          isPartnerOverride: isPartnerOverride,
-          caseDescription: null, // Don't pass these for regular appointments
-          patientLocation: null,
-        );
-      }
+      // Use unified createAppointment method for BOTH clinic and homecare
+      await repository.bookAppointment(
+        partnerId: partnerId,
+        appointmentTime: appointmentTime,
+        onBehalfOfName: onBehalfOfName,
+        onBehalfOfPhone: onBehalfOfPhone,
+        isPartnerOverride: isPartnerOverride,
+        caseDescription: isHomecareRequest ? caseDescription : null,
+        patientLocation: isHomecareRequest ? patientLocation : null,
+      );
 
       // Success
       state = state.copyWith(

@@ -21,7 +21,7 @@ class RatingService {
     }
 
     await _supabase.from('partner_ratings').insert({
-      'homecare_request_id': requestId,
+      'appointment_id': requestId,
       'partner_id': partnerId,
       'patient_id': patientId,
       'rating': rating,
@@ -36,7 +36,7 @@ class RatingService {
     final result = await _supabase
         .from('partner_ratings')
         .select('id')
-        .eq('homecare_request_id', requestId);
+        .eq('appointment_id', requestId);
 
     return result.isNotEmpty;
   }

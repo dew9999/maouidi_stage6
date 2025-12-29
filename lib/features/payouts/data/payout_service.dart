@@ -14,23 +14,28 @@ class PayoutService {
     required DateTime startDate,
     required DateTime endDate,
   }) async {
-    // Get all completed homecare requests in the period
-    final requests = await _supabase
-        .from('homecare_requests')
-        .select('negotiated_price')
+    // Get all completed homecare appointments in the period
+    // STRICTLY filter by booking_type = 'homecare'
+    final appointments = await _supabase
+        .from('appointments')
+        .select('negotiated_price, completed_at')
         .eq('partner_id', partnerId)
+        .eq('booking_type', 'homecare')
         .eq('status', 'completed')
-        .gte('patient_confirmed_at', startDate.toIso8601String())
-        .lte('patient_confirmed_at', endDate.toIso8601String());
+        .gte('completed_at', startDate.toIso8601String())
+        .lte('completed_at', endDate.toIso8601String());
 
     double totalEarnings = 0;
-    for (final request in requests) {
-      totalEarnings += (request['negotiated_price'] as num).toDouble();
+    for (final appointment in appointments) {
+      final price = appointment['negotiated_price'];
+      if (price != null) {
+        totalEarnings += (price as num).toDouble();
+      }
     }
 
     return {
       'total_earnings': totalEarnings,
-      'num_requests': requests.length,
+      'num_requests': appointments.length,
       'period_start': startDate.toIso8601String(),
       'period_end': endDate.toIso8601String(),
     };
@@ -59,7 +64,8 @@ class PayoutService {
 
   /// Get partner's current period earnings (not yet paid out)
   Future<Map<String, dynamic>> getCurrentPeriodEarnings(
-      String partnerId,) async {
+    String partnerId,
+  ) async {
     final schedule = await getPayoutSchedule(partnerId);
 
     DateTime startDate;
@@ -144,8 +150,10 @@ class PayoutService {
 
   /// Get total lifetime earnings
   Future<double> getTotalLifetimeEarnings(String partnerId) async {
-    final result = await _supabase.rpc('get_partner_lifetime_earnings',
-        params: {'partner_id_arg': partnerId},);
+    final result = await _supabase.rpc(
+      'get_partner_lifetime_earnings',
+      params: {'partner_id_arg': partnerId},
+    );
 
     return (result as num?)?.toDouble() ?? 0;
   }

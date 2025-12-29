@@ -40,10 +40,12 @@ class RefundService {
   /// Get refund details for a request
   Future<Map<String, dynamic>?> getRefundDetails(String requestId) async {
     final request = await _supabase
-        .from('homecare_requests')
+        .from('appointments')
         .select(
-            'refund_status, refund_amount, refunded_at, cancellation_reason',)
+          'refund_status, refund_amount, refunded_at, cancellation_reason',
+        )
         .eq('id', requestId)
+        .eq('booking_type', 'homecare')
         .single();
 
     if (request['refund_status'] == null) {
@@ -59,13 +61,14 @@ class RefundService {
     required String cancelledBy,
   }) async {
     final request = await _supabase
-        .from('homecare_requests')
-        .select('total_amount, service_started_at, payment_status')
+        .from('appointments')
+        .select('total_amount, started_at, payment_status')
         .eq('id', requestId)
+        .eq('booking_type', 'homecare')
         .single();
 
     final totalAmount = (request['total_amount'] as num?)?.toDouble() ?? 0;
-    final serviceStartedAt = request['service_started_at'] as String?;
+    final serviceStartedAt = request['started_at'] as String?;
     final paymentStatus = request['payment_status'] as String;
 
     if (paymentStatus != 'paid') {

@@ -1473,6 +1473,7 @@ CREATE TABLE IF NOT EXISTS "public"."appointments" (
     "negotiated_price" numeric(10,2),
     "negotiation_status" "text" DEFAULT 'none'::"text",
     "created_at" timestamp with time zone DEFAULT "now"(),
+    "negotiation_history" "jsonb" DEFAULT '[]'::"jsonb",
     CONSTRAINT "appointments_negotiation_status_check" CHECK (("negotiation_status" = ANY (ARRAY['pending'::"text", 'accepted'::"text", 'rejected'::"text", 'none'::"text"])))
 );
 

@@ -20,5 +20,5 @@ Future<Map<String, dynamic>> serviceStatus(
   String requestId,
 ) async {
   final repository = ref.watch(serviceRepositoryProvider);
-  return await repository.getServiceStatus(requestId: requestId);
+  return await repository.getServiceStatus(appointmentId: requestId);
 }

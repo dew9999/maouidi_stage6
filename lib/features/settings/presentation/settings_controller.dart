@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../domain/settings_state.dart';
@@ -88,7 +89,6 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         fullName: data['full_name'] as String? ?? '',
         email: data['email'] as String? ?? '',
         phone: data['phone'] as String?,
-        wilaya: data['wilaya'] as String?,
         state: data['state'] as String?,
         category: data['category'] as String? ?? 'Doctors',
         specialty: data['specialty'] as String?,
@@ -104,7 +104,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         isLoading: false,
       );
     } catch (e) {
-      print('Partner settings load error: $e');
+      debugPrint('Partner settings load error: $e');
       return const PartnerSettingsState(
         errorMessage: 'Failed to load settings. Please try again.',
       );
@@ -142,11 +142,6 @@ class PartnerSettingsController extends _$PartnerSettingsController {
   Future<void> updateClinic(String? value) async {
     if (value == null || !state.hasValue) return;
     state = AsyncValue.data(state.value!.copyWith(location: value));
-  }
-
-  Future<void> updateWilaya(String? value) async {
-    if (value == null || !state.hasValue) return;
-    state = AsyncValue.data(state.value!.copyWith(wilaya: value));
   }
 
   Future<void> updateState(String? value) async {
@@ -297,7 +292,6 @@ class PartnerSettingsController extends _$PartnerSettingsController {
           'p_address': currentState.location,
           'p_booking_system': currentState.bookingSystemType,
           'p_limit': currentState.dailyBookingLimit,
-          'p_wilaya': currentState.wilaya,
           'p_state': currentState.state,
           'p_phone': currentState.phone,
         },
