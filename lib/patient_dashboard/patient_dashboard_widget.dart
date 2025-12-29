@@ -79,13 +79,20 @@ class _PatientDashboardWidgetState extends ConsumerState<PatientDashboardWidget>
             );
           }
 
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              _buildAppointmentList(state.upcomingAppointments),
-              _buildAppointmentList(state.completedAppointments),
-              _buildAppointmentList(state.canceledAppointments),
-            ],
+          return RefreshIndicator(
+            onRefresh: () async {
+              await ref
+                  .read(patientDashboardControllerProvider.notifier)
+                  .loadData();
+            },
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildAppointmentList(state.upcomingAppointments),
+                _buildAppointmentList(state.completedAppointments),
+                _buildAppointmentList(state.canceledAppointments),
+              ],
+            ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -456,8 +463,11 @@ class _ReviewSheet extends ConsumerWidget {
   final String partnerName;
   final VoidCallback onSuccess;
 
-  Future<void> _submitReview(BuildContext context, WidgetRef ref,
-      TextEditingController reviewController,) async {
+  Future<void> _submitReview(
+    BuildContext context,
+    WidgetRef ref,
+    TextEditingController reviewController,
+  ) async {
     final isSubmitting = ref.read(_reviewIsSubmittingProvider);
     if (isSubmitting) return;
 

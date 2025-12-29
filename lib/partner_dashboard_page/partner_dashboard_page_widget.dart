@@ -205,7 +205,7 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                       ),
                     );
                     // Trigger refresh via controller
-                    ref
+                    await ref
                         .read(
                           partnerDashboardControllerProvider(partnerId)
                               .notifier,
@@ -223,7 +223,8 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
               }
             },
             style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,),
+              backgroundColor: theme.colorScheme.primary,
+            ),
             child: Text(AppLocalizations.of(context)!.submitreq),
           ),
         ],
@@ -256,7 +257,7 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                           'isPartnerBooking': 'true',
                         },
                       );
-                      ref
+                      await ref
                           .read(
                             partnerDashboardControllerProvider(partnerId)
                                 .notifier,
@@ -322,8 +323,8 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => ErrorStateWidget(
         message: 'Failed to load dashboard: ${error.toString()}',
-        onRetry: () {
-          ref
+        onRetry: () async {
+          await ref
               .read(
                 partnerDashboardControllerProvider(partnerId).notifier,
               )

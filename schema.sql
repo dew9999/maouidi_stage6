@@ -725,16 +725,28 @@ $$;
 ALTER FUNCTION "public"."get_filtered_partners"("category_arg" "text", "state_arg" "text", "specialty_arg" "text") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."get_full_partner_profile"("target_user_id" "uuid") RETURNS TABLE("id" "uuid", "full_name" "text", "email" "text", "phone" "text", "wilaya" "text", "state" "text", "specialty" "text", "category" "text", "address" "text", "booking_system_type" "text", "daily_booking_limit" integer, "working_hours" "jsonb", "closed_days" "jsonb")
+CREATE OR REPLACE FUNCTION "public"."get_full_partner_profile"("target_user_id" "uuid") RETURNS TABLE("id" "uuid", "full_name" "text", "email" "text", "phone" "text", "state" "text", "specialty" "text", "category" "text", "address" "text", "booking_system_type" "text", "daily_booking_limit" integer, "working_hours" "jsonb", "closed_days" "jsonb")
     LANGUAGE "plpgsql"
     AS $$
 BEGIN
   RETURN QUERY SELECT 
-    mp.id, mp.full_name, u.email, u.phone, u.wilaya, u.state, mp.specialty,
-    mp.category, mp.address, mp.booking_system_type, mp.daily_booking_limit,
-    mp.working_hours, mp.closed_days
-  FROM medical_partners mp JOIN users u ON u.id = mp.id WHERE mp.id = target_user_id;
-END; $$;
+    mp.id, 
+    mp.full_name, 
+    u.email, 
+    u.phone, 
+    u.state,  -- Changed from u.wilaya
+    mp.specialty::text,  -- Cast enum to text
+    mp.category::text,   -- Cast enum to text for consistency
+    mp.address, 
+    mp.booking_system_type, 
+    mp.daily_booking_limit,
+    mp.working_hours, 
+    to_jsonb(mp.closed_days) as closed_days  -- Ensure proper jsonb conversion
+  FROM medical_partners mp 
+  JOIN users u ON u.id = mp.id 
+  WHERE mp.id = target_user_id;
+END; 
+$$;
 
 
 ALTER FUNCTION "public"."get_full_partner_profile"("target_user_id" "uuid") OWNER TO "postgres";
@@ -1321,17 +1333,30 @@ $$;
 ALTER FUNCTION "public"."update_completed_appointments"() OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_wilaya" "text", "p_state" "text", "p_phone" "text") RETURNS "void"
+CREATE OR REPLACE FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text") RETURNS "void"
     LANGUAGE "plpgsql"
     AS $$
 BEGIN
-  UPDATE medical_partners SET specialty = p_specialty, address = p_address, 
-    booking_system_type = p_booking_system, daily_booking_limit = p_limit WHERE id = p_id;
-  UPDATE users SET wilaya = p_wilaya, state = p_state, phone = p_phone WHERE id = p_id;
-END; $$;
+  -- Update medical_partners with specialty cast to enum
+  UPDATE medical_partners 
+  SET 
+    specialty = p_specialty::specialty_enum,  -- Cast text to enum
+    address = p_address, 
+    booking_system_type = p_booking_system, 
+    daily_booking_limit = p_limit 
+  WHERE id = p_id;
+  
+  -- Update users table (removed wilaya, only state)
+  UPDATE users 
+  SET 
+    state = p_state, 
+    phone = p_phone 
+  WHERE id = p_id;
+END; 
+$$;
 
 
-ALTER FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_wilaya" "text", "p_state" "text", "p_phone" "text") OWNER TO "postgres";
+ALTER FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."update_partner_fts"() RETURNS "trigger"
@@ -2460,9 +2485,9 @@ GRANT ALL ON FUNCTION "public"."update_completed_appointments"() TO "service_rol
 
 
 
-GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_wilaya" "text", "p_state" "text", "p_phone" "text") TO "anon";
-GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_wilaya" "text", "p_state" "text", "p_phone" "text") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_wilaya" "text", "p_state" "text", "p_phone" "text") TO "service_role";
+GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text") TO "anon";
+GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text") TO "service_role";
 
 
 

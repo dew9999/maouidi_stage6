@@ -311,7 +311,7 @@ class _PartnerSettingsView extends ConsumerWidget {
 //                    PARTNER SUB-SECTIONS
 // =====================================================================
 
-class _ProfessionalDetailsSection extends ConsumerWidget {
+class _ProfessionalDetailsSection extends ConsumerStatefulWidget {
   final dynamic settings;
   final ThemeData theme;
 
@@ -321,7 +321,28 @@ class _ProfessionalDetailsSection extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ProfessionalDetailsSection> createState() =>
+      _ProfessionalDetailsSectionState();
+}
+
+class _ProfessionalDetailsSectionState
+    extends ConsumerState<_ProfessionalDetailsSection> {
+  late TextEditingController _bioController;
+
+  @override
+  void initState() {
+    super.initState();
+    _bioController = TextEditingController(text: widget.settings.bio ?? '');
+  }
+
+  @override
+  void dispose() {
+    _bioController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SettingsGroup(
       title: 'Professional Details',
       children: [
@@ -331,13 +352,13 @@ class _ProfessionalDetailsSection extends ConsumerWidget {
           trailing: SizedBox(
             width: 180,
             child: DropdownButton<String>(
-              value: settings.specialty,
+              value: widget.settings.specialty,
               items: medicalSpecialties.map((String specialty) {
                 return DropdownMenuItem<String>(
                   value: specialty,
                   child: Text(
                     specialty,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: widget.theme.textTheme.bodyMedium?.copyWith(
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -356,9 +377,56 @@ class _ProfessionalDetailsSection extends ConsumerWidget {
             ),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Bio',
+                style: widget.theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _bioController,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  hintText:
+                      'Tell patients about your experience and services...',
+                  hintStyle: widget.theme.textTheme.bodyMedium?.copyWith(
+                    color: widget.theme.colorScheme.onSurfaceVariant,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: widget.theme.colorScheme.outline,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: widget.theme.colorScheme.outlineVariant,
+                    ),
+                  ),
+                  filled: true,
+                  fillColor: widget.theme.colorScheme.surface,
+                  contentPadding: const EdgeInsets.all(16),
+                ),
+                style: widget.theme.textTheme.bodyMedium,
+                onChanged: (val) {
+                  ref
+                      .read(partnerSettingsControllerProvider.notifier)
+                      .updateBio(val);
+                },
+              ),
+            ],
+          ),
+        ),
         LocationField(
-          settings: settings,
-          theme: theme,
+          settings: widget.settings,
+          theme: widget.theme,
         ),
       ],
     );

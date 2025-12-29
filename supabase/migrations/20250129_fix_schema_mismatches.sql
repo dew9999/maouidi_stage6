@@ -1,7 +1,7 @@
 -- Fix 1: Drop and recreate get_full_partner_profile (return type changed - removed wilaya)
 DROP FUNCTION IF EXISTS "public"."get_full_partner_profile"("target_user_id" "uuid");
 
-CREATE FUNCTION "public"."get_full_partner_profile"("target_user_id" "uuid") 
+CREATE OR REPLACE FUNCTION "public"."get_full_partner_profile"("target_user_id" "uuid") 
 RETURNS TABLE(
   "id" "uuid", 
   "full_name" "text", 
@@ -50,7 +50,7 @@ DROP FUNCTION IF EXISTS "public"."update_full_partner_profile"(
   "p_phone" "text"
 );
 
-CREATE FUNCTION "public"."update_full_partner_profile"(
+CREATE OR REPLACE FUNCTION "public"."update_full_partner_profile"(
   "p_id" "uuid", 
   "p_specialty" "text", 
   "p_address" "text", 

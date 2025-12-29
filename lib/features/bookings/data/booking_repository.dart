@@ -118,6 +118,8 @@ class BookingRepository {
   /// Calls the `book_appointment` RPC function from schema.sql.
   /// This function handles all booking validation and slot allocation.
   ///
+  /// For homecare bookings with payment, pass payment_status, transaction_id, and amount_paid.
+  ///
   /// Throws [PostgrestException] if booking fails (e.g., slot taken, partner closed).
   Future<void> bookAppointment({
     required String partnerId,
@@ -127,6 +129,10 @@ class BookingRepository {
     required bool isPartnerOverride,
     String? caseDescription,
     String? patientLocation,
+    // NEW: Payment arguments (optional, default to unpaid)
+    String? paymentStatus,
+    String? paymentTransactionId,
+    double? amountPaid,
   }) async {
     await _supabase.rpc(
       'book_appointment',
@@ -138,6 +144,11 @@ class BookingRepository {
         'is_partner_override': isPartnerOverride,
         'case_description_arg': caseDescription,
         'patient_location_arg': patientLocation,
+        // NEW: Payment arguments
+        if (paymentStatus != null) 'payment_status_arg': paymentStatus,
+        if (paymentTransactionId != null)
+          'payment_transaction_id_arg': paymentTransactionId,
+        if (amountPaid != null) 'amount_paid_arg': amountPaid,
       },
     );
   }

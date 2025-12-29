@@ -30,7 +30,10 @@ class PartnerDashboardState with _$PartnerDashboardState {
     @Default('schedule') String selectedView,
 
     /// Current status filter ('Pending', 'Confirmed', 'Completed', 'Canceled')
-    @Default('Pending') String selectedStatus,
+    @Default('Confirmed') String selectedStatus,
+
+    /// Selected date for calendar view
+    DateTime? selectedDate,
 
     /// Error message if any operation fails
     String? errorMessage,

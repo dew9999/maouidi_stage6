@@ -25,7 +25,7 @@ final patientSettingsControllerProvider = AutoDisposeAsyncNotifierProvider<
 typedef _$PatientSettingsController
     = AutoDisposeAsyncNotifier<PatientSettingsState>;
 String _$partnerSettingsControllerHash() =>
-    r'6ff430d6db1fe28e96eae2b3c8b7570ebc634a14';
+    r'9b9bd742fb0a27cfc578515b07ee490ac7d15c08';
 
 /// See also [PartnerSettingsController].
 @ProviderFor(PartnerSettingsController)

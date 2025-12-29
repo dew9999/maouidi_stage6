@@ -201,6 +201,64 @@ GoRouter router(RouterRef ref) {
           );
         },
       ),
+      // Deep Link: Chargily Payment Success
+      GoRoute(
+        name: 'PaymentSuccess',
+        path: '/payment-success',
+        builder: (context, state) {
+          final transactionId = state.uri.queryParameters['transaction_id'];
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.green, size: 80),
+                  const SizedBox(height: 16),
+                  const Text('Payment Successful!',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+                  const SizedBox(height: 8),
+                  Text('Transaction ID: ${transactionId ?? "N/A"}'),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => context.go('/home'),
+                    child: const Text('Return to Home'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+      // Deep Link: Chargily Payment Failure
+      GoRoute(
+        name: 'PaymentFailure',
+        path: '/payment-failure',
+        builder: (context, state) {
+          final error = state.uri.queryParameters['error'];
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, color: Colors.red, size: 80),
+                  const SizedBox(height: 16),
+                  const Text('Payment Failed',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+                  const SizedBox(height: 8),
+                  Text('Error: ${error ?? "Unknown error"}'),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => context.go('/home'),
+                    child: const Text('Return to Home'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     ],
   );
 }

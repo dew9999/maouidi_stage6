@@ -23,8 +23,12 @@ class PartnerDashboardController extends _$PartnerDashboardController {
   }
 
   /// Loads all dashboard data (appointments, stats, today's appointments).
-  Future<PartnerDashboardState> loadDashboardData() async {
+  /// Preserves selectedDate if provided, otherwise defaults to today.
+  Future<PartnerDashboardState> loadDashboardData(
+      {DateTime? preserveDate}) async {
     final repository = ref.read(appointmentRepositoryProvider);
+
+    print('🔍 PartnerDashboard loadDashboardData: partner_id = $_partnerId');
 
     try {
       // Fetch all data in parallel
@@ -37,6 +41,9 @@ class PartnerDashboardController extends _$PartnerDashboardController {
       final allAppointments = results[0] as List<AppointmentModel>;
       final todayAppointments = results[1] as List<AppointmentModel>;
       final stats = results[2] as Map<String, int>;
+
+      print(
+          '🔍 PartnerDashboard: Got ${allAppointments.length} appointments from RPC');
 
       // Find current patient (first 'In Progress' for queue-based, fallback to 'Confirmed')
       final currentPatient = todayAppointments.firstWhere(
@@ -58,6 +65,7 @@ class PartnerDashboardController extends _$PartnerDashboardController {
         todayAppointments: todayAppointments,
         stats: stats,
         currentPatient: currentPatient.id == 0 ? null : currentPatient,
+        selectedDate: preserveDate ?? DateTime.now(), // Initialize with today
         isLoading: false,
       );
     } catch (e) {
@@ -84,6 +92,9 @@ class PartnerDashboardController extends _$PartnerDashboardController {
         throw Exception('No pending appointments in queue');
       }
 
+      // Invalidate cache to ensure fresh data
+      repository.invalidatePartnerCache();
+
       // Reload dashboard data to get updated state
       state = AsyncValue.data(await loadDashboardData());
     } catch (e) {
@@ -106,7 +117,8 @@ class PartnerDashboardController extends _$PartnerDashboardController {
       await repository.cancelAndReorderQueue(id);
 
       // Reload dashboard data
-      state = AsyncValue.data(await loadDashboardData());
+      state = AsyncValue.data(
+          await loadDashboardData(preserveDate: currentState.selectedDate));
     } catch (e) {
       final updatedState = currentState.copyWith(
         errorMessage: 'Failed to cancel appointment: ${e.toString()}',
@@ -125,7 +137,8 @@ class PartnerDashboardController extends _$PartnerDashboardController {
       await repository.updateAppointmentStatus(id, 'NoShow');
 
       // Reload dashboard data
-      state = AsyncValue.data(await loadDashboardData());
+      state = AsyncValue.data(
+          await loadDashboardData(preserveDate: currentState.selectedDate));
     } catch (e) {
       final updatedState = currentState.copyWith(
         errorMessage: 'Failed to mark as no-show: ${e.toString()}',
@@ -144,7 +157,8 @@ class PartnerDashboardController extends _$PartnerDashboardController {
       await repository.markAsCompleted(appointmentId);
 
       // Reload dashboard data
-      state = AsyncValue.data(await loadDashboardData());
+      state = AsyncValue.data(
+          await loadDashboardData(preserveDate: currentState.selectedDate));
     } catch (e) {
       final updatedState = currentState.copyWith(
         errorMessage: 'Failed to complete appointment: ${e.toString()}',
@@ -163,7 +177,8 @@ class PartnerDashboardController extends _$PartnerDashboardController {
       await repository.callPatient(id);
 
       // Reload dashboard data
-      state = AsyncValue.data(await loadDashboardData());
+      state = AsyncValue.data(
+          await loadDashboardData(preserveDate: currentState.selectedDate));
     } catch (e) {
       final updatedState = currentState.copyWith(
         errorMessage: 'Failed to call patient: ${e.toString()}',
@@ -173,9 +188,25 @@ class PartnerDashboardController extends _$PartnerDashboardController {
     }
   }
 
-  /// Confirms an appointment (alias for callPatient for clarity).
+  /// Confirms an appointment (changes status from Pending to Confirmed).
   Future<void> confirmAppointment(int id) async {
-    await callPatient(id);
+    final repository = ref.read(appointmentRepositoryProvider);
+    final currentState = await future;
+
+    try {
+      // Update status to Confirmed (not In Progress)
+      await repository.updateAppointmentStatus(id, 'Confirmed');
+
+      // Reload dashboard data
+      state = AsyncValue.data(
+          await loadDashboardData(preserveDate: currentState.selectedDate));
+    } catch (e) {
+      final updatedState = currentState.copyWith(
+        errorMessage: 'Failed to confirm appointment: ${e.toString()}',
+      );
+      state = AsyncValue.data(updatedState);
+      rethrow;
+    }
   }
 
   /// Updates the selected view filter.
@@ -192,6 +223,13 @@ class PartnerDashboardController extends _$PartnerDashboardController {
     });
   }
 
+  /// Updates the selected date filter.
+  void setSelectedDate(DateTime date) {
+    state.whenData((currentState) {
+      state = AsyncValue.data(currentState.copyWith(selectedDate: date));
+    });
+  }
+
   /// Clears any error messages.
   void clearError() {
     state.whenData((currentState) {
@@ -200,8 +238,28 @@ class PartnerDashboardController extends _$PartnerDashboardController {
   }
 
   /// Refreshes all dashboard data.
+  /// Includes debouncing to prevent rapid consecutive refreshes.
+  DateTime? _lastRefreshTime;
+  static const _refreshDebounce = Duration(milliseconds: 500);
+
   Future<void> refresh() async {
+    // Debounce: skip refresh if called too soon after previous refresh
+    final now = DateTime.now();
+    if (_lastRefreshTime != null &&
+        now.difference(_lastRefreshTime!) < _refreshDebounce) {
+      print('Debug: Skipping refresh due to debounce');
+      return;
+    }
+
+    _lastRefreshTime = now;
+    final currentState = await future;
+
+    // Invalidate cache before refresh to ensure fresh data
+    ref.read(appointmentRepositoryProvider).invalidatePartnerCache();
+
     state = const AsyncValue.loading();
-    state = AsyncValue.data(await loadDashboardData());
+    state = AsyncValue.data(
+      await loadDashboardData(preserveDate: currentState.selectedDate),
+    );
   }
 }

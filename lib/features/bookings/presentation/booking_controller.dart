@@ -1,7 +1,10 @@
 // lib/features/bookings/presentation/booking_controller.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../data/booking_repository.dart';
+import '../../payment/data/chargily_repository.dart';
 import 'booking_state.dart';
 
 part 'booking_controller.g.dart';
@@ -88,8 +91,8 @@ class BookingController extends _$BookingController {
   /// Confirm and book the appointment (unified for all booking types).
   ///
   /// Uses the unified appointments table for both clinic and homecare bookings.
-  /// - Clinic appointments: bookingType = 'clinic'
-  /// - Homecare requests: bookingType = 'homecare' with address and case description
+  /// - Clinic appointments: bookingType = 'clinic' → Book immediately
+  /// - Homecare requests: bookingType = 'homecare' → Payment flow → Then book
   Future<void> confirmBooking({
     required String partnerId,
     required DateTime appointmentTime,
@@ -104,28 +107,93 @@ class BookingController extends _$BookingController {
 
     try {
       final repository = ref.read(bookingRepositoryProvider);
+      final partnerData = state.partnerData;
 
-      // Detect if this is a homecare request
-      final isHomecareRequest = caseDescription != null &&
-          patientLocation != null &&
-          state.partnerData?.category == 'Homecare';
+      // Check if this is a homecare request that requires payment
+      final isHomecareRequest = partnerData?.category == 'Homecare';
 
-      // Use unified createAppointment method for BOTH clinic and homecare
-      await repository.bookAppointment(
-        partnerId: partnerId,
-        appointmentTime: appointmentTime,
-        onBehalfOfName: onBehalfOfName,
-        onBehalfOfPhone: onBehalfOfPhone,
-        isPartnerOverride: isPartnerOverride,
-        caseDescription: isHomecareRequest ? caseDescription : null,
-        patientLocation: isHomecareRequest ? patientLocation : null,
-      );
+      if (isHomecareRequest) {
+        // HOMECARE FLOW: Payment Required
+        // Step 1: Create Chargily checkout session
+        final chargilyRepo = ref.read(chargilyRepositoryProvider);
+        final userId = Supabase.instance.client.auth.currentUser?.id;
 
-      // Success
-      state = state.copyWith(
-        bookingStatus: BookingStatus.success,
-        errorMessage: null,
-      );
+        if (userId == null) {
+          throw Exception('User not authenticated');
+        }
+
+        final checkoutResponse = await chargilyRepo.createCheckoutSession(
+          amount:
+              2000.0, // TODO: Make this configurable or based on partner pricing
+          currency: 'DZD',
+          userId: userId,
+          partnerId: partnerId,
+          appointmentTime: appointmentTime.toIso8601String(),
+        );
+
+        // Check if we're in test mode (checkout URL contains '/test/')
+        final isTestMode = checkoutResponse.checkoutUrl.contains('/test/');
+
+        if (isTestMode) {
+          // TEST MODE: Create appointment immediately without waiting for payment
+          // This allows testing the full homecare flow end-to-end
+          await repository.bookAppointment(
+            partnerId: partnerId,
+            appointmentTime: appointmentTime,
+            onBehalfOfName: onBehalfOfName,
+            onBehalfOfPhone: onBehalfOfPhone,
+            isPartnerOverride: isPartnerOverride,
+            caseDescription: caseDescription,
+            patientLocation: patientLocation,
+            // Mark as pending payment in test mode
+            paymentStatus: 'pending',
+            paymentTransactionId: checkoutResponse.checkoutId,
+            amountPaid: 2000.0,
+          );
+
+          // Success - appointment created in test mode
+          state = state.copyWith(
+            bookingStatus: BookingStatus.success,
+            errorMessage: null,
+          );
+
+          print('✅ TEST MODE: Homecare appointment created immediately');
+        } else {
+          // PRODUCTION MODE: Redirect to payment
+          // Step 2: Launch browser with checkout URL
+          final url = Uri.parse(checkoutResponse.checkoutUrl);
+          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+            throw Exception('Could not launch payment URL');
+          }
+
+          // Step 3: Mark state as redirecting
+          state = state.copyWith(
+            bookingStatus: BookingStatus.redirecting,
+          );
+
+          // NOTE: The actual booking will happen when the user returns from payment
+          // and triggers the webhook handler
+          print('🔄 PRODUCTION MODE: Redirecting to payment gateway');
+        }
+      } else {
+        // CLINIC/ONLINE FLOW: Book immediately
+        await repository.bookAppointment(
+          partnerId: partnerId,
+          appointmentTime: appointmentTime,
+          onBehalfOfName: onBehalfOfName,
+          onBehalfOfPhone: onBehalfOfPhone,
+          isPartnerOverride: isPartnerOverride,
+          caseDescription: caseDescription,
+          patientLocation: patientLocation,
+          // No payment arguments for clinic/online
+        );
+
+        // Success
+        state = state.copyWith(
+          bookingStatus: BookingStatus.success,
+          errorMessage: null,
+        );
+      }
     } catch (e) {
       // Error
       state = state.copyWith(

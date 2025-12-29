@@ -275,6 +275,7 @@ abstract class _PatientSettingsState implements PatientSettingsState {
 mixin _$PartnerSettingsState {
   String get fullName => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
+  String? get bio => throw _privateConstructorUsedError; // NEW: Bio field
   String? get phone => throw _privateConstructorUsedError; // From users table
   String? get state =>
       throw _privateConstructorUsedError; // From users table (wilaya/state)
@@ -307,6 +308,7 @@ abstract class $PartnerSettingsStateCopyWith<$Res> {
   $Res call(
       {String fullName,
       String email,
+      String? bio,
       String? phone,
       String? state,
       String category,
@@ -340,6 +342,7 @@ class _$PartnerSettingsStateCopyWithImpl<$Res,
   $Res call({
     Object? fullName = null,
     Object? email = null,
+    Object? bio = freezed,
     Object? phone = freezed,
     Object? state = freezed,
     Object? category = null,
@@ -365,6 +368,10 @@ class _$PartnerSettingsStateCopyWithImpl<$Res,
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
+      bio: freezed == bio
+          ? _value.bio
+          : bio // ignore: cast_nullable_to_non_nullable
+              as String?,
       phone: freezed == phone
           ? _value.phone
           : phone // ignore: cast_nullable_to_non_nullable
@@ -440,6 +447,7 @@ abstract class _$$PartnerSettingsStateImplCopyWith<$Res>
   $Res call(
       {String fullName,
       String email,
+      String? bio,
       String? phone,
       String? state,
       String category,
@@ -470,6 +478,7 @@ class __$$PartnerSettingsStateImplCopyWithImpl<$Res>
   $Res call({
     Object? fullName = null,
     Object? email = null,
+    Object? bio = freezed,
     Object? phone = freezed,
     Object? state = freezed,
     Object? category = null,
@@ -495,6 +504,10 @@ class __$$PartnerSettingsStateImplCopyWithImpl<$Res>
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
+      bio: freezed == bio
+          ? _value.bio
+          : bio // ignore: cast_nullable_to_non_nullable
+              as String?,
       phone: freezed == phone
           ? _value.phone
           : phone // ignore: cast_nullable_to_non_nullable
@@ -565,6 +578,7 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
   const _$PartnerSettingsStateImpl(
       {this.fullName = '',
       this.email = '',
+      this.bio,
       this.phone,
       this.state,
       this.category = '',
@@ -589,6 +603,9 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
   @override
   @JsonKey()
   final String email;
+  @override
+  final String? bio;
+// NEW: Bio field
   @override
   final String? phone;
 // From users table
@@ -646,7 +663,7 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
 
   @override
   String toString() {
-    return 'PartnerSettingsState(fullName: $fullName, email: $email, phone: $phone, state: $state, category: $category, specialty: $specialty, location: $location, notificationsEnabled: $notificationsEnabled, isActive: $isActive, bookingSystemType: $bookingSystemType, confirmationMode: $confirmationMode, dailyBookingLimit: $dailyBookingLimit, workingHours: $workingHours, closedDays: $closedDays, isSaving: $isSaving, isLoading: $isLoading, errorMessage: $errorMessage)';
+    return 'PartnerSettingsState(fullName: $fullName, email: $email, bio: $bio, phone: $phone, state: $state, category: $category, specialty: $specialty, location: $location, notificationsEnabled: $notificationsEnabled, isActive: $isActive, bookingSystemType: $bookingSystemType, confirmationMode: $confirmationMode, dailyBookingLimit: $dailyBookingLimit, workingHours: $workingHours, closedDays: $closedDays, isSaving: $isSaving, isLoading: $isLoading, errorMessage: $errorMessage)';
   }
 
   @override
@@ -657,6 +674,7 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
             (identical(other.fullName, fullName) ||
                 other.fullName == fullName) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.bio, bio) || other.bio == bio) &&
             (identical(other.phone, phone) || other.phone == phone) &&
             (identical(other.state, state) || other.state == state) &&
             (identical(other.category, category) ||
@@ -692,6 +710,7 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
       runtimeType,
       fullName,
       email,
+      bio,
       phone,
       state,
       category,
@@ -721,6 +740,7 @@ abstract class _PartnerSettingsState implements PartnerSettingsState {
   const factory _PartnerSettingsState(
       {final String fullName,
       final String email,
+      final String? bio,
       final String? phone,
       final String? state,
       final String category,
@@ -742,6 +762,8 @@ abstract class _PartnerSettingsState implements PartnerSettingsState {
   @override
   String get email;
   @override
+  String? get bio;
+  @override // NEW: Bio field
   String? get phone;
   @override // From users table
   String? get state;

@@ -38,6 +38,9 @@ mixin _$PartnerDashboardState {
   /// Current status filter ('Pending', 'Confirmed', 'Completed', 'Canceled')
   String get selectedStatus => throw _privateConstructorUsedError;
 
+  /// Selected date for calendar view
+  DateTime? get selectedDate => throw _privateConstructorUsedError;
+
   /// Error message if any operation fails
   String? get errorMessage => throw _privateConstructorUsedError;
 
@@ -60,6 +63,7 @@ abstract class $PartnerDashboardStateCopyWith<$Res> {
       bool isLoading,
       String selectedView,
       String selectedStatus,
+      DateTime? selectedDate,
       String? errorMessage});
 
   $AppointmentModelCopyWith<$Res>? get currentPatient;
@@ -86,6 +90,7 @@ class _$PartnerDashboardStateCopyWithImpl<$Res,
     Object? isLoading = null,
     Object? selectedView = null,
     Object? selectedStatus = null,
+    Object? selectedDate = freezed,
     Object? errorMessage = freezed,
   }) {
     return _then(_value.copyWith(
@@ -117,6 +122,10 @@ class _$PartnerDashboardStateCopyWithImpl<$Res,
           ? _value.selectedStatus
           : selectedStatus // ignore: cast_nullable_to_non_nullable
               as String,
+      selectedDate: freezed == selectedDate
+          ? _value.selectedDate
+          : selectedDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       errorMessage: freezed == errorMessage
           ? _value.errorMessage
           : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -154,6 +163,7 @@ abstract class _$$PartnerDashboardStateImplCopyWith<$Res>
       bool isLoading,
       String selectedView,
       String selectedStatus,
+      DateTime? selectedDate,
       String? errorMessage});
 
   @override
@@ -179,6 +189,7 @@ class __$$PartnerDashboardStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? selectedView = null,
     Object? selectedStatus = null,
+    Object? selectedDate = freezed,
     Object? errorMessage = freezed,
   }) {
     return _then(_$PartnerDashboardStateImpl(
@@ -210,6 +221,10 @@ class __$$PartnerDashboardStateImplCopyWithImpl<$Res>
           ? _value.selectedStatus
           : selectedStatus // ignore: cast_nullable_to_non_nullable
               as String,
+      selectedDate: freezed == selectedDate
+          ? _value.selectedDate
+          : selectedDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       errorMessage: freezed == errorMessage
           ? _value.errorMessage
           : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -228,7 +243,8 @@ class _$PartnerDashboardStateImpl implements _PartnerDashboardState {
       this.currentPatient,
       this.isLoading = false,
       this.selectedView = 'schedule',
-      this.selectedStatus = 'Pending',
+      this.selectedStatus = 'Confirmed',
+      this.selectedDate,
       this.errorMessage})
       : _appointments = appointments,
         _todayAppointments = todayAppointments,
@@ -290,13 +306,17 @@ class _$PartnerDashboardStateImpl implements _PartnerDashboardState {
   @JsonKey()
   final String selectedStatus;
 
+  /// Selected date for calendar view
+  @override
+  final DateTime? selectedDate;
+
   /// Error message if any operation fails
   @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'PartnerDashboardState(appointments: $appointments, todayAppointments: $todayAppointments, stats: $stats, currentPatient: $currentPatient, isLoading: $isLoading, selectedView: $selectedView, selectedStatus: $selectedStatus, errorMessage: $errorMessage)';
+    return 'PartnerDashboardState(appointments: $appointments, todayAppointments: $todayAppointments, stats: $stats, currentPatient: $currentPatient, isLoading: $isLoading, selectedView: $selectedView, selectedStatus: $selectedStatus, selectedDate: $selectedDate, errorMessage: $errorMessage)';
   }
 
   @override
@@ -317,6 +337,8 @@ class _$PartnerDashboardStateImpl implements _PartnerDashboardState {
                 other.selectedView == selectedView) &&
             (identical(other.selectedStatus, selectedStatus) ||
                 other.selectedStatus == selectedStatus) &&
+            (identical(other.selectedDate, selectedDate) ||
+                other.selectedDate == selectedDate) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -331,6 +353,7 @@ class _$PartnerDashboardStateImpl implements _PartnerDashboardState {
       isLoading,
       selectedView,
       selectedStatus,
+      selectedDate,
       errorMessage);
 
   @JsonKey(ignore: true)
@@ -350,6 +373,7 @@ abstract class _PartnerDashboardState implements PartnerDashboardState {
       final bool isLoading,
       final String selectedView,
       final String selectedStatus,
+      final DateTime? selectedDate,
       final String? errorMessage}) = _$PartnerDashboardStateImpl;
 
   @override
@@ -380,6 +404,10 @@ abstract class _PartnerDashboardState implements PartnerDashboardState {
 
   /// Current status filter ('Pending', 'Confirmed', 'Completed', 'Canceled')
   String get selectedStatus;
+  @override
+
+  /// Selected date for calendar view
+  DateTime? get selectedDate;
   @override
 
   /// Error message if any operation fails

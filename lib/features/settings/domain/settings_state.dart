@@ -20,6 +20,7 @@ class PartnerSettingsState with _$PartnerSettingsState {
   const factory PartnerSettingsState({
     @Default('') String fullName,
     @Default('') String email,
+    String? bio, // NEW: Bio field
     String? phone, // From users table
     String? state, // From users table (wilaya/state)
     @Default('') String category,

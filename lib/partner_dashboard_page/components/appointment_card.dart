@@ -116,32 +116,36 @@ class AppointmentInfoCard extends ConsumerWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          OutlinedButton(
-            onPressed: () async {
-              await controller.cancelAppointment(
-                appointmentId,
-                'Declined by partner',
-              );
-            },
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 36),
-              foregroundColor: theme.colorScheme.error,
-              side: BorderSide(color: theme.colorScheme.outlineVariant),
-              elevation: 0,
+          Expanded(
+            child: OutlinedButton(
+              onPressed: () async {
+                await controller.cancelAppointment(
+                  appointmentId,
+                  'Declined by partner',
+                );
+              },
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 36),
+                foregroundColor: theme.colorScheme.error,
+                side: BorderSide(color: theme.colorScheme.outlineVariant),
+                elevation: 0,
+              ),
+              child: const Text('Decline'),
             ),
-            child: const Text('Decline'),
           ),
           const SizedBox(width: 8),
-          FilledButton(
-            onPressed: () async {
-              await controller.confirmAppointment(appointmentId);
-            },
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(double.infinity, 36),
-              backgroundColor: theme.colorScheme.tertiary,
-              foregroundColor: Colors.white,
+          Expanded(
+            child: FilledButton(
+              onPressed: () async {
+                await controller.confirmAppointment(appointmentId);
+              },
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(double.infinity, 36),
+                backgroundColor: theme.colorScheme.tertiary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Confirm'),
             ),
-            child: const Text('Confirm'),
           ),
         ],
       );
@@ -287,7 +291,7 @@ class UpNextQueueCard extends ConsumerWidget {
                           'partner_id_arg': partnerId,
                         },
                       );
-                      controller.refresh();
+                      await controller.refresh();
                     } catch (e) {
                       if (context.mounted) {
                         showErrorSnackbar(

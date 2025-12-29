@@ -93,11 +93,14 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         category: data['category'] as String? ?? 'Doctors',
         specialty: data['specialty'] as String?,
         location: data['address'] as String?,
-        isActive: true, // Will need to add to RPC if needed
-        notificationsEnabled: true,
+        bio: data['bio'] as String?, // NEW
+        isActive: data['is_active'] as bool? ?? true, // NEW
+        notificationsEnabled:
+            data['notifications_enabled'] as bool? ?? true, // NEW
         bookingSystemType:
             data['booking_system_type'] as String? ?? 'time_based',
-        confirmationMode: 'manual', // Will need to add to RPC if needed
+        confirmationMode:
+            data['confirmation_mode'] as String? ?? 'manual', // NEW
         dailyBookingLimit: data['daily_booking_limit'] as int? ?? 0,
         workingHours: _parseWorkingHours(data['working_hours']),
         closedDays: _parseClosedDays(data['closed_days']),
@@ -133,6 +136,11 @@ class PartnerSettingsController extends _$PartnerSettingsController {
   }
 
   // --- Actions ---
+
+  Future<void> updateBio(String value) async {
+    if (!state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(bio: value));
+  }
 
   Future<void> updateSpecialty(String? value) async {
     if (value == null || !state.hasValue) return;
@@ -294,6 +302,10 @@ class PartnerSettingsController extends _$PartnerSettingsController {
           'p_limit': currentState.dailyBookingLimit,
           'p_state': currentState.state,
           'p_phone': currentState.phone,
+          'p_bio': currentState.bio,
+          'p_is_active': currentState.isActive,
+          'p_confirmation_mode': currentState.confirmationMode,
+          'p_notifications_enabled': currentState.notificationsEnabled,
         },
       );
 
@@ -303,8 +315,6 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         'working_hours': currentState.workingHours,
         'closed_days':
             currentState.closedDays.map((e) => e.toIso8601String()).toList(),
-        'is_active': currentState.isActive,
-        'confirmation_mode': currentState.confirmationMode,
       }).eq('id', user.id);
 
       state = AsyncValue.data(currentState.copyWith(isSaving: false));

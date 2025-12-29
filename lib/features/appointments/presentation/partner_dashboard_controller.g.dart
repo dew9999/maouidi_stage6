@@ -7,7 +7,7 @@ part of 'partner_dashboard_controller.dart';
 // **************************************************************************
 
 String _$partnerDashboardControllerHash() =>
-    r'd46130e00826a6b3715170a5ab3ef5f841d05402';
+    r'09e40a6e54982aa9fa0d10cb1af93e0629198385';
 
 /// Copied from Dart SDK
 class _SystemHash {

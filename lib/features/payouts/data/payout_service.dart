@@ -18,16 +18,19 @@ class PayoutService {
     // STRICTLY filter by booking_type = 'homecare'
     final appointments = await _supabase
         .from('appointments')
-        .select('negotiated_price, completed_at')
+        .select('amount_paid, completed_at, status')
         .eq('partner_id', partnerId)
         .eq('booking_type', 'homecare')
-        .eq('status', 'completed')
+        // We filter for both 'Completed' and 'completed' to be safe, or just use 'Completed'
+        // based on the grep results. Since 'appointments' table usually has constraints,
+        // let's rely on the value we saw in the repo ('Completed').
+        .eq('status', 'Completed')
         .gte('completed_at', startDate.toIso8601String())
         .lte('completed_at', endDate.toIso8601String());
 
     double totalEarnings = 0;
     for (final appointment in appointments) {
-      final price = appointment['negotiated_price'];
+      final price = appointment['amount_paid'];
       if (price != null) {
         totalEarnings += (price as num).toDouble();
       }

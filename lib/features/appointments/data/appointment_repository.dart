@@ -1,5 +1,6 @@
 // lib/features/appointments/data/appointment_repository.dart
 
+import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/providers/supabase_provider.dart';
@@ -21,17 +22,36 @@ class AppointmentRepository {
 
   final SupabaseClient _supabase;
 
+  // Simple caching mechanism
+  List<AppointmentModel>? _cachedPartnerAppointments;
+  String? _cachedPartnerId;
+  DateTime? _cacheTimestamp;
+  static const _cacheDuration = Duration(seconds: 5);
+
   /// Fetches all appointments for a specific partner (unified query).
   ///
   /// Includes clinic, homecare, and online bookings from single table.
+  /// Uses a 5-second cache to reduce unnecessary database queries.
   Future<List<AppointmentModel>> getPartnerDashboardAppointments(
     String partnerId,
   ) async {
+    // Check cache validity
+    final now = DateTime.now();
+    if (_cachedPartnerAppointments != null &&
+        _cachedPartnerId == partnerId &&
+        _cacheTimestamp != null &&
+        now.difference(_cacheTimestamp!) < _cacheDuration) {
+      print('Debug: Returning cached appointments for partner $partnerId');
+      return _cachedPartnerAppointments!;
+    }
+
     try {
       final response = await _supabase.rpc(
         'get_partner_dashboard_appointments',
         params: {'partner_id_arg': partnerId},
       );
+
+      print('Debug: RPC response for partner $partnerId: $response');
 
       final appointments = (response as List)
           .map(
@@ -41,10 +61,24 @@ class AppointmentRepository {
           )
           .toList();
 
+      // Update cache
+      _cachedPartnerAppointments = appointments;
+      _cachedPartnerId = partnerId;
+      _cacheTimestamp = now;
+
       return appointments;
     } catch (e) {
+      print('Debug: Error fetching partner appointments: $e');
       throw AppointmentException('Failed to fetch appointments: $e');
     }
+  }
+
+  /// Invalidates the cache for partner appointments.
+  /// Call this after any mutation to ensure fresh data on next fetch.
+  void invalidatePartnerCache() {
+    _cachedPartnerAppointments = null;
+    _cachedPartnerId = null;
+    _cacheTimestamp = null;
   }
 
   /// Fetches today's appointments for a specific partner.
@@ -348,8 +382,12 @@ class AppointmentRepository {
       final response =
           await query.order('appointment_time', ascending: isUpcoming ?? false);
 
+      print(
+          'Debug: Patient appointments for $userId (Status: $statuses, Upcoming: $isUpcoming): ${response.length} found');
+
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
+      print('Debug: Error fetching patient appointments: $e');
       throw AppointmentException('Failed to fetch patient appointments: $e');
     }
   }
@@ -371,7 +409,10 @@ class AppointmentRepository {
     );
     yield initialData;
 
-    // Set up realtime subscription
+    // Create a StreamController to emit updates
+    final controller = StreamController<List<Map<String, dynamic>>>();
+
+    // Set up realtime subscription with proper callback
     final channel = _supabase.channel('patient_appointments_$userId');
 
     channel
@@ -386,24 +427,31 @@ class AppointmentRepository {
           ),
           callback: (payload) async {
             // Re-fetch data when changes occur
+            try {
+              final updatedData = await fetchPatientAppointments(
+                userId,
+                statuses,
+                isUpcoming: isUpcoming,
+              );
+              if (!controller.isClosed) {
+                controller.add(updatedData);
+              }
+            } catch (e) {
+              print('Error fetching updated patient appointments: $e');
+              // Don't add error to stream, just log it
+            }
           },
         )
         .subscribe();
 
-    // Stream periodic updates (or use a StreamController triggered by callback)
-    await for (final _ in Stream.periodic(const Duration(seconds: 2))) {
-      try {
-        final updatedData = await fetchPatientAppointments(
-          userId,
-          statuses,
-          isUpcoming: isUpcoming,
-        );
-        yield updatedData;
-      } catch (e) {
-        // Continue streaming even if one fetch fails
-        continue;
-      }
+    // Yield updates from the controller
+    await for (final data in controller.stream) {
+      yield data;
     }
+
+    // Cleanup: unsubscribe when stream is cancelled
+    await channel.unsubscribe();
+    await controller.close();
   }
 
   /// Watches appointments for a specific partner using Supabase Realtime.
@@ -417,9 +465,13 @@ class AppointmentRepository {
     final initialData = await getPartnerDashboardAppointments(partnerId);
     yield initialData;
 
-    // Then set up realtime subscription
-    _supabase
-        .channel('appointments_$partnerId')
+    // Create a StreamController to emit updates
+    final controller = StreamController<List<AppointmentModel>>();
+
+    // Set up realtime subscription with proper callback
+    final channel = _supabase.channel('appointments_$partnerId');
+
+    channel
         .onPostgresChanges(
           event: PostgresChangeEvent.all,
           schema: 'public',
@@ -429,23 +481,31 @@ class AppointmentRepository {
             column: 'partner_id',
             value: partnerId,
           ),
-          callback: (_) async {
+          callback: (payload) async {
             // When any change occurs, re-fetch all appointments
             // This ensures consistency with the RPC function logic
+            try {
+              final updatedData =
+                  await getPartnerDashboardAppointments(partnerId);
+              if (!controller.isClosed) {
+                controller.add(updatedData);
+              }
+            } catch (e) {
+              print('Error fetching updated partner appointments: $e');
+              // Don't add error to stream, just log it
+            }
           },
         )
         .subscribe();
 
-    // Create a stream controller to emit updates
-    await for (final _ in Stream.periodic(const Duration(seconds: 1))) {
-      try {
-        final updatedData = await getPartnerDashboardAppointments(partnerId);
-        yield updatedData;
-      } catch (e) {
-        // Continue streaming even if one fetch fails
-        continue;
-      }
+    // Yield updates from the controller
+    await for (final data in controller.stream) {
+      yield data;
     }
+
+    // Cleanup: unsubscribe when stream is cancelled
+    await channel.unsubscribe();
+    await controller.close();
   }
 }
 

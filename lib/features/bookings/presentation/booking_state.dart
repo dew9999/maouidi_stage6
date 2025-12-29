@@ -9,6 +9,7 @@ part 'booking_state.freezed.dart';
 enum BookingStatus {
   initial,
   loading,
+  redirecting, // NEW: For payment redirect
   success,
   error,
 }

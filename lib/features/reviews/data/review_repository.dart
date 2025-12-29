@@ -24,7 +24,7 @@ class ReviewRepository {
   /// Submits a review for a completed appointment.
   ///
   /// Calls the `submit_review` RPC function with proper validation.
-  /// The server enforces a 48-hour window from completion time.
+  /// The server enforces a strict 24-hour window from completion time.
   Future<void> submitReview({
     required int appointmentId,
     required double rating,
@@ -55,9 +55,11 @@ class ReviewRepository {
       );
 
       final reviews = (response as List)
-          .map((data) => ReviewModel.fromSupabase(
-                data as Map<String, dynamic>,
-              ),)
+          .map(
+            (data) => ReviewModel.fromSupabase(
+              data as Map<String, dynamic>,
+            ),
+          )
           .toList();
 
       return reviews;
@@ -88,10 +90,10 @@ class ReviewRepository {
     }
 
     final now = DateTime.now().toUtc();
-    final deadline = completedAt.add(const Duration(hours: 48));
+    final deadline = completedAt.add(const Duration(hours: 24));
 
     if (now.isAfter(deadline)) {
-      return 'The 48-hour review window has expired.';
+      return 'The 24-hour review window has expired.';
     }
 
     return null; // Valid
