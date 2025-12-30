@@ -25,7 +25,7 @@ class PartnerDashboardController extends _$PartnerDashboardController {
   /// Loads all dashboard data (appointments, stats, today's appointments).
   /// Preserves selectedDate if provided, otherwise defaults to today.
   Future<PartnerDashboardState> loadDashboardData(
-      {DateTime? preserveDate}) async {
+      {DateTime? preserveDate,}) async {
     final repository = ref.read(appointmentRepositoryProvider);
 
     print('🔍 PartnerDashboard loadDashboardData: partner_id = $_partnerId');
@@ -43,7 +43,7 @@ class PartnerDashboardController extends _$PartnerDashboardController {
       final stats = results[2] as Map<String, int>;
 
       print(
-          '🔍 PartnerDashboard: Got ${allAppointments.length} appointments from RPC');
+          '🔍 PartnerDashboard: Got ${allAppointments.length} appointments from RPC',);
 
       // Find current patient (first 'In Progress' for queue-based, fallback to 'Confirmed')
       final currentPatient = todayAppointments.firstWhere(
@@ -118,7 +118,7 @@ class PartnerDashboardController extends _$PartnerDashboardController {
 
       // Reload dashboard data
       state = AsyncValue.data(
-          await loadDashboardData(preserveDate: currentState.selectedDate));
+          await loadDashboardData(preserveDate: currentState.selectedDate),);
     } catch (e) {
       final updatedState = currentState.copyWith(
         errorMessage: 'Failed to cancel appointment: ${e.toString()}',
@@ -138,7 +138,7 @@ class PartnerDashboardController extends _$PartnerDashboardController {
 
       // Reload dashboard data
       state = AsyncValue.data(
-          await loadDashboardData(preserveDate: currentState.selectedDate));
+          await loadDashboardData(preserveDate: currentState.selectedDate),);
     } catch (e) {
       final updatedState = currentState.copyWith(
         errorMessage: 'Failed to mark as no-show: ${e.toString()}',
@@ -158,7 +158,7 @@ class PartnerDashboardController extends _$PartnerDashboardController {
 
       // Reload dashboard data
       state = AsyncValue.data(
-          await loadDashboardData(preserveDate: currentState.selectedDate));
+          await loadDashboardData(preserveDate: currentState.selectedDate),);
     } catch (e) {
       final updatedState = currentState.copyWith(
         errorMessage: 'Failed to complete appointment: ${e.toString()}',
@@ -178,7 +178,7 @@ class PartnerDashboardController extends _$PartnerDashboardController {
 
       // Reload dashboard data
       state = AsyncValue.data(
-          await loadDashboardData(preserveDate: currentState.selectedDate));
+          await loadDashboardData(preserveDate: currentState.selectedDate),);
     } catch (e) {
       final updatedState = currentState.copyWith(
         errorMessage: 'Failed to call patient: ${e.toString()}',
@@ -199,7 +199,7 @@ class PartnerDashboardController extends _$PartnerDashboardController {
 
       // Reload dashboard data
       state = AsyncValue.data(
-          await loadDashboardData(preserveDate: currentState.selectedDate));
+          await loadDashboardData(preserveDate: currentState.selectedDate),);
     } catch (e) {
       final updatedState = currentState.copyWith(
         errorMessage: 'Failed to confirm appointment: ${e.toString()}',

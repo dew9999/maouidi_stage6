@@ -66,9 +66,9 @@ class TimeSlotView extends ConsumerWidget {
     print('Total appointments: ${dashboardState.appointments.length}');
     print('Selected status: $selectedStatus');
     print('Selected date: $selectedDate');
-    for (var appt in dashboardState.appointments.take(5)) {
+    for (final appt in dashboardState.appointments.take(5)) {
       print(
-          'Appt: ID=${appt.id}, Status=${appt.status}, Time=${appt.appointmentTime}, HasNumber=${appt.appointmentNumber != null}');
+          'Appt: ID=${appt.id}, Status=${appt.status}, Time=${appt.appointmentTime}, HasNumber=${appt.appointmentNumber != null}',);
     }
 
     // Filter appointments based on selected status and DATE
@@ -267,7 +267,7 @@ class NumberQueueView extends ConsumerWidget {
 
     print('🔍 NumberQueueView: selectedDate = $selectedDate');
     print(
-        '🔍 NumberQueueView: Total appointments = ${dashboardState.appointments.length}');
+        '🔍 NumberQueueView: Total appointments = ${dashboardState.appointments.length}',);
 
     // Use the full appointments list, then filter by date locally
     // (Since 'todayAppointments' in state is hardcoded to actual today by the repo)
@@ -280,13 +280,13 @@ class NumberQueueView extends ConsumerWidget {
       final matches = isSameDay(appt.appointmentTime.toLocal(), selectedDate);
       if (allAppointments.indexOf(appt) < 3) {
         print(
-            '🔍 Checking appt ${appt.id}: date=${appt.appointmentTime.toLocal()}, matches=$matches');
+            '🔍 Checking appt ${appt.id}: date=${appt.appointmentTime.toLocal()}, matches=$matches',);
       }
       return matches;
     }).toList();
 
     print(
-        '🔍 NumberQueueView: Daily appointments for $selectedDate = ${dailyAppointments.length}');
+        '🔍 NumberQueueView: Daily appointments for $selectedDate = ${dailyAppointments.length}',);
 
     final currentPatient = dashboardState.currentPatient;
 

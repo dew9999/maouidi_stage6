@@ -383,7 +383,7 @@ class AppointmentRepository {
           await query.order('appointment_time', ascending: isUpcoming ?? false);
 
       print(
-          'Debug: Patient appointments for $userId (Status: $statuses, Upcoming: $isUpcoming): ${response.length} found');
+          'Debug: Patient appointments for $userId (Status: $statuses, Upcoming: $isUpcoming): ${response.length} found',);
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
