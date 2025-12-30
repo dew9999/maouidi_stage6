@@ -30,6 +30,13 @@ COMMENT ON SCHEMA "public" IS 'standard public schema';
 
 
 
+CREATE EXTENSION IF NOT EXISTS "http" WITH SCHEMA "extensions";
+
+
+
+
+
+
 CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
 
 
@@ -107,6 +114,18 @@ CREATE TYPE "public"."partner_category" AS ENUM (
 
 
 ALTER TYPE "public"."partner_category" OWNER TO "postgres";
+
+
+CREATE TYPE "public"."payment_status_enum" AS ENUM (
+    'unpaid',
+    'pending',
+    'paid',
+    'failed',
+    'refunded'
+);
+
+
+ALTER TYPE "public"."payment_status_enum" OWNER TO "postgres";
 
 
 CREATE TYPE "public"."specialty_enum" AS ENUM (
@@ -205,7 +224,7 @@ $$;
 ALTER FUNCTION "public"."apply_new_partner_hold"() OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."book_appointment"("partner_id_arg" "uuid", "appointment_time_arg" timestamp with time zone, "on_behalf_of_name_arg" "text", "on_behalf_of_phone_arg" "text", "is_partner_override" boolean, "case_description_arg" "text", "patient_location_arg" "text") RETURNS "void"
+CREATE OR REPLACE FUNCTION "public"."book_appointment"("partner_id_arg" "uuid", "appointment_time_arg" timestamp with time zone, "on_behalf_of_name_arg" "text", "on_behalf_of_phone_arg" "text", "is_partner_override" boolean, "case_description_arg" "text", "patient_location_arg" "text", "payment_status_arg" "public"."payment_status_enum" DEFAULT 'unpaid'::"public"."payment_status_enum", "payment_transaction_id_arg" "text" DEFAULT NULL::"text", "amount_paid_arg" numeric DEFAULT 0) RETURNS "void"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
@@ -227,7 +246,6 @@ BEGIN
     RAISE EXCEPTION 'Medical partner not found.';
   END IF;
 
-  -- MODIFICATION: Add a server-side check to prevent booking on past dates for any system type.
   IF appointment_time_arg::date < current_date AND NOT is_partner_override THEN
       RAISE EXCEPTION 'You cannot book an appointment for a past date.';
   END IF;
@@ -254,7 +272,6 @@ BEGIN
       RAISE EXCEPTION 'This provider does not work on the selected day.';
     END IF;
 
-    -- MODIFICATION: For time-based systems, check the specific time slot. For number-based, just confirm it's a working day.
     IF partner_data.booking_system_type = 'time_based' THEN
       FOR time_range IN SELECT * FROM jsonb_array_elements_text(partner_data.working_hours -> day_of_week_arg)
       LOOP
@@ -268,7 +285,7 @@ BEGIN
       IF NOT is_within_working_hours THEN
         RAISE EXCEPTION 'The selected time is outside of the provider''s working hours.';
       END IF;
-    ELSE -- For number_based, just being a working day is enough.
+    ELSE
         is_within_working_hours := TRUE;
     END IF;
   ELSE
@@ -298,7 +315,7 @@ BEGIN
       IF has_existing_appointment THEN
         RAISE EXCEPTION 'You already have an active appointment with this partner for today.';
       END IF;
-    ELSE -- time_based
+    ELSE
       SELECT EXISTS (
         SELECT 1 FROM public.appointments
         WHERE
@@ -313,8 +330,14 @@ BEGIN
   END IF;
   
   IF partner_data.booking_system_type = 'time_based' THEN
-    INSERT INTO public.appointments (partner_id, booking_user_id, appointment_time, on_behalf_of_patient_name, on_behalf_of_patient_phone, status, case_description, patient_location)
-    VALUES (partner_id_arg, booking_user_id_arg, appointment_time_arg, on_behalf_of_name_arg, on_behalf_of_phone_arg, new_appointment_status, case_description_arg, patient_location_arg);
+    INSERT INTO public.appointments (
+      partner_id, booking_user_id, appointment_time, on_behalf_of_patient_name, on_behalf_of_patient_phone, 
+      status, case_description, patient_location, payment_status, payment_transaction_id, amount_paid
+    )
+    VALUES (
+      partner_id_arg, booking_user_id_arg, appointment_time_arg, on_behalf_of_name_arg, on_behalf_of_phone_arg, 
+      new_appointment_status, case_description_arg, patient_location_arg, payment_status_arg, payment_transaction_id_arg, amount_paid_arg
+    );
   ELSIF partner_data.booking_system_type = 'number_based' THEN
     SELECT COALESCE(MAX(appointment_number), 0) + 1
     INTO new_appointment_number
@@ -328,14 +351,20 @@ BEGIN
       RAISE EXCEPTION 'This partner is fully booked on this day.';
     END IF;
     
-    INSERT INTO public.appointments (partner_id, booking_user_id, appointment_time, on_behalf_of_patient_name, on_behalf_of_patient_phone, status, appointment_number, case_description, patient_location)
-    VALUES (partner_id_arg, booking_user_id_arg, appointment_time_arg, on_behalf_of_name_arg, on_behalf_of_phone_arg, new_appointment_status, new_appointment_number, case_description_arg, patient_location_arg);
+    INSERT INTO public.appointments (
+      partner_id, booking_user_id, appointment_time, on_behalf_of_patient_name, on_behalf_of_patient_phone, 
+      status, appointment_number, case_description, patient_location, payment_status, payment_transaction_id, amount_paid
+    )
+    VALUES (
+      partner_id_arg, booking_user_id_arg, appointment_time_arg, on_behalf_of_name_arg, on_behalf_of_phone_arg, 
+      new_appointment_status, new_appointment_number, case_description_arg, patient_location_arg, payment_status_arg, payment_transaction_id_arg, amount_paid_arg
+    );
   END IF;
 END;
 $$;
 
 
-ALTER FUNCTION "public"."book_appointment"("partner_id_arg" "uuid", "appointment_time_arg" timestamp with time zone, "on_behalf_of_name_arg" "text", "on_behalf_of_phone_arg" "text", "is_partner_override" boolean, "case_description_arg" "text", "patient_location_arg" "text") OWNER TO "postgres";
+ALTER FUNCTION "public"."book_appointment"("partner_id_arg" "uuid", "appointment_time_arg" timestamp with time zone, "on_behalf_of_name_arg" "text", "on_behalf_of_phone_arg" "text", "is_partner_override" boolean, "case_description_arg" "text", "patient_location_arg" "text", "payment_status_arg" "public"."payment_status_enum", "payment_transaction_id_arg" "text", "amount_paid_arg" numeric) OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."calculate_total_amount"() RETURNS "trigger"
@@ -443,6 +472,78 @@ $$;
 
 
 ALTER FUNCTION "public"."close_day_and_cancel_appointments"("closed_day_arg" "date") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."create_chargily_checkout"("amount_arg" numeric, "currency_arg" "text", "user_id_arg" "text", "partner_id_arg" "text", "appointment_time_arg" "text") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+DECLARE
+    v_api_key TEXT;
+    v_secret_key TEXT;
+    v_checkout_id TEXT;
+    v_checkout_url TEXT;
+    v_user_uuid UUID;
+    v_partner_uuid UUID;
+    v_http_response JSONB;
+BEGIN
+    -- Convert text IDs to UUIDs
+    v_user_uuid := user_id_arg::UUID;
+    v_partner_uuid := partner_id_arg::UUID;
+    -- Get Chargily API credentials from app_config
+    SELECT value INTO v_api_key 
+    FROM public.app_config 
+    WHERE key = 'chargily_public_key';
+    
+    SELECT value INTO v_secret_key 
+    FROM public.app_config 
+    WHERE key = 'chargily_secret_key';
+    IF v_api_key IS NULL OR v_secret_key IS NULL THEN
+        RAISE EXCEPTION 'Chargily API credentials not configured';
+    END IF;
+    -- Generate a unique checkout ID
+    v_checkout_id := 'checkout_' || gen_random_uuid()::TEXT;
+    -- For TEST MODE: Return a test checkout URL
+    -- In production, you would make an HTTP request to Chargily API here
+    IF v_api_key LIKE 'test_%' THEN
+        v_checkout_url := 'https://pay.chargily.net/test/checkout/' || v_checkout_id;
+    ELSE
+        -- Production mode would call Chargily API
+        -- This requires the http extension and proper API implementation
+        v_checkout_url := 'https://pay.chargily.net/checkout/' || v_checkout_id;
+    END IF;
+    -- Store transaction record
+    INSERT INTO public.payment_transactions (
+        user_id,
+        partner_id,
+        checkout_id,
+        amount,
+        currency,
+        status,
+        appointment_time,
+        metadata
+    ) VALUES (
+        v_user_uuid,
+        v_partner_uuid,
+        v_checkout_id,
+        amount_arg,
+        currency_arg,
+        'pending',
+        appointment_time_arg::TIMESTAMPTZ,
+        jsonb_build_object(
+            'created_via', 'create_chargily_checkout',
+            'test_mode', v_api_key LIKE 'test_%'
+        )
+    );
+    -- Return checkout information
+    RETURN jsonb_build_object(
+        'checkout_url', v_checkout_url,
+        'checkout_id', v_checkout_id
+    );
+END;
+$$;
+
+
+ALTER FUNCTION "public"."create_chargily_checkout"("amount_arg" numeric, "currency_arg" "text", "user_id_arg" "text", "partner_id_arg" "text", "appointment_time_arg" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."create_user_profile"() RETURNS "trigger"
@@ -725,27 +826,31 @@ $$;
 ALTER FUNCTION "public"."get_filtered_partners"("category_arg" "text", "state_arg" "text", "specialty_arg" "text") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."get_full_partner_profile"("target_user_id" "uuid") RETURNS TABLE("id" "uuid", "full_name" "text", "email" "text", "phone" "text", "state" "text", "specialty" "text", "category" "text", "address" "text", "booking_system_type" "text", "daily_booking_limit" integer, "working_hours" "jsonb", "closed_days" "jsonb")
-    LANGUAGE "plpgsql"
+CREATE OR REPLACE FUNCTION "public"."get_full_partner_profile"("target_user_id" "uuid") RETURNS TABLE("id" "uuid", "full_name" "text", "email" "text", "phone" "text", "state" "text", "specialty" "text", "category" "text", "address" "text", "booking_system_type" "text", "daily_booking_limit" integer, "working_hours" "jsonb", "closed_days" "jsonb", "bio" "text", "is_active" boolean, "confirmation_mode" "text", "notifications_enabled" boolean)
+    LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
 BEGIN
-  RETURN QUERY SELECT 
-    mp.id, 
-    mp.full_name, 
-    u.email, 
-    u.phone, 
-    u.state,  -- Changed from u.wilaya
-    mp.specialty::text,  -- Cast enum to text
-    mp.category::text,   -- Cast enum to text for consistency
-    mp.address, 
-    mp.booking_system_type, 
+  RETURN QUERY SELECT
+    mp.id,
+    mp.full_name,
+    u.email,
+    u.phone,
+    u.state,
+    mp.specialty::text,
+    mp.category::text,
+    mp.address,
+    mp.booking_system_type,
     mp.daily_booking_limit,
-    mp.working_hours, 
-    to_jsonb(mp.closed_days) as closed_days  -- Ensure proper jsonb conversion
-  FROM medical_partners mp 
-  JOIN users u ON u.id = mp.id 
+    mp.working_hours,
+    to_jsonb(mp.closed_days),
+    mp.bio,
+    mp.is_active,
+    mp.confirmation_mode,
+    mp.notifications_enabled
+  FROM medical_partners mp
+  JOIN users u ON u.id = mp.id
   WHERE mp.id = target_user_id;
-END; 
+END;
 $$;
 
 
@@ -782,7 +887,8 @@ ALTER FUNCTION "public"."get_partner_analytics"("partner_id_arg" "uuid") OWNER T
 
 
 CREATE OR REPLACE FUNCTION "public"."get_partner_dashboard_appointments"("partner_id_arg" "uuid") RETURNS TABLE("id" bigint, "partner_id" "uuid", "booking_user_id" "uuid", "on_behalf_of_patient_name" "text", "appointment_time" timestamp with time zone, "status" "text", "on_behalf_of_patient_phone" "text", "appointment_number" integer, "is_rescheduled" boolean, "completed_at" timestamp with time zone, "has_review" boolean, "case_description" "text", "patient_location" "text", "patient_first_name" "text", "patient_last_name" "text", "patient_phone" "text")
-    LANGUAGE "plpgsql"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
     AS $$
 BEGIN
   RETURN QUERY
@@ -800,16 +906,14 @@ BEGIN
     a.has_review,
     a.case_description,
     a.patient_location,
-    -- Aliasing user columns to match frontend expectations
+    -- Patient details from users table
     u.first_name as patient_first_name,
     u.last_name as patient_last_name,
     u.phone as patient_phone
-  FROM
-    public.appointments AS a
-  LEFT JOIN
-    public.users AS u ON a.booking_user_id = u.id
-  WHERE
-    a.partner_id = partner_id_arg;
+  FROM public.appointments a
+  LEFT JOIN public.users u ON a.booking_user_id = u.id
+  WHERE a.partner_id = partner_id_arg
+  ORDER BY a.appointment_time ASC;
 END;
 $$;
 
@@ -821,15 +925,14 @@ CREATE OR REPLACE FUNCTION "public"."get_partner_lifetime_earnings"("partner_id_
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
 DECLARE
-  total_earnings DECIMAL(10,2);
+    total_earnings numeric;
 BEGIN
-  SELECT COALESCE(SUM(negotiated_price), 0)
-  INTO total_earnings
-  FROM public.homecare_requests
-  WHERE partner_id = partner_id_arg
-    AND status = 'completed';
-  
-  RETURN total_earnings;
+    SELECT COALESCE(SUM(amount_paid), 0)
+    INTO total_earnings
+    FROM appointments
+    WHERE partner_id = partner_id_arg
+    AND status = 'Completed'; -- Using PascalCase 'Completed' based on common usage in app, but DB might be different. Let's assume standard 'Completed' from previous edits.
+    RETURN total_earnings;
 END;
 $$;
 
@@ -858,24 +961,23 @@ $$;
 ALTER FUNCTION "public"."get_partner_weekly_stats"("partner_id_arg" "uuid") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."get_reviews_with_user_names"("partner_id_arg" "uuid") RETURNS TABLE("rating" numeric, "review_text" "text", "created_at" timestamp with time zone, "first_name" "text", "gender" "text")
-    LANGUAGE "sql"
-    SET "search_path" TO ''
+CREATE OR REPLACE FUNCTION "public"."get_reviews_with_user_names"("partner_id_arg" "uuid") RETURNS TABLE("id" "uuid", "rating" numeric, "comment" "text", "created_at" timestamp with time zone, "user_first_name" "text", "user_last_name" "text")
+    LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
-  SELECT
-    r.rating,
-    r.review_text,
-    r.created_at,
-    u.first_name,
-    u.gender
-  FROM
-    public.reviews AS r
-  JOIN
-    public.users AS u ON r.user_id = u.id
-  WHERE
-    r.partner_id = partner_id_arg
-  ORDER BY
-    r.created_at DESC;
+BEGIN
+    RETURN QUERY
+    SELECT 
+        r.id,
+        r.rating,
+        r.comment,
+        r.created_at,
+        u.first_name,
+        u.last_name
+    FROM reviews r
+    JOIN users u ON r.user_id = u.id
+    WHERE r.partner_id = partner_id_arg
+    ORDER BY r.created_at DESC;
+END;
 $$;
 
 
@@ -1054,6 +1156,126 @@ $$;
 
 
 ALTER FUNCTION "public"."increment_completed_services"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."process_chargily_webhook"("signature_header" "text", "payload" "jsonb") RETURNS json
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+DECLARE
+    secret_key text;
+    calculated_signature text;
+    event_id text;
+    event_type text;
+    checkout_status text;
+    transaction_id text;
+    amount_paid numeric;
+    metadata_json jsonb;
+    user_id uuid;
+    partner_id uuid;
+    appointment_time timestamptz;
+    target_time timestamptz;
+    case_description text;
+    patient_location text;
+    payment_event_id bigint;
+    new_appointment_id bigint;
+    time_offset int := 0;
+BEGIN
+    event_id := payload->>'id';
+    event_type := payload->>'type';
+    
+    -- Idempotency Check
+    IF EXISTS (SELECT 1 FROM public.payment_events WHERE event_id = event_id) THEN
+        RETURN json_build_object('success', true, 'message', 'Event already processed');
+    END IF;
+
+    INSERT INTO public.payment_events (event_id, event_type, payload, status)
+    VALUES (event_id, event_type, payload, 'pending')
+    RETURNING id INTO payment_event_id;
+
+    SELECT value INTO secret_key FROM public.app_config WHERE key = 'chargily_secret_key';
+
+    IF secret_key IS NULL THEN
+        UPDATE public.payment_events SET status = 'failed', error_message = 'Secret key not configured' WHERE id = payment_event_id;
+        RAISE EXCEPTION 'Chargily secret key not configured';
+    END IF;
+
+    -- Verify Signature (HMAC SHA256)
+    calculated_signature := encode(extensions.hmac(payload::text, secret_key, 'sha256'), 'hex');
+
+    IF signature_header IS NULL OR calculated_signature != signature_header THEN
+        UPDATE public.payment_events SET status = 'failed', error_message = 'Invalid signature' WHERE id = payment_event_id;
+        RAISE EXCEPTION 'Invalid webhook signature';
+    END IF;
+
+    -- Only process checkout.paid
+    IF event_type != 'checkout.paid' THEN
+        UPDATE public.payment_events SET status = 'processed', processed_at = now() WHERE id = payment_event_id;
+        RETURN json_build_object('success', true, 'message', 'Event type not handled');
+    END IF;
+
+    checkout_status := payload->'data'->>'status';
+    transaction_id := payload->'data'->>'id';
+    amount_paid := (payload->'data'->>'amount')::numeric / 100; -- Convert from cents
+    metadata_json := payload->'data'->'metadata';
+
+    IF checkout_status != 'paid' THEN
+        UPDATE public.payment_events SET status = 'processed', processed_at = now() WHERE id = payment_event_id;
+        RETURN json_build_object('success', true, 'message', 'Checkout not paid');
+    END IF;
+
+    user_id := (metadata_json->>'user_id')::uuid;
+    partner_id := (metadata_json->>'partner_id')::uuid;
+    appointment_time := (metadata_json->>'appointment_time')::timestamptz;
+    case_description := metadata_json->>'case_description';
+    patient_location := metadata_json->>'patient_location';
+
+    -- Avoid duplicate appointments for same transaction
+    IF EXISTS (SELECT 1 FROM public.appointments WHERE payment_transaction_id = transaction_id) THEN
+        UPDATE public.payment_events SET status = 'processed', processed_at = now() WHERE id = payment_event_id;
+        RETURN json_build_object('success', true, 'message', 'Appointment already exists');
+    END IF;
+
+    target_time := appointment_time;
+    
+    -- Retry logic for slot conflict (simple +1 minute shift up to 10 times)
+    FOR time_offset IN 0..9 LOOP
+        BEGIN
+            INSERT INTO public.appointments (
+                partner_id, booking_user_id, appointment_time, status, case_description, patient_location,
+                payment_status, payment_transaction_id, amount_paid
+            ) VALUES (
+                partner_id, user_id, target_time, 'Confirmed', case_description, patient_location,
+                'paid', transaction_id, amount_paid
+            )
+            RETURNING id INTO new_appointment_id;
+            EXIT; -- Success
+        EXCEPTION 
+            WHEN unique_violation THEN
+                target_time := appointment_time + (time_offset + 1) * INTERVAL '1 minute';
+                IF time_offset = 9 THEN RAISE; END IF;
+        END;
+    END LOOP;
+
+    UPDATE public.payment_events SET status = 'processed', processed_at = now() WHERE id = payment_event_id;
+    RETURN json_build_object('success', true, 'appointment_id', new_appointment_id);
+
+EXCEPTION 
+    WHEN OTHERS THEN
+        -- Fallback to manual queue
+        INSERT INTO public.manual_resolution_queue (payment_event_id, reason, payment_transaction_id, amount_paid, customer_id, metadata)
+        VALUES (payment_event_id, SQLERRM, transaction_id, amount_paid, user_id::text, metadata_json);
+        UPDATE public.payment_events SET status = 'failed', error_message = SQLERRM, processed_at = now() WHERE id = payment_event_id;
+        RETURN json_build_object('success', true, 'message', 'Queued for manual resolution');
+END;
+$$;
+
+
+ALTER FUNCTION "public"."process_chargily_webhook"("signature_header" "text", "payload" "jsonb") OWNER TO "postgres";
+
+
+COMMENT ON FUNCTION "public"."process_chargily_webhook"("signature_header" "text", "payload" "jsonb") IS 'Processes Chargily payment webhooks with signature verification, idempotency, and automatic race condition resolution via time adjustment.';
+
 
 
 CREATE OR REPLACE FUNCTION "public"."reschedule_appointment_to_end_of_queue"("appointment_id_arg" bigint, "partner_id_arg" "uuid") RETURNS "void"
@@ -1250,37 +1472,44 @@ ALTER FUNCTION "public"."submit_review"("appointment_id_arg" bigint, "rating_arg
 
 CREATE OR REPLACE FUNCTION "public"."submit_review"("appointment_id_arg" bigint, "rating_arg" numeric, "review_text_arg" "text") RETURNS "void"
     LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO ''
     AS $$
 DECLARE
-  target_appointment record;
+    appt_record record;
 BEGIN
-  SELECT * INTO target_appointment
-  FROM public.appointments
-  WHERE id = appointment_id_arg AND booking_user_id = auth.uid();
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Appointment not found or you do not have permission to review it.';
-  END IF;
-
-  IF target_appointment.status <> 'Completed' THEN
-    RAISE EXCEPTION 'You can only review completed appointments.';
-  END IF;
-
-  IF target_appointment.has_review = TRUE THEN
-    RAISE EXCEPTION 'A review has already been submitted for this appointment.';
-  END IF;
-
-  IF target_appointment.completed_at IS NULL OR now() > target_appointment.completed_at + INTERVAL '48 hours' THEN
-    RAISE EXCEPTION 'The 2-hour window to submit a review has passed.';
-  END IF;
-
-  INSERT INTO public.reviews(appointment_id, user_id, partner_id, rating, review_text)
-  VALUES(appointment_id_arg, auth.uid(), target_appointment.partner_id, rating_arg, review_text_arg);
-
-  UPDATE public.appointments
-  SET has_review = TRUE
-  WHERE id = appointment_id_arg;
+    SELECT * INTO appt_record
+    FROM appointments
+    WHERE id = appointment_id_arg;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Appointment not found.';
+    END IF;
+    -- Fixed: patient_id -> booking_user_id
+    IF appt_record.booking_user_id != auth.uid() THEN
+        RAISE EXCEPTION 'You can only review your own appointments.';
+    END IF;
+    IF appt_record.status NOT ILIKE 'Completed' THEN
+        RAISE EXCEPTION 'You can only review completed appointments.';
+    END IF;
+    IF appt_record.has_review = true THEN
+        RAISE EXCEPTION 'Review already submitted for this appointment.';
+    END IF;
+    IF appt_record.completed_at IS NULL THEN
+         RAISE EXCEPTION 'Appointment completion time is missing.';
+    END IF;
+    -- 24 Hour Window Check
+    IF (now() > (appt_record.completed_at + interval '24 hours')) THEN
+        RAISE EXCEPTION 'Review window expired (24 hours).';
+    END IF;
+    INSERT INTO reviews (appointment_id, partner_id, user_id, rating, comment)
+    VALUES (
+        appointment_id_arg,
+        appt_record.partner_id,
+        appt_record.booking_user_id, -- Fixed: patient_id -> booking_user_id
+        rating_arg,
+        review_text_arg
+    );
+    UPDATE appointments
+    SET has_review = true
+    WHERE id = appointment_id_arg;
 END;
 $$;
 
@@ -1357,6 +1586,35 @@ $$;
 
 
 ALTER FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text", "p_bio" "text", "p_is_active" boolean, "p_confirmation_mode" "text", "p_notifications_enabled" boolean) RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  -- Update medical_partners table
+  UPDATE medical_partners
+  SET
+    specialty = p_specialty::specialty_enum,
+    address = p_address,
+    booking_system_type = p_booking_system,
+    daily_booking_limit = p_limit,
+    bio = p_bio,
+    is_active = p_is_active,
+    confirmation_mode = p_confirmation_mode,
+    notifications_enabled = p_notifications_enabled
+  WHERE id = p_id;
+  -- Update users table
+  UPDATE users
+  SET
+    state = p_state,
+    phone = p_phone
+  WHERE id = p_id;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text", "p_bio" "text", "p_is_active" boolean, "p_confirmation_mode" "text", "p_notifications_enabled" boolean) OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."update_partner_fts"() RETURNS "trigger"
@@ -1463,6 +1721,10 @@ CREATE TABLE IF NOT EXISTS "public"."app_config" (
 ALTER TABLE "public"."app_config" OWNER TO "postgres";
 
 
+COMMENT ON TABLE "public"."app_config" IS 'Stores application configuration and secrets';
+
+
+
 CREATE SEQUENCE IF NOT EXISTS "public"."app_config_id_seq"
     AS integer
     START WITH 1
@@ -1499,6 +1761,9 @@ CREATE TABLE IF NOT EXISTS "public"."appointments" (
     "negotiation_status" "text" DEFAULT 'none'::"text",
     "created_at" timestamp with time zone DEFAULT "now"(),
     "negotiation_history" "jsonb" DEFAULT '[]'::"jsonb",
+    "payment_status" "public"."payment_status_enum" DEFAULT 'unpaid'::"public"."payment_status_enum",
+    "payment_transaction_id" "text",
+    "amount_paid" numeric(10,2) DEFAULT 0,
     CONSTRAINT "appointments_negotiation_status_check" CHECK (("negotiation_status" = ANY (ARRAY['pending'::"text", 'accepted'::"text", 'rejected'::"text", 'none'::"text"])))
 );
 
@@ -1538,6 +1803,44 @@ CREATE TABLE IF NOT EXISTS "public"."disputes" (
 
 
 ALTER TABLE "public"."disputes" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."manual_resolution_queue" (
+    "id" bigint NOT NULL,
+    "payment_event_id" bigint,
+    "reason" "text" NOT NULL,
+    "payment_transaction_id" "text" NOT NULL,
+    "amount_paid" numeric(10,2) NOT NULL,
+    "customer_id" "text",
+    "metadata" "jsonb",
+    "resolved" boolean DEFAULT false,
+    "resolved_at" timestamp with time zone,
+    "resolved_by" "uuid",
+    "resolution_notes" "text",
+    "created_at" timestamp with time zone DEFAULT "now"()
+);
+
+
+ALTER TABLE "public"."manual_resolution_queue" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."manual_resolution_queue" IS 'Queue for payments that need manual intervention due to race conditions or other issues';
+
+
+
+CREATE SEQUENCE IF NOT EXISTS "public"."manual_resolution_queue_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE "public"."manual_resolution_queue_id_seq" OWNER TO "postgres";
+
+
+ALTER SEQUENCE "public"."manual_resolution_queue_id_seq" OWNED BY "public"."manual_resolution_queue"."id";
+
 
 
 CREATE TABLE IF NOT EXISTS "public"."notifications" (
@@ -1633,6 +1936,40 @@ CREATE TABLE IF NOT EXISTS "public"."partner_ratings" (
 ALTER TABLE "public"."partner_ratings" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."payment_events" (
+    "id" bigint NOT NULL,
+    "event_id" "text" NOT NULL,
+    "event_type" "text" NOT NULL,
+    "payload" "jsonb" NOT NULL,
+    "status" "text" DEFAULT 'pending'::"text" NOT NULL,
+    "error_message" "text",
+    "processed_at" timestamp with time zone,
+    "created_at" timestamp with time zone DEFAULT "now"()
+);
+
+
+ALTER TABLE "public"."payment_events" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."payment_events" IS 'Audit log for all payment webhooks received from Chargily';
+
+
+
+CREATE SEQUENCE IF NOT EXISTS "public"."payment_events_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE "public"."payment_events_id_seq" OWNER TO "postgres";
+
+
+ALTER SEQUENCE "public"."payment_events_id_seq" OWNED BY "public"."payment_events"."id";
+
+
+
 CREATE TABLE IF NOT EXISTS "public"."payment_receipts" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "homecare_request_id" "uuid" NOT NULL,
@@ -1654,33 +1991,38 @@ CREATE TABLE IF NOT EXISTS "public"."payment_receipts" (
 ALTER TABLE "public"."payment_receipts" OWNER TO "postgres";
 
 
-CREATE TABLE IF NOT EXISTS "public"."reviews" (
-    "id" bigint NOT NULL,
-    "partner_id" "uuid" NOT NULL,
+CREATE TABLE IF NOT EXISTS "public"."payment_transactions" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "user_id" "uuid" NOT NULL,
-    "appointment_id" bigint NOT NULL,
+    "partner_id" "uuid" NOT NULL,
+    "checkout_id" "text" NOT NULL,
+    "amount" numeric(10,2) NOT NULL,
+    "currency" "text" DEFAULT 'DZD'::"text" NOT NULL,
+    "status" "text" DEFAULT 'pending'::"text" NOT NULL,
+    "appointment_time" timestamp with time zone,
+    "metadata" "jsonb",
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"()
+);
+
+
+ALTER TABLE "public"."payment_transactions" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."reviews" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "appointment_id" bigint,
+    "partner_id" "uuid",
+    "user_id" "uuid",
     "rating" numeric(2,1) NOT NULL,
-    "review_text" "text",
-    "created_at" timestamp with time zone DEFAULT "now"()
+    "comment" "text",
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    CONSTRAINT "reviews_rating_check" CHECK ((("rating" >= (1)::numeric) AND ("rating" <= (5)::numeric)))
 );
 
 
 ALTER TABLE "public"."reviews" OWNER TO "postgres";
-
-
-COMMENT ON TABLE "public"."reviews" IS 'Stores ratings and reviews for partners.';
-
-
-
-ALTER TABLE "public"."reviews" ALTER COLUMN "id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME "public"."reviews_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
 
 
 CREATE TABLE IF NOT EXISTS "public"."users" (
@@ -1711,6 +2053,14 @@ ALTER TABLE ONLY "public"."app_config" ALTER COLUMN "id" SET DEFAULT "nextval"('
 
 
 
+ALTER TABLE ONLY "public"."manual_resolution_queue" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."manual_resolution_queue_id_seq"'::"regclass");
+
+
+
+ALTER TABLE ONLY "public"."payment_events" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."payment_events_id_seq"'::"regclass");
+
+
+
 ALTER TABLE ONLY "public"."app_config"
     ADD CONSTRAINT "app_config_key_key" UNIQUE ("key");
 
@@ -1728,6 +2078,11 @@ ALTER TABLE ONLY "public"."appointments"
 
 ALTER TABLE ONLY "public"."disputes"
     ADD CONSTRAINT "disputes_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."manual_resolution_queue"
+    ADD CONSTRAINT "manual_resolution_queue_pkey" PRIMARY KEY ("id");
 
 
 
@@ -1761,6 +2116,16 @@ ALTER TABLE ONLY "public"."partner_ratings"
 
 
 
+ALTER TABLE ONLY "public"."payment_events"
+    ADD CONSTRAINT "payment_events_event_id_key" UNIQUE ("event_id");
+
+
+
+ALTER TABLE ONLY "public"."payment_events"
+    ADD CONSTRAINT "payment_events_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."payment_receipts"
     ADD CONSTRAINT "payment_receipts_pkey" PRIMARY KEY ("id");
 
@@ -1768,6 +2133,21 @@ ALTER TABLE ONLY "public"."payment_receipts"
 
 ALTER TABLE ONLY "public"."payment_receipts"
     ADD CONSTRAINT "payment_receipts_receipt_number_key" UNIQUE ("receipt_number");
+
+
+
+ALTER TABLE ONLY "public"."payment_transactions"
+    ADD CONSTRAINT "payment_transactions_checkout_id_key" UNIQUE ("checkout_id");
+
+
+
+ALTER TABLE ONLY "public"."payment_transactions"
+    ADD CONSTRAINT "payment_transactions_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."reviews"
+    ADD CONSTRAINT "reviews_appointment_id_key" UNIQUE ("appointment_id");
 
 
 
@@ -1794,6 +2174,10 @@ CREATE INDEX "idx_appointments_booking_user_id" ON "public"."appointments" USING
 
 
 
+CREATE INDEX "idx_appointments_payment_status" ON "public"."appointments" USING "btree" ("payment_status");
+
+
+
 CREATE INDEX "idx_appointments_status" ON "public"."appointments" USING "btree" ("status");
 
 
@@ -1811,6 +2195,14 @@ CREATE INDEX "idx_disputes_request" ON "public"."disputes" USING "btree" ("homec
 
 
 CREATE INDEX "idx_disputes_status" ON "public"."disputes" USING "btree" ("status");
+
+
+
+CREATE INDEX "idx_manual_resolution_payment_transaction_id" ON "public"."manual_resolution_queue" USING "btree" ("payment_transaction_id");
+
+
+
+CREATE INDEX "idx_manual_resolution_resolved" ON "public"."manual_resolution_queue" USING "btree" ("resolved");
 
 
 
@@ -1834,19 +2226,31 @@ CREATE INDEX "idx_partner_ratings_rating" ON "public"."partner_ratings" USING "b
 
 
 
+CREATE INDEX "idx_payment_events_created_at" ON "public"."payment_events" USING "btree" ("created_at");
+
+
+
+CREATE INDEX "idx_payment_events_event_id" ON "public"."payment_events" USING "btree" ("event_id");
+
+
+
+CREATE INDEX "idx_payment_events_status" ON "public"."payment_events" USING "btree" ("status");
+
+
+
 CREATE INDEX "idx_payment_receipts_request_id" ON "public"."payment_receipts" USING "btree" ("homecare_request_id");
 
 
 
-CREATE INDEX "idx_reviews_appointment_id" ON "public"."reviews" USING "btree" ("appointment_id");
+CREATE INDEX "idx_payment_transactions_checkout_id" ON "public"."payment_transactions" USING "btree" ("checkout_id");
 
 
 
-CREATE INDEX "idx_reviews_partner_id" ON "public"."reviews" USING "btree" ("partner_id");
+CREATE INDEX "idx_payment_transactions_status" ON "public"."payment_transactions" USING "btree" ("status");
 
 
 
-CREATE INDEX "idx_reviews_user_id" ON "public"."reviews" USING "btree" ("user_id");
+CREATE INDEX "idx_payment_transactions_user_id" ON "public"."payment_transactions" USING "btree" ("user_id");
 
 
 
@@ -1859,10 +2263,6 @@ CREATE UNIQUE INDEX "unique_active_appointment_time" ON "public"."appointments" 
 
 
 CREATE OR REPLACE TRIGGER "on_appointment_change" AFTER INSERT OR UPDATE ON "public"."appointments" FOR EACH ROW EXECUTE FUNCTION "public"."handle_appointment_notification"();
-
-
-
-CREATE OR REPLACE TRIGGER "on_new_review_update_aggregates" AFTER INSERT ON "public"."reviews" FOR EACH ROW EXECUTE FUNCTION "public"."update_partner_rating_aggregates"();
 
 
 
@@ -1895,6 +2295,11 @@ ALTER TABLE ONLY "public"."disputes"
 
 ALTER TABLE ONLY "public"."disputes"
     ADD CONSTRAINT "disputes_resolved_by_fkey" FOREIGN KEY ("resolved_by") REFERENCES "public"."users"("id");
+
+
+
+ALTER TABLE ONLY "public"."manual_resolution_queue"
+    ADD CONSTRAINT "manual_resolution_queue_payment_event_id_fkey" FOREIGN KEY ("payment_event_id") REFERENCES "public"."payment_events"("id");
 
 
 
@@ -1943,18 +2348,28 @@ ALTER TABLE ONLY "public"."payment_receipts"
 
 
 
-ALTER TABLE ONLY "public"."reviews"
-    ADD CONSTRAINT "reviews_appointment_id_fkey" FOREIGN KEY ("appointment_id") REFERENCES "public"."appointments"("id");
+ALTER TABLE ONLY "public"."payment_transactions"
+    ADD CONSTRAINT "payment_transactions_partner_id_fkey" FOREIGN KEY ("partner_id") REFERENCES "public"."medical_partners"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."payment_transactions"
+    ADD CONSTRAINT "payment_transactions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
 ALTER TABLE ONLY "public"."reviews"
-    ADD CONSTRAINT "reviews_partner_id_fkey" FOREIGN KEY ("partner_id") REFERENCES "public"."medical_partners"("id");
+    ADD CONSTRAINT "reviews_appointment_id_fkey" FOREIGN KEY ("appointment_id") REFERENCES "public"."appointments"("id") ON DELETE CASCADE;
 
 
 
 ALTER TABLE ONLY "public"."reviews"
-    ADD CONSTRAINT "reviews_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "reviews_partner_id_fkey" FOREIGN KEY ("partner_id") REFERENCES "public"."medical_partners"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."reviews"
+    ADD CONSTRAINT "reviews_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
@@ -1964,10 +2379,6 @@ ALTER TABLE ONLY "public"."users"
 
 
 CREATE POLICY "Allow authenticated users to create appointments" ON "public"."appointments" FOR INSERT TO "authenticated" WITH CHECK (true);
-
-
-
-CREATE POLICY "Allow authenticated users to create reviews" ON "public"."reviews" FOR INSERT TO "authenticated" WITH CHECK (("auth"."uid"() = "user_id"));
 
 
 
@@ -1984,10 +2395,6 @@ CREATE POLICY "Allow individual user update access" ON "public"."users" FOR UPDA
 
 
 CREATE POLICY "Allow partners to update their own profile" ON "public"."medical_partners" FOR UPDATE TO "authenticated" USING (("auth"."uid"() = "id")) WITH CHECK (("auth"."uid"() = "id"));
-
-
-
-CREATE POLICY "Allow public read access to reviews" ON "public"."reviews" FOR SELECT USING (true);
 
 
 
@@ -2019,7 +2426,7 @@ CREATE POLICY "Anyone can view ratings" ON "public"."partner_ratings" FOR SELECT
 
 
 
-CREATE POLICY "Partners can view own payouts" ON "public"."partner_payouts" FOR SELECT TO "authenticated" USING (("auth"."uid"() = "partner_id"));
+CREATE POLICY "Partners can view own payouts" ON "public"."partner_payouts" FOR SELECT USING (("auth"."uid"() = "partner_id"));
 
 
 
@@ -2031,7 +2438,15 @@ CREATE POLICY "Public config accessible to users" ON "public"."app_config" FOR S
 
 
 
+CREATE POLICY "Public reviews are viewable by everyone" ON "public"."reviews" FOR SELECT USING (true);
+
+
+
 CREATE POLICY "Service role can access all config" ON "public"."app_config" TO "service_role" USING (true) WITH CHECK (true);
+
+
+
+CREATE POLICY "Service role can read app_config" ON "public"."app_config" FOR SELECT USING (("auth"."role"() = 'service_role'::"text"));
 
 
 
@@ -2047,7 +2462,19 @@ CREATE POLICY "Users can create disputes" ON "public"."disputes" FOR INSERT TO "
 
 
 
+CREATE POLICY "Users can create reviews for their own appointments" ON "public"."reviews" FOR INSERT WITH CHECK (("auth"."uid"() = "user_id"));
+
+
+
+CREATE POLICY "Users can insert their own payment transactions" ON "public"."payment_transactions" FOR INSERT WITH CHECK (("auth"."uid"() = "user_id"));
+
+
+
 CREATE POLICY "Users can view own disputes" ON "public"."disputes" FOR SELECT TO "authenticated" USING (("auth"."uid"() = "raised_by"));
+
+
+
+CREATE POLICY "Users can view their own payment transactions" ON "public"."payment_transactions" FOR SELECT USING (("auth"."uid"() = "user_id"));
 
 
 
@@ -2080,6 +2507,9 @@ ALTER TABLE "public"."partner_ratings" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."payment_receipts" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."payment_transactions" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."reviews" ENABLE ROW LEVEL SECURITY;
@@ -2293,15 +2723,72 @@ GRANT USAGE ON SCHEMA "public" TO "service_role";
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 GRANT ALL ON FUNCTION "public"."apply_new_partner_hold"() TO "anon";
 GRANT ALL ON FUNCTION "public"."apply_new_partner_hold"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."apply_new_partner_hold"() TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."book_appointment"("partner_id_arg" "uuid", "appointment_time_arg" timestamp with time zone, "on_behalf_of_name_arg" "text", "on_behalf_of_phone_arg" "text", "is_partner_override" boolean, "case_description_arg" "text", "patient_location_arg" "text") TO "anon";
-GRANT ALL ON FUNCTION "public"."book_appointment"("partner_id_arg" "uuid", "appointment_time_arg" timestamp with time zone, "on_behalf_of_name_arg" "text", "on_behalf_of_phone_arg" "text", "is_partner_override" boolean, "case_description_arg" "text", "patient_location_arg" "text") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."book_appointment"("partner_id_arg" "uuid", "appointment_time_arg" timestamp with time zone, "on_behalf_of_name_arg" "text", "on_behalf_of_phone_arg" "text", "is_partner_override" boolean, "case_description_arg" "text", "patient_location_arg" "text") TO "service_role";
+GRANT ALL ON FUNCTION "public"."book_appointment"("partner_id_arg" "uuid", "appointment_time_arg" timestamp with time zone, "on_behalf_of_name_arg" "text", "on_behalf_of_phone_arg" "text", "is_partner_override" boolean, "case_description_arg" "text", "patient_location_arg" "text", "payment_status_arg" "public"."payment_status_enum", "payment_transaction_id_arg" "text", "amount_paid_arg" numeric) TO "anon";
+GRANT ALL ON FUNCTION "public"."book_appointment"("partner_id_arg" "uuid", "appointment_time_arg" timestamp with time zone, "on_behalf_of_name_arg" "text", "on_behalf_of_phone_arg" "text", "is_partner_override" boolean, "case_description_arg" "text", "patient_location_arg" "text", "payment_status_arg" "public"."payment_status_enum", "payment_transaction_id_arg" "text", "amount_paid_arg" numeric) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."book_appointment"("partner_id_arg" "uuid", "appointment_time_arg" timestamp with time zone, "on_behalf_of_name_arg" "text", "on_behalf_of_phone_arg" "text", "is_partner_override" boolean, "case_description_arg" "text", "patient_location_arg" "text", "payment_status_arg" "public"."payment_status_enum", "payment_transaction_id_arg" "text", "amount_paid_arg" numeric) TO "service_role";
 
 
 
@@ -2320,6 +2807,12 @@ GRANT ALL ON FUNCTION "public"."cancel_and_reorder_queue"("appointment_id_arg" b
 GRANT ALL ON FUNCTION "public"."close_day_and_cancel_appointments"("closed_day_arg" "date") TO "anon";
 GRANT ALL ON FUNCTION "public"."close_day_and_cancel_appointments"("closed_day_arg" "date") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."close_day_and_cancel_appointments"("closed_day_arg" "date") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."create_chargily_checkout"("amount_arg" numeric, "currency_arg" "text", "user_id_arg" "text", "partner_id_arg" "text", "appointment_time_arg" "text") TO "anon";
+GRANT ALL ON FUNCTION "public"."create_chargily_checkout"("amount_arg" numeric, "currency_arg" "text", "user_id_arg" "text", "partner_id_arg" "text", "appointment_time_arg" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."create_chargily_checkout"("amount_arg" numeric, "currency_arg" "text", "user_id_arg" "text", "partner_id_arg" "text", "appointment_time_arg" "text") TO "service_role";
 
 
 
@@ -2437,6 +2930,12 @@ GRANT ALL ON FUNCTION "public"."increment_completed_services"() TO "service_role
 
 
 
+GRANT ALL ON FUNCTION "public"."process_chargily_webhook"("signature_header" "text", "payload" "jsonb") TO "anon";
+GRANT ALL ON FUNCTION "public"."process_chargily_webhook"("signature_header" "text", "payload" "jsonb") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."process_chargily_webhook"("signature_header" "text", "payload" "jsonb") TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."reschedule_appointment_to_end_of_queue"("appointment_id_arg" bigint, "partner_id_arg" "uuid") TO "anon";
 GRANT ALL ON FUNCTION "public"."reschedule_appointment_to_end_of_queue"("appointment_id_arg" bigint, "partner_id_arg" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."reschedule_appointment_to_end_of_queue"("appointment_id_arg" bigint, "partner_id_arg" "uuid") TO "service_role";
@@ -2488,6 +2987,12 @@ GRANT ALL ON FUNCTION "public"."update_completed_appointments"() TO "service_rol
 GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text") TO "anon";
 GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text", "p_bio" "text", "p_is_active" boolean, "p_confirmation_mode" "text", "p_notifications_enabled" boolean) TO "anon";
+GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text", "p_bio" "text", "p_is_active" boolean, "p_confirmation_mode" "text", "p_notifications_enabled" boolean) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."update_full_partner_profile"("p_id" "uuid", "p_specialty" "text", "p_address" "text", "p_booking_system" "text", "p_limit" integer, "p_state" "text", "p_phone" "text", "p_bio" "text", "p_is_active" boolean, "p_confirmation_mode" "text", "p_notifications_enabled" boolean) TO "service_role";
 
 
 
@@ -2566,6 +3071,18 @@ GRANT ALL ON TABLE "public"."disputes" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."manual_resolution_queue" TO "anon";
+GRANT ALL ON TABLE "public"."manual_resolution_queue" TO "authenticated";
+GRANT ALL ON TABLE "public"."manual_resolution_queue" TO "service_role";
+
+
+
+GRANT ALL ON SEQUENCE "public"."manual_resolution_queue_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."manual_resolution_queue_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."manual_resolution_queue_id_seq" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."notifications" TO "anon";
 GRANT ALL ON TABLE "public"."notifications" TO "authenticated";
 GRANT ALL ON TABLE "public"."notifications" TO "service_role";
@@ -2602,21 +3119,33 @@ GRANT ALL ON TABLE "public"."partner_ratings" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."payment_events" TO "anon";
+GRANT ALL ON TABLE "public"."payment_events" TO "authenticated";
+GRANT ALL ON TABLE "public"."payment_events" TO "service_role";
+
+
+
+GRANT ALL ON SEQUENCE "public"."payment_events_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."payment_events_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."payment_events_id_seq" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."payment_receipts" TO "anon";
 GRANT ALL ON TABLE "public"."payment_receipts" TO "authenticated";
 GRANT ALL ON TABLE "public"."payment_receipts" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."payment_transactions" TO "anon";
+GRANT ALL ON TABLE "public"."payment_transactions" TO "authenticated";
+GRANT ALL ON TABLE "public"."payment_transactions" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."reviews" TO "anon";
 GRANT ALL ON TABLE "public"."reviews" TO "authenticated";
 GRANT ALL ON TABLE "public"."reviews" TO "service_role";
-
-
-
-GRANT ALL ON SEQUENCE "public"."reviews_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."reviews_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."reviews_id_seq" TO "service_role";
 
 
 

@@ -8,11 +8,15 @@ class ProfileCard extends StatelessWidget {
     required this.name,
     required this.email,
     required this.onTap,
+    this.photoUrl,
+    this.gender,
   });
 
   final String name;
   final String email;
   final VoidCallback onTap;
+  final String? photoUrl;
+  final String? gender;
 
   @override
   Widget build(BuildContext context) {
@@ -35,15 +39,34 @@ class ProfileCard extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: colorScheme.primary,
-                  child: Text(
-                    name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?',
-                    style: textTheme.titleLarge
-                        ?.copyWith(color: colorScheme.onPrimary),
-                  ),
-                ),
+                // Gender-based Avatar with native icons
+                photoUrl != null && photoUrl!.isNotEmpty
+                    ? CircleAvatar(
+                        radius: 24,
+                        backgroundImage: NetworkImage(photoUrl!),
+                        backgroundColor: colorScheme.primary,
+                      )
+                    : CircleAvatar(
+                        radius: 24,
+                        backgroundColor: gender?.toLowerCase() == 'male'
+                            ? Colors.blue.shade50
+                            : gender?.toLowerCase() == 'female'
+                                ? Colors.pink.shade50
+                                : colorScheme.surfaceVariant,
+                        child: Icon(
+                          gender?.toLowerCase() == 'male'
+                              ? Icons.man
+                              : gender?.toLowerCase() == 'female'
+                                  ? Icons.woman
+                                  : Icons.person,
+                          size: 28,
+                          color: gender?.toLowerCase() == 'male'
+                              ? Colors.blue
+                              : gender?.toLowerCase() == 'female'
+                                  ? Colors.pink
+                                  : colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(

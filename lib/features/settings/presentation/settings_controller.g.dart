@@ -7,7 +7,7 @@ part of 'settings_controller.dart';
 // **************************************************************************
 
 String _$patientSettingsControllerHash() =>
-    r'ba7b754cfef96fe3c06c23863ff1bfa02a46f134';
+    r'c0836f3e37f8c9c3d5f5e23152cdb59710adf54d';
 
 /// See also [PatientSettingsController].
 @ProviderFor(PatientSettingsController)
@@ -25,7 +25,7 @@ final patientSettingsControllerProvider = AutoDisposeAsyncNotifierProvider<
 typedef _$PatientSettingsController
     = AutoDisposeAsyncNotifier<PatientSettingsState>;
 String _$partnerSettingsControllerHash() =>
-    r'9b9bd742fb0a27cfc578515b07ee490ac7d15c08';
+    r'd205c6ece577252389544e0624e1d1aa27c34359';
 
 /// See also [PartnerSettingsController].
 @ProviderFor(PartnerSettingsController)

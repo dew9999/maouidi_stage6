@@ -177,23 +177,32 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
           ),
           ElevatedButton(
             onPressed: () async {
+              debugPrint('Submit button pressed');
               if (formKey.currentState!.validate()) {
+                debugPrint('Form validation passed');
                 try {
+                  debugPrint('Calling book_appointment RPC...');
+                  final params = {
+                    'partner_id_arg': partnerId,
+                    'appointment_time_arg':
+                        DateTime.now().toUtc().toIso8601String(),
+                    'on_behalf_of_name_arg': nameController.text,
+                    'on_behalf_of_phone_arg': phoneController.text,
+                    'is_partner_override': true,
+                    'case_description_arg':
+                        isHomecare ? caseController.text : null,
+                    'patient_location_arg':
+                        isHomecare ? locationController.text : null,
+                  };
+                  debugPrint('RPC Params: $params');
+
                   await Supabase.instance.client.rpc(
                     'book_appointment',
-                    params: {
-                      'partner_id_arg': partnerId,
-                      'appointment_time_arg':
-                          DateTime.now().toUtc().toIso8601String(),
-                      'on_behalf_of_name_arg': nameController.text,
-                      'on_behalf_of_phone_arg': phoneController.text,
-                      'is_partner_override': true,
-                      'case_description_arg':
-                          isHomecare ? caseController.text : null,
-                      'patient_location_arg':
-                          isHomecare ? locationController.text : null,
-                    },
+                    params: params,
                   );
+
+                  debugPrint('RPC call successful');
+
                   if (context.mounted) {
                     Navigator.of(dialogContext).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -213,6 +222,7 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                         .refresh();
                   }
                 } catch (e) {
+                  debugPrint('RPC Error: $e');
                   if (context.mounted) {
                     showErrorSnackbar(
                       context,
@@ -220,6 +230,8 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                     );
                   }
                 }
+              } else {
+                debugPrint('Form validation failed');
               }
             },
             style: ElevatedButton.styleFrom(

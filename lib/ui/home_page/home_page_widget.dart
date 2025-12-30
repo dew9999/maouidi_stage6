@@ -21,9 +21,6 @@ class HomePageWidget extends ConsumerWidget {
     final userProfileAsync = ref.watch(userProfileProvider);
     final featuredPartnersAsync = ref.watch(featuredPartnersProvider);
 
-    // Get user's first name from profile data or fallback to 'there'
-    final userName = userProfileAsync.valueOrNull?['first_name'] ?? 'there';
-
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -94,20 +91,74 @@ class HomePageWidget extends ConsumerWidget {
                     // Welcome Section with Gradient
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 16.0),
-                      child: TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        duration: const Duration(milliseconds: 800),
-                        curve: Curves.easeOut,
-                        builder: (context, value, child) {
-                          return Opacity(
-                            opacity: value,
-                            child: Transform.translate(
-                              offset: Offset(0, 20 * (1 - value)),
-                              child: child,
+                      child: userProfileAsync.when(
+                        data: (profile) {
+                          final userName =
+                              profile?['first_name'] as String? ?? 'there';
+                          return TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 0.0, end: 1.0),
+                            duration: const Duration(milliseconds: 800),
+                            curve: Curves.easeOut,
+                            builder: (context, value, child) {
+                              return Opacity(
+                                opacity: value,
+                                child: Transform.translate(
+                                  offset: Offset(0, 20 * (1 - value)),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.welcomeback,
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  userName,
+                                  style: textTheme.headlineMedium?.copyWith(
+                                    color: colorScheme.onSurface,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 26,
+                                  ),
+                                ),
+                              ],
                             ),
                           );
                         },
-                        child: Column(
+                        loading: () => SizedBox(
+                          height: 60,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Show welcome text immediately
+                              Text(
+                                l10n.welcomeback,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              // Empty space for name (no flicker)
+                              Container(
+                                height: 32,
+                                width: 120,
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surfaceVariant
+                                      .withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        error: (error, stack) => Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
@@ -119,7 +170,7 @@ class HomePageWidget extends ConsumerWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              userName,
+                              'there',
                               style: textTheme.headlineMedium?.copyWith(
                                 color: colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,

@@ -9,6 +9,7 @@ class PatientSettingsState with _$PatientSettingsState {
     @Default('') String email,
     @Default('') String phoneNumber,
     @Default('') String photoUrl,
+    String? gender,
     @Default(true) bool notificationsEnabled,
     @Default(false) bool isLoading,
     String? errorMessage,
@@ -20,6 +21,8 @@ class PartnerSettingsState with _$PartnerSettingsState {
   const factory PartnerSettingsState({
     @Default('') String fullName,
     @Default('') String email,
+    @Default('') String photoUrl,
+    String? gender,
     String? bio, // NEW: Bio field
     String? phone, // From users table
     String? state, // From users table (wilaya/state)

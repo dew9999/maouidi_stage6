@@ -9,6 +9,7 @@ import '../../backend/supabase/supabase.dart';
 import '../../features/appointments/presentation/partner_dashboard_controller.dart';
 import '../components/dashboard_helpers.dart';
 import '../components/homecare_details_view.dart';
+import '../../ui/appointment_details/appointment_details_page.dart';
 
 /// Card displaying appointment information with action buttons
 class AppointmentInfoCard extends ConsumerWidget {
@@ -59,44 +60,56 @@ class AppointmentInfoCard extends ConsumerWidget {
       shadowColor: theme.colorScheme.surface,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(width: 6, color: getStatusColor(context, status)),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      DateFormat('h:mm a').format(appointmentTime),
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(displayName, style: theme.textTheme.titleMedium),
-                    Text(
-                      displayPhone,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    HomecareDetailsView(
-                      appointmentData: {
-                        'case_description': appointment.caseDescription,
-                        'patient_location': appointment.patientLocation,
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    _buildActionButtons(context, ref, status, appointmentId),
-                  ],
-                ),
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AppointmentDetailsPage(
+                appointment: appointment,
+                isPartnerView: true,
               ),
             ),
-          ],
+          );
+        },
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(width: 6, color: getStatusColor(context, status)),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        DateFormat('h:mm a').format(appointmentTime),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(displayName, style: theme.textTheme.titleMedium),
+                      Text(
+                        displayPhone,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      HomecareDetailsView(
+                        appointmentData: {
+                          'case_description': appointment.caseDescription,
+                          'patient_location': appointment.patientLocation,
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      _buildActionButtons(context, ref, status, appointmentId),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

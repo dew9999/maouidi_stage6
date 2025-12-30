@@ -7,6 +7,8 @@ import '../components/empty_state_widget.dart';
 import 'package:maouidi/generated/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
+import 'package:maouidi/features/appointments/data/appointment_model.dart';
+import 'package:maouidi/ui/appointment_details/appointment_details_page.dart';
 import '../features/patient/presentation/patient_dashboard_controller.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
@@ -193,168 +195,191 @@ class PatientAppointmentCard extends ConsumerWidget {
         DateTime.parse(appointmentData['appointment_time']).toLocal();
     final appointmentNumber = appointmentData['appointment_number'] as int?;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 4,
-            color: theme.colorScheme.surface.withAlpha(50),
-            offset: const Offset(0, 2),
+    return GestureDetector(
+      onTap: () {
+        // Convert map to model for the details page
+        final appointment = AppointmentModel.fromJson({
+          ...appointmentData,
+          'booking_user_id':
+              '', // Fill dummy as it might be required but not present in this view
+          'partner_id': partnerData['id'] ?? '',
+        });
+
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => AppointmentDetailsPage(
+              appointment: appointment,
+              isPartnerView: false,
+            ),
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: theme.colorScheme.outlineVariant,
-                      width: 1,
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 4,
+              color: theme.colorScheme.surface.withAlpha(50),
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: theme.colorScheme.outlineVariant,
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          DateFormat('MMM')
+                              .format(appointmentTime)
+                              .toUpperCase(),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('d').format(appointmentTime),
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        DateFormat('MMM').format(appointmentTime).toUpperCase(),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          partnerName,
+                          style: theme.textTheme.titleLarge,
                         ),
-                      ),
-                      Text(
-                        DateFormat('d').format(appointmentTime),
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.bold,
+                        const SizedBox(height: 4),
+                        Text(
+                          specialty,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        partnerName,
-                        style: theme.textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        specialty,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                getLocalizedStatus(context, status),
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: getStatusColor(context, status),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              if (appointmentNumber != null)
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  '${AppLocalizations.of(context)!.yournum} #$appointmentNumber',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
+                                  getLocalizedStatus(context, status),
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    color: getStatusColor(context, status),
                                     fontWeight: FontWeight.bold,
                                   ),
-                                )
-                              else
-                                Text(
-                                  DateFormat('h:mm a').format(appointmentTime),
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
                                 ),
-                            ],
-                          ),
-                        ],
+                                const SizedBox(height: 4),
+                                if (appointmentNumber != null)
+                                  Text(
+                                    '${AppLocalizations.of(context)!.yournum} #$appointmentNumber',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                else
+                                  Text(
+                                    DateFormat('h:mm a')
+                                        .format(appointmentTime),
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (canLeaveReview)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: FilledButton(
+                    onPressed: () => _showReviewDialog(
+                      context,
+                      ref,
+                      appointmentId,
+                      partnerName,
+                    ),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 44),
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      textStyle: theme.textTheme.titleSmall,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (canLeaveReview)
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: FilledButton(
-                  onPressed: () => _showReviewDialog(
-                    context,
-                    ref,
-                    appointmentId,
-                    partnerName,
-                  ),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 44),
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    textStyle: theme.textTheme.titleSmall,
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.rate_review_outlined),
+                        const SizedBox(width: 8),
+                        Text(AppLocalizations.of(context)!.lvrvw),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.rate_review_outlined),
-                      const SizedBox(width: 8),
-                      Text(AppLocalizations.of(context)!.lvrvw),
-                    ],
+                ),
+              if (canCancel)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12.0),
+                  child: OutlinedButton(
+                    onPressed: () => _showCancelDialog(
+                      context,
+                      ref,
+                      appointmentId,
+                      partnerName,
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 44),
+                      foregroundColor: theme.colorScheme.error,
+                      side: BorderSide(
+                        color: theme.colorScheme.outlineVariant,
+                        width: 1,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(AppLocalizations.of(context)!.cnclapt),
                   ),
                 ),
-              ),
-            if (canCancel)
-              Padding(
-                padding: const EdgeInsets.only(top: 12.0),
-                child: OutlinedButton(
-                  onPressed: () => _showCancelDialog(
-                    context,
-                    ref,
-                    appointmentId,
-                    partnerName,
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 44),
-                    foregroundColor: theme.colorScheme.error,
-                    side: BorderSide(
-                      color: theme.colorScheme.outlineVariant,
-                      width: 1,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(AppLocalizations.of(context)!.cnclapt),
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

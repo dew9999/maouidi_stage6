@@ -104,6 +104,9 @@ class AnalyticsViewContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     final maxValue = weeklyStats
         .map((d) => d['appointment_count'] as int)
         .fold<int>(0, (max, current) => current > max ? current : max)
@@ -113,8 +116,10 @@ class AnalyticsViewContent extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          Text('Completed Appointments - Last 7 Days',
-              style: theme.textTheme.titleLarge,),
+          Text(
+            'Completed Appointments - Last 7 Days',
+            style: textTheme.titleLarge,
+          ),
           const SizedBox(height: 24),
           SizedBox(
             height: 200,
@@ -123,20 +128,20 @@ class AnalyticsViewContent extends StatelessWidget {
                 maxY: maxValue == 0 ? 5 : maxValue + 2,
                 barTouchData: BarTouchData(
                   touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => theme.colorScheme.onSurfaceVariant,
+                    getTooltipColor: (_) => colorScheme.onSurfaceVariant,
                     getTooltipItem: (group, groupIndex, rod, rodIndex) {
                       final day = weeklyStats[group.x];
                       return BarTooltipItem(
                         '${day['day_of_week']}\n',
                         TextStyle(
-                          color: theme.colorScheme.surface,
+                          color: colorScheme.surface,
                           fontWeight: FontWeight.bold,
                         ),
                         children: <TextSpan>[
                           TextSpan(
                             text: rod.toY.toInt().toString(),
                             style: TextStyle(
-                              color: theme.colorScheme.surface,
+                              color: colorScheme.surface,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -164,7 +169,7 @@ class AnalyticsViewContent extends StatelessWidget {
                             weeklyStats[value.toInt()]['day_of_week'] as String;
                         return Padding(
                           padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(day, style: theme.textTheme.bodySmall),
+                          child: Text(day, style: textTheme.bodySmall),
                         );
                       },
                       reservedSize: 32,
@@ -180,7 +185,7 @@ class AnalyticsViewContent extends StatelessWidget {
                         }
                         return Text(
                           value.toInt().toString(),
-                          style: theme.textTheme.bodySmall,
+                          style: textTheme.bodySmall,
                           textAlign: TextAlign.left,
                         );
                       },
@@ -196,7 +201,7 @@ class AnalyticsViewContent extends StatelessWidget {
                           BarChartRodData(
                             toY: (dayData['appointment_count'] as int)
                                 .toDouble(),
-                            color: theme.colorScheme.primary,
+                            color: colorScheme.primary,
                             width: 16,
                             borderRadius: BorderRadius.circular(4),
                           ),
@@ -209,7 +214,7 @@ class AnalyticsViewContent extends StatelessWidget {
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: theme.colorScheme.outlineVariant,
+                      color: colorScheme.outlineVariant,
                       strokeWidth: 1,
                     );
                   },

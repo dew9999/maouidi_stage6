@@ -68,7 +68,8 @@ class TimeSlotView extends ConsumerWidget {
     print('Selected date: $selectedDate');
     for (final appt in dashboardState.appointments.take(5)) {
       print(
-          'Appt: ID=${appt.id}, Status=${appt.status}, Time=${appt.appointmentTime}, HasNumber=${appt.appointmentNumber != null}',);
+        'Appt: ID=${appt.id}, Status=${appt.status}, Time=${appt.appointmentTime}, HasNumber=${appt.appointmentNumber != null}',
+      );
     }
 
     // Filter appointments based on selected status and DATE
@@ -76,17 +77,24 @@ class TimeSlotView extends ConsumerWidget {
       // Exclude queue-based appointments
       if (appt.appointmentNumber != null) return false;
 
-      // 1. Filter by Status
+      // 1. Filter by Status (strict, case-insensitive)
       List<String> targetStatuses;
       if (selectedStatus == 'Canceled') {
         targetStatuses = ['Cancelled_ByUser', 'Cancelled_ByPartner', 'NoShow'];
       } else if (selectedStatus == 'Confirmed') {
-        // Show both Pending and Confirmed
-        targetStatuses = ['Pending', 'Confirmed'];
+        // Show ONLY Confirmed (NOT Pending)
+        targetStatuses = ['Confirmed'];
+      } else if (selectedStatus == 'Pending') {
+        // Show ONLY Pending (NOT Confirmed)
+        targetStatuses = ['Pending'];
       } else {
         targetStatuses = [selectedStatus];
       }
-      if (!targetStatuses.contains(appt.status)) return false;
+      // Case-insensitive comparison
+      if (!targetStatuses
+          .any((status) => status.toLowerCase() == appt.status.toLowerCase())) {
+        return false;
+      }
 
       // 2. Filter by Date (Ignore time part)
       final apptDate = appt.appointmentTime.toLocal();
@@ -267,7 +275,8 @@ class NumberQueueView extends ConsumerWidget {
 
     print('🔍 NumberQueueView: selectedDate = $selectedDate');
     print(
-        '🔍 NumberQueueView: Total appointments = ${dashboardState.appointments.length}',);
+      '🔍 NumberQueueView: Total appointments = ${dashboardState.appointments.length}',
+    );
 
     // Use the full appointments list, then filter by date locally
     // (Since 'todayAppointments' in state is hardcoded to actual today by the repo)
@@ -280,13 +289,15 @@ class NumberQueueView extends ConsumerWidget {
       final matches = isSameDay(appt.appointmentTime.toLocal(), selectedDate);
       if (allAppointments.indexOf(appt) < 3) {
         print(
-            '🔍 Checking appt ${appt.id}: date=${appt.appointmentTime.toLocal()}, matches=$matches',);
+          '🔍 Checking appt ${appt.id}: date=${appt.appointmentTime.toLocal()}, matches=$matches',
+        );
       }
       return matches;
     }).toList();
 
     print(
-        '🔍 NumberQueueView: Daily appointments for $selectedDate = ${dailyAppointments.length}',);
+      '🔍 NumberQueueView: Daily appointments for $selectedDate = ${dailyAppointments.length}',
+    );
 
     final currentPatient = dashboardState.currentPatient;
 

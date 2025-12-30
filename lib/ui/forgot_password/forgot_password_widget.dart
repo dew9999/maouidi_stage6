@@ -33,16 +33,23 @@ class ForgotPasswordWidget extends ConsumerWidget {
           const SnackBar(
             content: Text('Password reset link sent to your email'),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 4),
           ),
         );
         context.pop();
       }
     } catch (e) {
       if (context.mounted) {
+        // Enhanced error messaging for debugging
+        final errorMessage = e is AuthException
+            ? 'Auth Error: ${e.message}'
+            : 'Error: ${e.toString()}';
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text(errorMessage),
             backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 6),
           ),
         );
       }

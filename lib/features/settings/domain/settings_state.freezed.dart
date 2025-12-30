@@ -20,6 +20,7 @@ mixin _$PatientSettingsState {
   String get email => throw _privateConstructorUsedError;
   String get phoneNumber => throw _privateConstructorUsedError;
   String get photoUrl => throw _privateConstructorUsedError;
+  String? get gender => throw _privateConstructorUsedError;
   bool get notificationsEnabled => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
@@ -40,6 +41,7 @@ abstract class $PatientSettingsStateCopyWith<$Res> {
       String email,
       String phoneNumber,
       String photoUrl,
+      String? gender,
       bool notificationsEnabled,
       bool isLoading,
       String? errorMessage});
@@ -63,6 +65,7 @@ class _$PatientSettingsStateCopyWithImpl<$Res,
     Object? email = null,
     Object? phoneNumber = null,
     Object? photoUrl = null,
+    Object? gender = freezed,
     Object? notificationsEnabled = null,
     Object? isLoading = null,
     Object? errorMessage = freezed,
@@ -84,6 +87,10 @@ class _$PatientSettingsStateCopyWithImpl<$Res,
           ? _value.photoUrl
           : photoUrl // ignore: cast_nullable_to_non_nullable
               as String,
+      gender: freezed == gender
+          ? _value.gender
+          : gender // ignore: cast_nullable_to_non_nullable
+              as String?,
       notificationsEnabled: null == notificationsEnabled
           ? _value.notificationsEnabled
           : notificationsEnabled // ignore: cast_nullable_to_non_nullable
@@ -113,6 +120,7 @@ abstract class _$$PatientSettingsStateImplCopyWith<$Res>
       String email,
       String phoneNumber,
       String photoUrl,
+      String? gender,
       bool notificationsEnabled,
       bool isLoading,
       String? errorMessage});
@@ -133,6 +141,7 @@ class __$$PatientSettingsStateImplCopyWithImpl<$Res>
     Object? email = null,
     Object? phoneNumber = null,
     Object? photoUrl = null,
+    Object? gender = freezed,
     Object? notificationsEnabled = null,
     Object? isLoading = null,
     Object? errorMessage = freezed,
@@ -154,6 +163,10 @@ class __$$PatientSettingsStateImplCopyWithImpl<$Res>
           ? _value.photoUrl
           : photoUrl // ignore: cast_nullable_to_non_nullable
               as String,
+      gender: freezed == gender
+          ? _value.gender
+          : gender // ignore: cast_nullable_to_non_nullable
+              as String?,
       notificationsEnabled: null == notificationsEnabled
           ? _value.notificationsEnabled
           : notificationsEnabled // ignore: cast_nullable_to_non_nullable
@@ -178,6 +191,7 @@ class _$PatientSettingsStateImpl implements _PatientSettingsState {
       this.email = '',
       this.phoneNumber = '',
       this.photoUrl = '',
+      this.gender,
       this.notificationsEnabled = true,
       this.isLoading = false,
       this.errorMessage});
@@ -195,6 +209,8 @@ class _$PatientSettingsStateImpl implements _PatientSettingsState {
   @JsonKey()
   final String photoUrl;
   @override
+  final String? gender;
+  @override
   @JsonKey()
   final bool notificationsEnabled;
   @override
@@ -205,7 +221,7 @@ class _$PatientSettingsStateImpl implements _PatientSettingsState {
 
   @override
   String toString() {
-    return 'PatientSettingsState(displayName: $displayName, email: $email, phoneNumber: $phoneNumber, photoUrl: $photoUrl, notificationsEnabled: $notificationsEnabled, isLoading: $isLoading, errorMessage: $errorMessage)';
+    return 'PatientSettingsState(displayName: $displayName, email: $email, phoneNumber: $phoneNumber, photoUrl: $photoUrl, gender: $gender, notificationsEnabled: $notificationsEnabled, isLoading: $isLoading, errorMessage: $errorMessage)';
   }
 
   @override
@@ -220,6 +236,7 @@ class _$PatientSettingsStateImpl implements _PatientSettingsState {
                 other.phoneNumber == phoneNumber) &&
             (identical(other.photoUrl, photoUrl) ||
                 other.photoUrl == photoUrl) &&
+            (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.notificationsEnabled, notificationsEnabled) ||
                 other.notificationsEnabled == notificationsEnabled) &&
             (identical(other.isLoading, isLoading) ||
@@ -230,7 +247,7 @@ class _$PatientSettingsStateImpl implements _PatientSettingsState {
 
   @override
   int get hashCode => Object.hash(runtimeType, displayName, email, phoneNumber,
-      photoUrl, notificationsEnabled, isLoading, errorMessage);
+      photoUrl, gender, notificationsEnabled, isLoading, errorMessage);
 
   @JsonKey(ignore: true)
   @override
@@ -247,6 +264,7 @@ abstract class _PatientSettingsState implements PatientSettingsState {
       final String email,
       final String phoneNumber,
       final String photoUrl,
+      final String? gender,
       final bool notificationsEnabled,
       final bool isLoading,
       final String? errorMessage}) = _$PatientSettingsStateImpl;
@@ -259,6 +277,8 @@ abstract class _PatientSettingsState implements PatientSettingsState {
   String get phoneNumber;
   @override
   String get photoUrl;
+  @override
+  String? get gender;
   @override
   bool get notificationsEnabled;
   @override
@@ -275,6 +295,8 @@ abstract class _PatientSettingsState implements PatientSettingsState {
 mixin _$PartnerSettingsState {
   String get fullName => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
+  String get photoUrl => throw _privateConstructorUsedError;
+  String? get gender => throw _privateConstructorUsedError;
   String? get bio => throw _privateConstructorUsedError; // NEW: Bio field
   String? get phone => throw _privateConstructorUsedError; // From users table
   String? get state =>
@@ -308,6 +330,8 @@ abstract class $PartnerSettingsStateCopyWith<$Res> {
   $Res call(
       {String fullName,
       String email,
+      String photoUrl,
+      String? gender,
       String? bio,
       String? phone,
       String? state,
@@ -342,6 +366,8 @@ class _$PartnerSettingsStateCopyWithImpl<$Res,
   $Res call({
     Object? fullName = null,
     Object? email = null,
+    Object? photoUrl = null,
+    Object? gender = freezed,
     Object? bio = freezed,
     Object? phone = freezed,
     Object? state = freezed,
@@ -368,6 +394,14 @@ class _$PartnerSettingsStateCopyWithImpl<$Res,
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
+      photoUrl: null == photoUrl
+          ? _value.photoUrl
+          : photoUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+      gender: freezed == gender
+          ? _value.gender
+          : gender // ignore: cast_nullable_to_non_nullable
+              as String?,
       bio: freezed == bio
           ? _value.bio
           : bio // ignore: cast_nullable_to_non_nullable
@@ -447,6 +481,8 @@ abstract class _$$PartnerSettingsStateImplCopyWith<$Res>
   $Res call(
       {String fullName,
       String email,
+      String photoUrl,
+      String? gender,
       String? bio,
       String? phone,
       String? state,
@@ -478,6 +514,8 @@ class __$$PartnerSettingsStateImplCopyWithImpl<$Res>
   $Res call({
     Object? fullName = null,
     Object? email = null,
+    Object? photoUrl = null,
+    Object? gender = freezed,
     Object? bio = freezed,
     Object? phone = freezed,
     Object? state = freezed,
@@ -504,6 +542,14 @@ class __$$PartnerSettingsStateImplCopyWithImpl<$Res>
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
+      photoUrl: null == photoUrl
+          ? _value.photoUrl
+          : photoUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+      gender: freezed == gender
+          ? _value.gender
+          : gender // ignore: cast_nullable_to_non_nullable
+              as String?,
       bio: freezed == bio
           ? _value.bio
           : bio // ignore: cast_nullable_to_non_nullable
@@ -578,6 +624,8 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
   const _$PartnerSettingsStateImpl(
       {this.fullName = '',
       this.email = '',
+      this.photoUrl = '',
+      this.gender,
       this.bio,
       this.phone,
       this.state,
@@ -603,6 +651,11 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
   @override
   @JsonKey()
   final String email;
+  @override
+  @JsonKey()
+  final String photoUrl;
+  @override
+  final String? gender;
   @override
   final String? bio;
 // NEW: Bio field
@@ -663,7 +716,7 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
 
   @override
   String toString() {
-    return 'PartnerSettingsState(fullName: $fullName, email: $email, bio: $bio, phone: $phone, state: $state, category: $category, specialty: $specialty, location: $location, notificationsEnabled: $notificationsEnabled, isActive: $isActive, bookingSystemType: $bookingSystemType, confirmationMode: $confirmationMode, dailyBookingLimit: $dailyBookingLimit, workingHours: $workingHours, closedDays: $closedDays, isSaving: $isSaving, isLoading: $isLoading, errorMessage: $errorMessage)';
+    return 'PartnerSettingsState(fullName: $fullName, email: $email, photoUrl: $photoUrl, gender: $gender, bio: $bio, phone: $phone, state: $state, category: $category, specialty: $specialty, location: $location, notificationsEnabled: $notificationsEnabled, isActive: $isActive, bookingSystemType: $bookingSystemType, confirmationMode: $confirmationMode, dailyBookingLimit: $dailyBookingLimit, workingHours: $workingHours, closedDays: $closedDays, isSaving: $isSaving, isLoading: $isLoading, errorMessage: $errorMessage)';
   }
 
   @override
@@ -674,6 +727,9 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
             (identical(other.fullName, fullName) ||
                 other.fullName == fullName) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.photoUrl, photoUrl) ||
+                other.photoUrl == photoUrl) &&
+            (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.bio, bio) || other.bio == bio) &&
             (identical(other.phone, phone) || other.phone == phone) &&
             (identical(other.state, state) || other.state == state) &&
@@ -706,26 +762,29 @@ class _$PartnerSettingsStateImpl implements _PartnerSettingsState {
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      fullName,
-      email,
-      bio,
-      phone,
-      state,
-      category,
-      specialty,
-      location,
-      notificationsEnabled,
-      isActive,
-      bookingSystemType,
-      confirmationMode,
-      dailyBookingLimit,
-      const DeepCollectionEquality().hash(_workingHours),
-      const DeepCollectionEquality().hash(_closedDays),
-      isSaving,
-      isLoading,
-      errorMessage);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        fullName,
+        email,
+        photoUrl,
+        gender,
+        bio,
+        phone,
+        state,
+        category,
+        specialty,
+        location,
+        notificationsEnabled,
+        isActive,
+        bookingSystemType,
+        confirmationMode,
+        dailyBookingLimit,
+        const DeepCollectionEquality().hash(_workingHours),
+        const DeepCollectionEquality().hash(_closedDays),
+        isSaving,
+        isLoading,
+        errorMessage
+      ]);
 
   @JsonKey(ignore: true)
   @override
@@ -740,6 +799,8 @@ abstract class _PartnerSettingsState implements PartnerSettingsState {
   const factory _PartnerSettingsState(
       {final String fullName,
       final String email,
+      final String photoUrl,
+      final String? gender,
       final String? bio,
       final String? phone,
       final String? state,
@@ -761,6 +822,10 @@ abstract class _PartnerSettingsState implements PartnerSettingsState {
   String get fullName;
   @override
   String get email;
+  @override
+  String get photoUrl;
+  @override
+  String? get gender;
   @override
   String? get bio;
   @override // NEW: Bio field

@@ -21,80 +21,129 @@ Future<Map<String, String>?> showHomecareDetailsDialog(
   final caseController = TextEditingController();
   final locationController = TextEditingController();
 
+  // Local state for the checkbox
+  bool isLiabilityAccepted = false;
+
   return await showDialog<Map<String, String>?>(
     context: context,
     builder: (dialogContext) {
-      return AlertDialog(
-        backgroundColor: colorScheme.surface,
-        title: Text(
-          AppLocalizations.of(context)!.hcdetails,
-          style: textTheme.headlineSmall,
-        ),
-        content: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: caseController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.casedesc,
-                    labelStyle: textTheme.labelMedium,
-                    hintText: AppLocalizations.of(context)!.casedescex,
-                    hintStyle: textTheme.labelMedium,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  maxLines: 3,
-                  validator: (v) => v == null || v.isEmpty
-                      ? AppLocalizations.of(context)!.fieldreq
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: locationController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.fulladdr,
-                    labelStyle: textTheme.labelMedium,
-                    hintText: AppLocalizations.of(context)!.fulladdrex,
-                    hintStyle: textTheme.labelMedium,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  maxLines: 2,
-                  validator: (v) => v == null || v.isEmpty
-                      ? AppLocalizations.of(context)!.fieldreq
-                      : null,
-                ),
-              ],
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: colorScheme.surface,
+            title: Text(
+              AppLocalizations.of(context)!.hcdetails,
+              style: textTheme.headlineSmall,
             ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(null),
-            child: Text(
-              AppLocalizations.of(context)!.cancel,
-              style: TextStyle(color: colorScheme.onSurfaceVariant),
+            content: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: caseController,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.casedesc,
+                        labelStyle: textTheme.labelMedium,
+                        hintText: AppLocalizations.of(context)!.casedescex,
+                        hintStyle: textTheme.labelMedium,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      maxLines: 3,
+                      validator: (v) => v == null || v.isEmpty
+                          ? AppLocalizations.of(context)!.fieldreq
+                          : null,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: locationController,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.fulladdr,
+                        labelStyle: textTheme.labelMedium,
+                        hintText: AppLocalizations.of(context)!.fulladdrex,
+                        hintStyle: textTheme.labelMedium,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      maxLines: 2,
+                      validator: (v) => v == null || v.isEmpty
+                          ? AppLocalizations.of(context)!.fieldreq
+                          : null,
+                    ),
+                    const SizedBox(height: 24),
+                    // Liability Disclaimer Checkbox
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: Checkbox(
+                            value: isLiabilityAccepted,
+                            activeColor: colorScheme.primary,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                isLiabilityAccepted = value ?? false;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isLiabilityAccepted = !isLiabilityAccepted;
+                              });
+                            },
+                            child: Text(
+                              'Maouidi is a connector. Responsibilities regarding medical care and safety lie solely between the Patient and the Partner.',
+                              style: textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                Navigator.of(dialogContext).pop({
-                  'case_description': caseController.text,
-                  'patient_location': locationController.text,
-                });
-              }
-            },
-            style:
-                ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
-            child: Text(AppLocalizations.of(context)!.submitreq),
-          ),
-        ],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(null),
+                child: Text(
+                  AppLocalizations.of(context)!.cancel,
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: isLiabilityAccepted
+                    ? () {
+                        if (formKey.currentState!.validate()) {
+                          Navigator.of(dialogContext).pop({
+                            'case_description': caseController.text,
+                            'patient_location': locationController.text,
+                          });
+                        }
+                      }
+                    : null, // Disabled if checkbox is not checked
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  disabledBackgroundColor:
+                      colorScheme.onSurface.withOpacity(0.12),
+                ),
+                child: Text(AppLocalizations.of(context)!.submitreq),
+              ),
+            ],
+          );
+        },
       );
     },
   );

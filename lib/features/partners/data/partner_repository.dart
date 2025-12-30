@@ -105,6 +105,18 @@ class PartnerRepository {
     if (response == null) return null;
     return MedicalPartnersRow(response);
   }
+
+  /// Get doctors associated with a clinic.
+  Future<List<MedicalPartnersRow>> getDoctorsForClinic(String clinicId) async {
+    final response = await _supabase
+        .from('medical_partners')
+        .select()
+        .eq('parent_clinic_id', clinicId);
+
+    return (response as List)
+        .map((data) => MedicalPartnersRow(data as Map<String, dynamic>))
+        .toList();
+  }
 }
 
 /// Provider for the PartnerRepository.

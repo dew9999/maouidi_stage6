@@ -68,14 +68,16 @@ Future<void> showDeleteAccountDialog(BuildContext context) async {
           TextButton(
             onPressed: () async {
               try {
-                final user = Supabase.instance.client.auth.currentUser;
-                if (user == null) return;
+                final session = Supabase.instance.client.auth.currentSession;
+                if (session == null) {
+                  throw Exception('No active session found');
+                }
 
                 final response =
                     await Supabase.instance.client.functions.invoke(
                   'delete-user',
                   headers: {
-                    'Authorization': 'Bearer ${user.id}',
+                    'Authorization': 'Bearer ${session.accessToken}',
                   },
                 );
 
@@ -99,6 +101,7 @@ Future<void> showDeleteAccountDialog(BuildContext context) async {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Error deleting account: ${e.toString()}'),
+                      backgroundColor: Colors.red,
                     ),
                   );
                 }

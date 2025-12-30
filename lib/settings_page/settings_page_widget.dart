@@ -21,7 +21,6 @@ import 'components/settings_item.dart';
 import 'components/become_partner_dialog.dart';
 import 'components/profile_card.dart';
 import 'components/settings_dialogs.dart';
-import 'components/location_field.dart';
 
 class SettingsPageWidget extends ConsumerStatefulWidget {
   const SettingsPageWidget({super.key});
@@ -86,6 +85,8 @@ class _PatientSettingsView extends ConsumerWidget {
             ProfileCard(
               name: settings.displayName,
               email: settings.email,
+              photoUrl: settings.photoUrl,
+              gender: settings.gender,
               onTap: () => context.pushNamed(UserProfileWidget.routeName),
             ),
             SettingsGroup(
@@ -189,6 +190,8 @@ class _PartnerSettingsView extends ConsumerWidget {
               ProfileCard(
                 name: settings.fullName,
                 email: settings.email,
+                photoUrl: settings.photoUrl,
+                gender: settings.gender,
                 onTap: () => context.pushNamed(
                   PartnerProfilePageWidget.routeName,
                   queryParameters: {'partnerId': currentUserId}.withoutNulls,
@@ -327,19 +330,7 @@ class _ProfessionalDetailsSection extends ConsumerStatefulWidget {
 
 class _ProfessionalDetailsSectionState
     extends ConsumerState<_ProfessionalDetailsSection> {
-  late TextEditingController _bioController;
-
-  @override
-  void initState() {
-    super.initState();
-    _bioController = TextEditingController(text: widget.settings.bio ?? '');
-  }
-
-  @override
-  void dispose() {
-    _bioController.dispose();
-    super.dispose();
-  }
+  // Bio controller removed as Bio is moved to Profile page
 
   @override
   Widget build(BuildContext context) {
@@ -376,57 +367,6 @@ class _ProfessionalDetailsSectionState
               underline: const SizedBox.shrink(),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Bio',
-                style: widget.theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _bioController,
-                maxLines: 4,
-                decoration: InputDecoration(
-                  hintText:
-                      'Tell patients about your experience and services...',
-                  hintStyle: widget.theme.textTheme.bodyMedium?.copyWith(
-                    color: widget.theme.colorScheme.onSurfaceVariant,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: widget.theme.colorScheme.outline,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: widget.theme.colorScheme.outlineVariant,
-                    ),
-                  ),
-                  filled: true,
-                  fillColor: widget.theme.colorScheme.surface,
-                  contentPadding: const EdgeInsets.all(16),
-                ),
-                style: widget.theme.textTheme.bodyMedium,
-                onChanged: (val) {
-                  ref
-                      .read(partnerSettingsControllerProvider.notifier)
-                      .updateBio(val);
-                },
-              ),
-            ],
-          ),
-        ),
-        LocationField(
-          settings: widget.settings,
-          theme: widget.theme,
         ),
       ],
     );
@@ -832,6 +772,10 @@ class _WorkingHoursEditor extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsAsync = ref.watch(partnerSettingsControllerProvider);
+    // Cache theme references to prevent crashes during theme transitions
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     return settingsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -840,7 +784,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
         final hours = settings.workingHours;
 
         return Theme(
-          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          data: theme.copyWith(dividerColor: Colors.transparent),
           child: Column(
             children: _daysOfWeek.entries.map((dayEntry) {
               final dayName = dayEntry.key;
@@ -849,12 +793,11 @@ class _WorkingHoursEditor extends ConsumerWidget {
 
               return ExpansionTile(
                 key: PageStorageKey(dayName),
-                iconColor: Theme.of(context).colorScheme.onSurface,
-                collapsedIconColor:
-                    Theme.of(context).colorScheme.onSurfaceVariant,
+                iconColor: colorScheme.onSurface,
+                collapsedIconColor: colorScheme.onSurfaceVariant,
                 title: Text(
                   dayName,
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  style: textTheme.bodyLarge,
                 ),
                 trailing: Switch(
                   value: isEnabled,
@@ -863,7 +806,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
                         .read(partnerSettingsControllerProvider.notifier)
                         .setDayAvailability(dayKey, enabled);
                   },
-                  activeTrackColor: Theme.of(context).colorScheme.primary,
+                  activeTrackColor: colorScheme.primary,
                 ),
                 children: [
                   if (isEnabled)
@@ -881,7 +824,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
                               ),
                               margin: const EdgeInsets.only(bottom: 8),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surface,
+                                color: colorScheme.surface,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
@@ -890,8 +833,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
                                 children: [
                                   Text(
                                     timeSlot,
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
+                                    style: textTheme.bodyMedium,
                                   ),
                                   Row(
                                     children: [
@@ -899,9 +841,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
                                         icon: Icon(
                                           Icons.edit,
                                           size: 20,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant,
+                                          color: colorScheme.onSurfaceVariant,
                                         ),
                                         onPressed: () => _editTimeSlot(
                                           context,
@@ -915,9 +855,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
                                         icon: Icon(
                                           Icons.delete_outline,
                                           size: 20,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .error,
+                                          color: colorScheme.error,
                                         ),
                                         onPressed: () {
                                           ref
@@ -941,8 +879,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
                             width: double.infinity,
                             child: OutlinedButton.icon(
                               style: OutlinedButton.styleFrom(
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.primary,
+                                foregroundColor: colorScheme.primary,
                               ),
                               icon: const Icon(Icons.add),
                               label: const Text('Add Time Slot'),

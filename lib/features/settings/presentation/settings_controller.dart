@@ -34,6 +34,7 @@ class PatientSettingsController extends _$PatientSettingsController {
         email: data['email'] as String? ?? user.email ?? '',
         phoneNumber: data['phone_number'] as String? ?? '',
         photoUrl: data['photo_url'] as String? ?? '',
+        gender: data['gender'] as String?,
         notificationsEnabled: true,
         isLoading: false,
       );
@@ -88,6 +89,8 @@ class PartnerSettingsController extends _$PartnerSettingsController {
       return PartnerSettingsState(
         fullName: data['full_name'] as String? ?? '',
         email: data['email'] as String? ?? '',
+        photoUrl: data['photo_url'] as String? ?? '',
+        gender: data['gender'] as String?,
         phone: data['phone'] as String?,
         state: data['state'] as String?,
         category: data['category'] as String? ?? 'Doctors',
@@ -276,8 +279,14 @@ class PartnerSettingsController extends _$PartnerSettingsController {
     state = AsyncValue.data(state.value!.copyWith(closedDays: currentDays));
   }
 
+  /// Trigger emergency mode to cancel upcoming appointments and notify patients
   Future<void> handleEmergency() async {
-    // RPC placeholder
+    try {
+      await Supabase.instance.client.rpc('handle_partner_emergency');
+    } catch (e) {
+      debugPrint('Emergency mode error: $e');
+      rethrow;
+    }
   }
 
   /// Save all settings using RPC (Database 2.0 - Atomic Transaction)
