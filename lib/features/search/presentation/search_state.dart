@@ -14,6 +14,11 @@ class SearchState with _$SearchState {
     @Default('') String query,
     String? categoryFilter,
     String? locationFilter,
+    String? specialtyFilter, // NEW: Filter by specialty
+    double? minPrice, // NEW: Minimum price range
+    double? maxPrice, // NEW: Maximum price range
+    double? minRating, // NEW: Minimum rating filter (e.g., 4.0 for 4+ stars)
+    String? availabilityFilter, // NEW: 'today', 'this_week', 'any'
     @Default([]) List<MedicalPartnersRow> results,
     @Default(false) bool isLoading,
     String? errorMessage,

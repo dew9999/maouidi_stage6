@@ -110,9 +110,12 @@ class BookingController extends _$BookingController {
       final partnerData = state.partnerData;
 
       // Check if this is a homecare request that requires payment
+      // STRICTLY limit payment to 'Homecare' category only. All others are free.
       final isHomecareRequest = partnerData?.category == 'Homecare';
 
       if (isHomecareRequest) {
+        print(
+            '💰 HOMECARE FLOW: Initiating payment for partner ${partnerData?.fullName}',);
         // HOMECARE FLOW: Payment Required
         // Step 1: Create Chargily checkout session
         final chargilyRepo = ref.read(chargilyRepositoryProvider);
@@ -123,8 +126,7 @@ class BookingController extends _$BookingController {
         }
 
         final checkoutResponse = await chargilyRepo.createCheckoutSession(
-          amount:
-              2000.0, // TODO: Make this configurable or based on partner pricing
+          amount: partnerData?.homecarePrice ?? 2000.0,
           currency: 'DZD',
           userId: userId,
           partnerId: partnerId,
@@ -148,7 +150,7 @@ class BookingController extends _$BookingController {
             // Mark as pending payment in test mode
             paymentStatus: 'pending',
             paymentTransactionId: checkoutResponse.checkoutId,
-            amountPaid: 2000.0,
+            amountPaid: partnerData?.homecarePrice ?? 2000.0,
           );
 
           // Success - appointment created in test mode
@@ -176,7 +178,9 @@ class BookingController extends _$BookingController {
           print('🔄 PRODUCTION MODE: Redirecting to payment gateway');
         }
       } else {
-        // CLINIC/ONLINE FLOW: Book immediately
+        print(
+            '🏥 CLINIC/ONLINE FLOW: Free booking for partner ${partnerData?.fullName} (Category: ${partnerData?.category})',);
+        // CLINIC/ONLINE FLOW: Book immediately (FREE)
         await repository.bookAppointment(
           partnerId: partnerId,
           appointmentTime: appointmentTime,
@@ -185,7 +189,7 @@ class BookingController extends _$BookingController {
           isPartnerOverride: isPartnerOverride,
           caseDescription: caseDescription,
           patientLocation: patientLocation,
-          // No payment arguments for clinic/online
+          // No payment arguments for clinic/online - defaults to free/unpaid in repository
         );
 
         // Success

@@ -96,7 +96,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
     final negotiatedPrice = state['negotiated_price'] as double?;
 
     if (negotiatedPrice != null && widget.userRole == 'patient') {
-      Navigator.push(
+      await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PaymentScreen(

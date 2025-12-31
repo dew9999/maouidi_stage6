@@ -55,11 +55,21 @@ class AppointmentInfoCard extends ConsumerWidget {
       'on_behalf_of_patient_phone': appointment.onBehalfOfPatientPhone,
     });
 
-    return Card(
-      elevation: 2,
-      shadowColor: theme.colorScheme.surface,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: theme.shadowColor.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withOpacity(0.4),
+        ),
+      ),
       child: InkWell(
         onTap: () {
           Navigator.of(context).push(
@@ -71,6 +81,7 @@ class AppointmentInfoCard extends ConsumerWidget {
             ),
           );
         },
+        borderRadius: BorderRadius.circular(16),
         child: IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -155,7 +166,7 @@ class AppointmentInfoCard extends ConsumerWidget {
               style: FilledButton.styleFrom(
                 minimumSize: const Size(double.infinity, 36),
                 backgroundColor: theme.colorScheme.tertiary,
-                foregroundColor: Colors.white,
+                foregroundColor: theme.colorScheme.onTertiary,
               ),
               child: const Text('Confirm'),
             ),
@@ -175,7 +186,7 @@ class AppointmentInfoCard extends ConsumerWidget {
               style: FilledButton.styleFrom(
                 minimumSize: const Size(double.infinity, 40),
                 backgroundColor: theme.colorScheme.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: theme.colorScheme.onPrimary,
                 textStyle: theme.textTheme.titleSmall,
               ),
               child: Row(
@@ -254,9 +265,22 @@ class UpNextQueueCard extends ConsumerWidget {
     });
     final appointmentNumber = appointment.appointmentNumber;
 
-    return Card(
-      elevation: 1,
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: theme.shadowColor.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withOpacity(0.4),
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Column(

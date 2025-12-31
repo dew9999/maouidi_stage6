@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:maouidi/backend/supabase/supabase.dart';
 import 'package:maouidi/generated/l10n/app_localizations.dart';
+import '../core/utils/localization_mapper.dart';
 import '../core/constants.dart';
 
 /// Vertical Partner Card - Premium design for featured partners
@@ -257,8 +258,11 @@ class _VerticalPartnerCardState extends State<VerticalPartnerCard>
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      widget.partner.specialty ??
-                                          l10n.nospecialty,
+                                      widget.partner.specialty != null
+                                          ? LocalizationMapper.getSpecialty(
+                                              widget.partner.specialty!,
+                                              context,)
+                                          : l10n.nospecialty,
                                       style: textTheme.bodySmall?.copyWith(
                                         color: colorScheme.onSurfaceVariant,
                                         fontWeight: FontWeight.w500,
@@ -285,7 +289,8 @@ class _VerticalPartnerCardState extends State<VerticalPartnerCard>
                                     const SizedBox(width: 4),
                                     Expanded(
                                       child: Text(
-                                        widget.partner.wilaya!,
+                                        LocalizationMapper.getState(
+                                            widget.partner.wilaya!, context,),
                                         style: textTheme.bodySmall?.copyWith(
                                           color: colorScheme.onSurfaceVariant,
                                           fontWeight: FontWeight.w500,

@@ -54,6 +54,9 @@ const List<String> medicalSpecialties = [
   'Occupational Medicine',
   'Stomatology',
   'Transfusion Medicine (Hemobiology)',
+  'General Medicine',
+  'Nursing',
+  'Relaxing Massage',
 ];
 const List<String> algerianStates = [
   'Adrar',

@@ -11,6 +11,7 @@ import 'package:maouidi/features/appointments/data/appointment_model.dart';
 import 'package:maouidi/ui/appointment_details/appointment_details_page.dart';
 import '../features/patient/presentation/patient_dashboard_controller.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import '../core/utils/localization_mapper.dart';
 
 class PatientDashboardWidget extends ConsumerStatefulWidget {
   const PatientDashboardWidget({super.key});
@@ -52,7 +53,7 @@ class _PatientDashboardWidgetState extends ConsumerState<PatientDashboardWidget>
           AppLocalizations.of(context)!.myapts,
           style: theme.textTheme.headlineMedium?.copyWith(
             fontFamily: 'Inter',
-            color: Colors.white,
+            color: theme.colorScheme.onPrimary,
             fontSize: 22.0,
           ),
         ),
@@ -62,8 +63,8 @@ class _PatientDashboardWidgetState extends ConsumerState<PatientDashboardWidget>
           controller: _tabController,
           labelStyle:
               theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white.withAlpha(178),
+          labelColor: theme.colorScheme.onPrimary,
+          unselectedLabelColor: theme.colorScheme.onPrimary.withAlpha(178),
           indicatorColor: theme.colorScheme.secondary,
           indicatorWeight: 3.0,
           tabs: [
@@ -114,24 +115,34 @@ class _PatientDashboardWidgetState extends ConsumerState<PatientDashboardWidget>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: appointments.length,
-      itemBuilder: (context, index) {
-        final appointmentData = appointments[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12.0),
-          child: PatientAppointmentCard(
-            appointmentData: appointmentData,
-            onCancelCompleted: () {
-              ref.read(patientDashboardControllerProvider.notifier).loadData();
-            },
-            onReviewCompleted: () {
-              ref.read(patientDashboardControllerProvider.notifier).loadData();
-            },
-          ),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        await ref.read(patientDashboardControllerProvider.notifier).loadData();
       },
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        itemCount: appointments.length,
+        itemBuilder: (context, index) {
+          final appointmentData = appointments[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: PatientAppointmentCard(
+              appointmentData: appointmentData,
+              onCancelCompleted: () {
+                ref
+                    .read(patientDashboardControllerProvider.notifier)
+                    .loadData();
+              },
+              onReviewCompleted: () {
+                ref
+                    .read(patientDashboardControllerProvider.notifier)
+                    .loadData();
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -189,8 +200,9 @@ class PatientAppointmentCard extends ConsumerWidget {
     final partnerData =
         appointmentData['medical_partners'] as Map<String, dynamic>? ?? {};
     final partnerName = partnerData['full_name'] as String? ?? 'N/A';
-    final specialty = partnerData['specialty'] as String? ??
-        AppLocalizations.of(context)!.nospecialty;
+    final specialty = partnerData['specialty'] != null
+        ? LocalizationMapper.getSpecialty(partnerData['specialty'], context)
+        : AppLocalizations.of(context)!.nospecialty;
     final appointmentTime =
         DateTime.parse(appointmentData['appointment_time']).toLocal();
     final appointmentNumber = appointmentData['appointment_number'] as int?;
@@ -198,11 +210,20 @@ class PatientAppointmentCard extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         // Convert map to model for the details page
-        final appointment = AppointmentModel.fromJson({
+        // Use fromSupabase to handle snake_case keys correctly
+        final appointment = AppointmentModel.fromSupabase({
           ...appointmentData,
-          'booking_user_id':
-              '', // Fill dummy as it might be required but not present in this view
-          'partner_id': partnerData['id'] ?? '',
+          // Ensure required fields for fromSupabase are present and not null
+          'booking_user_id': appointmentData['booking_user_id'] ?? '',
+          'partner_id':
+              appointmentData['partner_id'] ?? partnerData['id'] ?? '',
+          'status': appointmentData['status'] ?? 'Pending',
+          'appointment_time': appointmentData['appointment_time'] ??
+              DateTime.now().toIso8601String(),
+          // Optional/New fields with defaults handled here or inside fromSupabase
+          'booking_type': appointmentData['booking_type'] ?? 'clinic',
+          'negotiation_status': appointmentData['negotiation_status'] ?? 'none',
+          'negotiated_price': appointmentData['negotiated_price'],
         });
 
         Navigator.of(context).push(
@@ -216,18 +237,21 @@ class PatientAppointmentCard extends ConsumerWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(12),
+          color: theme.colorScheme.surface, // Use surface for clean card look
+          borderRadius: BorderRadius.circular(16), // Pro Radius
           boxShadow: [
             BoxShadow(
-              blurRadius: 4,
-              color: theme.colorScheme.surface.withAlpha(50),
-              offset: const Offset(0, 2),
+              color: Colors.black.withOpacity(0.04), // Pro Shadow
+              blurRadius: 16,
+              offset: const Offset(0, 4),
             ),
           ],
+          border: Border.all(
+            color: theme.colorScheme.outlineVariant.withOpacity(0.4),
+          ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0), // Standardized Padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -376,6 +400,49 @@ class PatientAppointmentCard extends ConsumerWidget {
                       ),
                     ),
                     child: Text(AppLocalizations.of(context)!.cnclapt),
+                  ),
+                ),
+              if (status == 'pending_payment')
+                Padding(
+                  padding: const EdgeInsets.only(top: 12.0),
+                  child: FilledButton(
+                    onPressed: () {
+                      // TODO: Navigate to Chargily Payment or Unified Payment Flow
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => AppointmentDetailsPage(
+                            appointment: AppointmentModel.fromSupabase({
+                              ...appointmentData,
+                              'booking_user_id':
+                                  appointmentData['booking_user_id'] ?? '',
+                              'partner_id': appointmentData['partner_id'] ??
+                                  partnerData['id'] ??
+                                  '',
+                              'status': appointmentData['status'] ?? 'Pending',
+                              'appointment_time':
+                                  appointmentData['appointment_time'] ??
+                                      DateTime.now().toIso8601String(),
+                              'booking_type':
+                                  appointmentData['booking_type'] ?? 'clinic',
+                              'negotiation_status':
+                                  appointmentData['negotiation_status'] ??
+                                      'none',
+                              'negotiated_price':
+                                  appointmentData['negotiated_price'],
+                              'negotiation_round':
+                                  appointmentData['negotiation_round'],
+                            }),
+                            isPartnerView: false,
+                          ),
+                        ),
+                      );
+                    },
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 44),
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Pay Now'),
                   ),
                 ),
             ],

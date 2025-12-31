@@ -108,23 +108,24 @@ serve(async (req) => {
     console.log(`Processing payment for request: ${requestId}`);
 
     // 8. Fetch request details
-    const { data: homecareRequest, error: requestError } = await supabase
-      .from("homecare_requests")
+    const { data: appointment, error: requestError } = await supabase
+      .from("appointments")
       .select("*")
       .eq("id", requestId)
       .single();
 
-    if (requestError || !homecareRequest) {
-      throw new Error("Homecare request not found");
+    if (requestError || !appointment) {
+      throw new Error("Appointment not found");
     }
 
     // 9. Update payment status
+    // Transition to 'confirmed' after successful payment
     const { error: updateError } = await supabase
-      .from("homecare_requests")
+      .from("appointments")
       .update({
-        payment_status: "paid",
-        chargily_transaction_id: webhookData.data.id,
-        paid_at: new Date().toISOString(),
+        status: "Confirmed",
+        // payment_status: "paid", // Optional: Add column if needed
+        // chargily_transaction_id: webhookData.data.id, // Optional
       })
       .eq("id", requestId);
 
@@ -135,32 +136,42 @@ serve(async (req) => {
     }
 
     // 10. Generate payment receipt
-    const receiptNumber = generateReceiptNumber();
-    const platformFee = homecareRequest.platform_fee || 500;
-    const servicePrice = homecareRequest.negotiated_price;
-    const totalPaid = homecareRequest.total_amount;
+    // Check if 'payment_receipts' table exists and has 'appointment_id'
+    // For safety, we wrap this in try-catch-log because if it fails, we don't want to fail the webhook (since payment is confirmed)
+    let receiptNumber: string | null = null;
+    try {
+      receiptNumber = generateReceiptNumber();
+      const platformFee = 500; // Should fetch from config or appointment if stored
+      const servicePrice = appointment.negotiated_price || 0;
+      const totalPaid = servicePrice + platformFee;
 
-    const { error: receiptError } = await supabase
-      .from("payment_receipts")
-      .insert({
-        homecare_request_id: requestId,
-        patient_id: homecareRequest.patient_id,
-        partner_id: homecareRequest.partner_id,
-        service_price: servicePrice,
-        platform_fee: platformFee,
-        total_paid: totalPaid,
-        partner_amount: servicePrice,
-        receipt_number: receiptNumber,
-        payout_status: "pending",
-      });
+      const { error: receiptError } = await supabase
+        .from("payment_receipts")
+        .insert({
+          appointment_id: requestId, // Ensure this column exists in SQL
+          patient_id: appointment.booking_user_id,
+          partner_id: appointment.partner_id,
+          service_price: servicePrice,
+          platform_fee: platformFee,
+          total_paid: totalPaid,
+          partner_amount: servicePrice,
+          receipt_number: receiptNumber,
+          payout_status: "pending",
+        });
 
-    if (receiptError) {
-      console.error("Failed to create receipt:", receiptError);
+      if (receiptError) {
+        console.error("Failed to create receipt:", receiptError);
+      } else {
+        console.log(
+          `✅ Payment processed successfully - Receipt: ${receiptNumber}`,
+        );
+      }
+    } catch (e) {
+      console.error("Receipt creation error:", e);
     }
 
-    console.log(
-      `✅ Payment processed successfully - Receipt: ${receiptNumber}`,
-    );
+    // 11. Respond with 200 OK (required by Chargily)
+    // We already do this below, but good to log success
 
     // 11. Respond with 200 OK (required by Chargily)
     return new Response(

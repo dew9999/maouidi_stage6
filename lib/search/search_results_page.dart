@@ -7,6 +7,8 @@ import 'package:maouidi/components/partner_card_widget.dart';
 import 'package:maouidi/components/empty_state_widget.dart';
 import 'package:maouidi/features/search/presentation/partner_search_controller.dart';
 import 'package:maouidi/features/search/presentation/search_state.dart';
+import 'package:maouidi/features/search/presentation/filter_bottom_sheet.dart';
+import '../../core/utils/localization_mapper.dart';
 
 class SearchResultsPage extends ConsumerStatefulWidget {
   const SearchResultsPage({
@@ -91,6 +93,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage> {
                               .updateQuery('');
                         },
                       )
+                    // Only show the clear button if there is text
                     : null,
                 filled: true,
                 fillColor: colorScheme.surface,
@@ -102,39 +105,91 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage> {
             ),
           ),
 
-          // Optional: Add filter chips here (category, location)
-          if (searchState.categoryFilter != null ||
-              searchState.locationFilter != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Wrap(
-                spacing: 8,
-                children: [
-                  if (searchState.categoryFilter != null)
-                    FilterChip(
-                      label: Text(searchState.categoryFilter!),
-                      onDeleted: () {
-                        ref
-                            .read(partnerSearchControllerProvider.notifier)
-                            .updateCategoryFilter(null);
-                      },
-                      deleteIcon: const Icon(Icons.close, size: 16),
-                      onSelected: (bool selected) {},
+          // Filter Button & Active Filters Row
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                FilledButton.tonalIcon(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) => const FilterBottomSheet(),
+                    );
+                  },
+                  icon: const Icon(Icons.filter_list),
+                  label: const Text('Filters'),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        if (searchState.categoryFilter != null)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              label: Text(LocalizationMapper.getCategory(
+                                  searchState.categoryFilter!, context,),),
+                              onDeleted: () => ref
+                                  .read(
+                                      partnerSearchControllerProvider.notifier,)
+                                  .updateCategoryFilter(null),
+                              selected: true,
+                              onSelected: (_) {},
+                            ),
+                          ),
+                        if (searchState.specialtyFilter != null)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              label: Text(searchState.specialtyFilter!),
+                              onDeleted: () => ref
+                                  .read(
+                                      partnerSearchControllerProvider.notifier,)
+                                  .updateSpecialtyFilter(null),
+                              selected: true,
+                              onSelected: (_) {},
+                            ),
+                          ),
+                        if (searchState.minRating != null)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              label: Text('${searchState.minRating}+ ⭐'),
+                              onDeleted: () => ref
+                                  .read(
+                                      partnerSearchControllerProvider.notifier,)
+                                  .updateRatingFilter(null),
+                              selected: true,
+                              onSelected: (_) {},
+                            ),
+                          ),
+                        if (searchState.availabilityFilter != null)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              label: Text(
+                                  searchState.availabilityFilter == 'today'
+                                      ? 'Today'
+                                      : 'This Week',),
+                              onDeleted: () => ref
+                                  .read(
+                                      partnerSearchControllerProvider.notifier,)
+                                  .updateAvailabilityFilter(null),
+                              selected: true,
+                              onSelected: (_) {},
+                            ),
+                          ),
+                      ],
                     ),
-                  if (searchState.locationFilter != null)
-                    FilterChip(
-                      label: Text(searchState.locationFilter!),
-                      onDeleted: () {
-                        ref
-                            .read(partnerSearchControllerProvider.notifier)
-                            .updateLocationFilter(null);
-                      },
-                      deleteIcon: const Icon(Icons.close, size: 16),
-                      onSelected: (bool selected) {},
-                    ),
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
+          ),
 
           Expanded(
             child: _buildSearchResults(

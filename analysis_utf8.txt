@@ -1,0 +1,110 @@
+﻿Analyzing maouidi...                                            
+
+warning - Unused import: 'package:maouidi/core/utils/localization_mapper.dart' - lib\booking_page\booking_page_widget.dart:7:8 - unused_import
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\booking_page\booking_page_widget.dart:791:5 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\booking_page\booking_page_widget.dart:823:12 - unawaited_futures
+   info - Missing a required trailing comma - lib\components\partner_card_widget.dart:98:62 - require_trailing_commas
+   info - Missing a required trailing comma - lib\components\vertical_partner_card.dart:264:54 - require_trailing_commas
+   info - Missing a required trailing comma - lib\components\vertical_partner_card.dart:293:76 - require_trailing_commas
+  error - The getter 'statusPending' isn't defined for the type 'AppLocalizations' - lib\core\localization_helpers.dart:11:21 - undefined_getter
+  error - The getter 'statusConfirmed' isn't defined for the type 'AppLocalizations' - lib\core\localization_helpers.dart:12:23 - undefined_getter
+  error - The getter 'statusCompleted' isn't defined for the type 'AppLocalizations' - lib\core\localization_helpers.dart:13:23 - undefined_getter
+  error - The getter 'statusCancelledByUser' isn't defined for the type 'AppLocalizations' - lib\core\localization_helpers.dart:14:30 - undefined_getter
+  error - The getter 'statusCancelledByPartner' isn't defined for the type 'AppLocalizations' - lib\core\localization_helpers.dart:15:33 - undefined_getter
+  error - The getter 'statusNoShow' isn't defined for the type 'AppLocalizations' - lib\core\localization_helpers.dart:16:20 - undefined_getter
+  error - The getter 'statusRescheduled' isn't defined for the type 'AppLocalizations' - lib\core\localization_helpers.dart:17:25 - undefined_getter
+warning - The value of the local variable 'l10n' isn't used - lib\core\localization_helpers.dart:25:9 - unused_local_variable
+warning - The value of the local variable 'key' isn't used - lib\core\localization_helpers.dart:28:9 - unused_local_variable
+  error - The getter 'specialtyCardiology' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:12:21 - undefined_getter
+  error - The getter 'specialtyDentist' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:14:21 - undefined_getter
+  error - The getter 'specialtyDermatology' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:16:21 - undefined_getter
+  error - The getter 'specialtyPediatrics' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:18:21 - undefined_getter
+  error - The getter 'specialtyOphthalmology' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:20:21 - undefined_getter
+  error - The getter 'specialtyOrthopedics' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:22:21 - undefined_getter
+  error - The getter 'specialtyNeurology' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:24:21 - undefined_getter
+  error - The getter 'specialtyGynecology' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:26:21 - undefined_getter
+  error - The getter 'specialtyGeneralPractice' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:28:21 - undefined_getter
+  error - The getter 'stateAlgiers' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:43:21 - undefined_getter
+  error - The getter 'stateOran' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:45:21 - undefined_getter
+  error - The getter 'stateConstantine' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:47:21 - undefined_getter
+  error - The getter 'stateAnnaba' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:49:21 - undefined_getter
+  error - The getter 'stateBatna' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:51:21 - undefined_getter
+  error - The getter 'stateSetif' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:54:21 - undefined_getter
+  error - The getter 'stateBlida' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:56:21 - undefined_getter
+  error - The getter 'stateTlemcen' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:58:21 - undefined_getter
+  error - The getter 'statusPending' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:93:21 - undefined_getter
+  error - The getter 'statusConfirmed' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:96:21 - undefined_getter
+  error - The getter 'statusCompleted' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:99:21 - undefined_getter
+  error - The getter 'statusNoShow' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:106:21 - undefined_getter
+  error - The getter 'statusInProgress' isn't defined for the type 'AppLocalizations' - lib\core\utils\localization_mapper.dart:109:21 - undefined_getter
+   info - Don't invoke 'print' in production code - lib\features\appointments\data\appointment_repository.dart:44:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\appointments\data\appointment_repository.dart:54:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\appointments\data\appointment_repository.dart:71:7 - avoid_print
+warning - The value of the local variable 'appointmentData' isn't used - lib\features\appointments\data\appointment_repository.dart:159:13 - unused_local_variable
+   info - Don't invoke 'print' in production code - lib\features\appointments\data\appointment_repository.dart:385:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\appointments\data\appointment_repository.dart:390:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\appointments\data\appointment_repository.dart:440:15 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\appointments\data\appointment_repository.dart:494:15 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\appointments\presentation\partner_dashboard_controller.dart:31:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\appointments\presentation\partner_dashboard_controller.dart:45:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\appointments\presentation\partner_dashboard_controller.dart:250:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\bookings\presentation\booking_controller.dart:160:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\bookings\presentation\booking_controller.dart:176:11 - avoid_print
+warning - The value of the local variable 'colorScheme' isn't used - lib\features\disputes\presentation\create_dispute_dialog.dart:86:11 - unused_local_variable
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\features\homecare_negotiation\presentation\negotiation_screen.dart:99:17 - unawaited_futures
+warning - The value of the local variable 'serviceStartedAt' isn't used - lib\features\homecare_service\presentation\service_tracking_widget.dart:30:15 - unused_local_variable
+warning - The value of the local variable 'serviceCompletedAt' isn't used - lib\features\homecare_service\presentation\service_tracking_widget.dart:31:15 - unused_local_variable
+warning - The value of the local variable 'patientConfirmedAt' isn't used - lib\features\homecare_service\presentation\service_tracking_widget.dart:32:15 - unused_local_variable
+warning - The value of the local variable 'colorScheme' isn't used - lib\features\homecare_service\presentation\service_tracking_widget.dart:243:11 - unused_local_variable
+warning - The value of the local variable 'textTheme' isn't used - lib\features\homecare_service\presentation\service_tracking_widget.dart:244:11 - unused_local_variable
+warning - The value of the local variable 'colorScheme' isn't used - lib\features\payments\presentation\cancellation_dialog.dart:75:11 - unused_local_variable
+warning - The value of the local variable 'period' isn't used - lib\features\payouts\presentation\partner_earnings_dashboard.dart:309:29 - unused_local_variable
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\main.dart:35:29 - unawaited_futures
+   info - Don't invoke 'print' in production code - lib\partner_dashboard_page\views\schedule_view.dart:32:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\partner_dashboard_page\views\schedule_view.dart:65:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\partner_dashboard_page\views\schedule_view.dart:66:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\partner_dashboard_page\views\schedule_view.dart:67:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\partner_dashboard_page\views\schedule_view.dart:68:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\partner_dashboard_page\views\schedule_view.dart:70:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\partner_dashboard_page\views\schedule_view.dart:276:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\partner_dashboard_page\views\schedule_view.dart:277:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\partner_dashboard_page\views\schedule_view.dart:291:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\partner_dashboard_page\views\schedule_view.dart:298:5 - avoid_print
+warning - The value of the local variable 'textTheme' isn't used - lib\partner_profile_page\partner_profile_page_widget.dart:98:11 - unused_local_variable
+   info - Use 'const' with the constructor to improve performance - lib\partner_profile_page\partner_profile_page_widget.dart:202:22 - prefer_const_constructors
+   info - Missing a required trailing comma - lib\partner_profile_page\partner_profile_page_widget.dart:291:60 - require_trailing_commas
+   info - Missing a required trailing comma - lib\partner_profile_page\partner_profile_page_widget.dart:295:74 - require_trailing_commas
+   info - Missing a required trailing comma - lib\partner_profile_page\partner_profile_page_widget.dart:371:77 - require_trailing_commas
+   info - Missing a required trailing comma - lib\partner_profile_page\partner_profile_page_widget.dart:445:46 - require_trailing_commas
+   info - Missing a required trailing comma - lib\partner_profile_page\partner_profile_page_widget.dart:449:41 - require_trailing_commas
+   info - Missing a required trailing comma - lib\partner_profile_page\partner_profile_page_widget.dart:485:58 - require_trailing_commas
+   info - Missing a required trailing comma - lib\partner_profile_page\partner_profile_page_widget.dart:489:74 - require_trailing_commas
+   info - Missing a required trailing comma - lib\partner_profile_page\partner_profile_page_widget.dart:497:58 - require_trailing_commas
+   info - Missing a required trailing comma - lib\partner_profile_page\partner_profile_page_widget.dart:501:77 - require_trailing_commas
+   info - Missing a required trailing comma - lib\partner_profile_page\partner_profile_page_widget.dart:504:73 - require_trailing_commas
+warning - The value of the local variable 'theme' isn't used - lib\patient_dashboard\patient_dashboard_widget.dart:540:11 - unused_local_variable
+warning - The value of the local variable 'rating' isn't used - lib\patient_dashboard\patient_dashboard_widget.dart:541:11 - unused_local_variable
+warning - The value of the local variable 'isSubmitting' isn't used - lib\patient_dashboard\patient_dashboard_widget.dart:542:11 - unused_local_variable
+   info - Missing a required trailing comma - lib\search\search_results_page.dart:117:63 - require_trailing_commas
+   info - Missing a required trailing comma - lib\search\search_results_page.dart:117:64 - require_trailing_commas
+   info - Missing a required trailing comma - lib\search\search_results_page.dart:129:63 - require_trailing_commas
+   info - Missing a required trailing comma - lib\search\search_results_page.dart:129:64 - require_trailing_commas
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\services\notification_service.dart:12:29 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\settings_page\settings_page_widget.dart:695:12 - unawaited_futures
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\settings_page\settings_page_widget.dart:769:12 - unawaited_futures
+   info - The import of 'package:flutter/services.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\ui\appointment_details\appointment_details_page.dart:3:8 - unnecessary_import
+warning - Unused import: 'package:maouidi/generated/l10n/app_localizations.dart' - lib\ui\appointment_details\appointment_details_page.dart:10:8 - unused_import
+   info - Missing a required trailing comma - lib\ui\appointment_details\appointment_details_page.dart:84:8 - require_trailing_commas
+warning - The value of 'refresh' should be used - lib\ui\appointment_details\appointment_details_page.dart:93:15 - unused_result
+   info - Missing a required trailing comma - lib\ui\appointment_details\appointment_details_page.dart:94:79 - require_trailing_commas
+   info - Missing a required trailing comma - lib\ui\appointment_details\appointment_details_page.dart:120:8 - require_trailing_commas
+warning - The value of 'refresh' should be used - lib\ui\appointment_details\appointment_details_page.dart:126:13 - unused_result
+   info - Missing a required trailing comma - lib\ui\appointment_details\appointment_details_page.dart:214:64 - require_trailing_commas
+   info - Missing a required trailing comma - lib\ui\appointment_details\appointment_details_page.dart:218:111 - require_trailing_commas
+   info - Missing a required trailing comma - lib\ui\appointment_details\appointment_details_page.dart:222:64 - require_trailing_commas
+   info - Missing a required trailing comma - lib\ui\appointment_details\appointment_details_page.dart:228:68 - require_trailing_commas
+   info - Missing a required trailing comma - lib\ui\appointment_details\appointment_details_page.dart:249:71 - require_trailing_commas
+   info - Missing a required trailing comma - lib\ui\appointment_details\appointment_details_page.dart:283:53 - require_trailing_commas
+   info - Missing a required trailing comma - lib\ui\appointment_details\appointment_details_page.dart:304:77 - require_trailing_commas
+   info - Missing a required trailing comma - lib\ui\appointment_details\appointment_details_page.dart:335:55 - require_trailing_commas
+

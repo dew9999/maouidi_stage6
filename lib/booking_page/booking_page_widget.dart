@@ -1,5 +1,6 @@
 // lib/booking_page/booking_page_widget.dart
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -172,9 +173,9 @@ class BookingPageWidget extends ConsumerWidget {
         backgroundColor: Theme.of(context).colorScheme.primary,
         automaticallyImplyLeading: false,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_rounded,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onPrimary,
             size: 30.0,
           ),
           onPressed: () => context.safePop(),
@@ -183,7 +184,7 @@ class BookingPageWidget extends ConsumerWidget {
           AppLocalizations.of(context)!.bookapptbar,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontFamily: 'Inter',
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onPrimary,
                 fontSize: 22.0,
               ),
         ),
@@ -315,7 +316,7 @@ class _NumberQueueBookingView extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(errorMessage),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -480,7 +481,7 @@ class _NumberQueueBookingView extends ConsumerWidget {
         ),
         const Divider(thickness: 1, indent: 16, endIndent: 16),
         Expanded(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -511,7 +512,7 @@ class _NumberQueueBookingView extends ConsumerWidget {
                   textAlign: TextAlign.center,
                   style: textTheme.bodyLarge,
                 ),
-                const Spacer(),
+                const SizedBox(height: 32),
                 if (isPastDay)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
@@ -568,8 +569,8 @@ class _NumberQueueBookingView extends ConsumerWidget {
                         : (partnerData.category == 'Homecare'
                             ? AppLocalizations.of(context)!.submithcreq
                             : AppLocalizations.of(context)!.getmynum),
-                    style: textTheme.titleSmall
-                        ?.copyWith(fontFamily: 'Inter', color: Colors.white),
+                    style: textTheme.titleSmall?.copyWith(
+                        fontFamily: 'Inter', color: colorScheme.onPrimary,),
                   ),
                 ),
               ],
@@ -787,10 +788,12 @@ class _TimeSlotGrid extends ConsumerWidget {
     String? onBehalfOfName,
     String? onBehalfOfPhone,
   }) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
+    unawaited(
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      ),
     );
 
     try {
@@ -817,7 +820,7 @@ class _TimeSlotGrid extends ConsumerWidget {
 
       // Refresh slots by re-selecting the current date
       final currentState = ref.read(bookingControllerProvider(partnerId));
-      ref
+      await ref
           .read(bookingControllerProvider(partnerId).notifier)
           .onDateSelected(currentState.selectedDate, partnerId);
     } catch (e) {
@@ -837,7 +840,7 @@ class _TimeSlotGrid extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(errorMessage),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -908,17 +911,16 @@ class _TimeSlotGrid extends ConsumerWidget {
             backgroundColor: buttonColor,
             disabledBackgroundColor: buttonColor,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: BorderRadius.circular(12.0),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             elevation: 2.0,
           ),
           child: Text(
             DateFormat('HH:mm').format(slot.time.toLocal()),
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(fontFamily: 'Inter', color: Colors.white),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontFamily: 'Inter',
+                color: Theme.of(context).colorScheme.onPrimary,),
           ),
         );
       },

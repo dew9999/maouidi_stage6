@@ -43,6 +43,30 @@ class PartnerSearchController extends _$PartnerSearchController {
     performSearch();
   }
 
+  /// Update the specialty filter and perform immediate search.
+  void updateSpecialtyFilter(String? specialty) {
+    state = state.copyWith(specialtyFilter: specialty);
+    performSearch();
+  }
+
+  /// Update the price range and perform immediate search.
+  void updatePriceRange(double? minPrice, double? maxPrice) {
+    state = state.copyWith(minPrice: minPrice, maxPrice: maxPrice);
+    performSearch();
+  }
+
+  /// Update the minimum rating filter and perform immediate search.
+  void updateRatingFilter(double? minRating) {
+    state = state.copyWith(minRating: minRating);
+    performSearch();
+  }
+
+  /// Update the availability filter and perform immediate search.
+  void updateAvailabilityFilter(String? availability) {
+    state = state.copyWith(availabilityFilter: availability);
+    performSearch();
+  }
+
   /// Clear all filters and search query.
   void clearFilters() {
     state = const SearchState();
@@ -62,7 +86,12 @@ class PartnerSearchController extends _$PartnerSearchController {
     // Don't search if query is empty and no filters are set
     if (state.query.trim().isEmpty &&
         state.categoryFilter == null &&
-        state.locationFilter == null) {
+        state.locationFilter == null &&
+        state.specialtyFilter == null &&
+        state.minPrice == null &&
+        state.maxPrice == null &&
+        state.minRating == null &&
+        state.availabilityFilter == null) {
       state = state.copyWith(results: [], isLoading: false);
       return;
     }
@@ -75,6 +104,11 @@ class PartnerSearchController extends _$PartnerSearchController {
         query: state.query.trim().isEmpty ? null : state.query.trim(),
         category: state.categoryFilter,
         location: state.locationFilter,
+        specialty: state.specialtyFilter,
+        minPrice: state.minPrice,
+        maxPrice: state.maxPrice,
+        minRating: state.minRating,
+        availabilityFilter: state.availabilityFilter,
       );
 
       state = state.copyWith(

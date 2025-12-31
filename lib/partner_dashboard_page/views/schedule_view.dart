@@ -29,7 +29,6 @@ class ScheduleView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('🔍 ScheduleView: bookingSystemType = "$bookingSystemType"');
     if (bookingSystemType == 'number_based') {
       return NumberQueueView(
         partnerId: partnerId,
@@ -61,17 +60,6 @@ class TimeSlotView extends ConsumerWidget {
     final selectedStatus = dashboardState.selectedStatus;
     final selectedDate = dashboardState.selectedDate ?? DateTime.now();
 
-    // DEBUG
-    print('═══ TimeSlotView DEBUG ═══');
-    print('Total appointments: ${dashboardState.appointments.length}');
-    print('Selected status: $selectedStatus');
-    print('Selected date: $selectedDate');
-    for (final appt in dashboardState.appointments.take(5)) {
-      print(
-        'Appt: ID=${appt.id}, Status=${appt.status}, Time=${appt.appointmentTime}, HasNumber=${appt.appointmentNumber != null}',
-      );
-    }
-
     // Filter appointments based on selected status and DATE
     final filteredAppointments = dashboardState.appointments.where((appt) {
       // Exclude queue-based appointments
@@ -83,10 +71,15 @@ class TimeSlotView extends ConsumerWidget {
         targetStatuses = ['Cancelled_ByUser', 'Cancelled_ByPartner', 'NoShow'];
       } else if (selectedStatus == 'Confirmed') {
         // Show ONLY Confirmed (NOT Pending)
-        targetStatuses = ['Confirmed'];
+        targetStatuses = ['Confirmed', 'confirmed'];
       } else if (selectedStatus == 'Pending') {
-        // Show ONLY Pending (NOT Confirmed)
-        targetStatuses = ['Pending'];
+        // Show Pending AND Negotiation statuses
+        targetStatuses = [
+          'Pending',
+          'pending_user_approval',
+          'pending_partner_approval',
+          'pending_payment',
+        ];
       } else {
         targetStatuses = [selectedStatus];
       }
@@ -211,7 +204,7 @@ class TimeSlotView extends ConsumerWidget {
                         selectedColor: theme.colorScheme.primary,
                         labelStyle: TextStyle(
                           color: isSelected
-                              ? Colors.white
+                              ? theme.colorScheme.onPrimary
                               : theme.colorScheme.onSurface,
                         ),
                         backgroundColor: theme.colorScheme.surfaceContainerHigh,
@@ -273,11 +266,6 @@ class NumberQueueView extends ConsumerWidget {
     final theme = Theme.of(context);
     final selectedDate = dashboardState.selectedDate ?? DateTime.now();
 
-    print('🔍 NumberQueueView: selectedDate = $selectedDate');
-    print(
-      '🔍 NumberQueueView: Total appointments = ${dashboardState.appointments.length}',
-    );
-
     // Use the full appointments list, then filter by date locally
     // (Since 'todayAppointments' in state is hardcoded to actual today by the repo)
     // Actually, dashboardState.appointments contains ALL appointments.
@@ -287,17 +275,9 @@ class NumberQueueView extends ConsumerWidget {
     // Filter appointments for the SELECTED date
     final dailyAppointments = allAppointments.where((appt) {
       final matches = isSameDay(appt.appointmentTime.toLocal(), selectedDate);
-      if (allAppointments.indexOf(appt) < 3) {
-        print(
-          '🔍 Checking appt ${appt.id}: date=${appt.appointmentTime.toLocal()}, matches=$matches',
-        );
-      }
+      if (allAppointments.indexOf(appt) < 3) {}
       return matches;
     }).toList();
-
-    print(
-      '🔍 NumberQueueView: Daily appointments for $selectedDate = ${dailyAppointments.length}',
-    );
 
     final currentPatient = dashboardState.currentPatient;
 
@@ -324,7 +304,14 @@ class NumberQueueView extends ConsumerWidget {
     // Sorting is done above now.
 
     final upNextAppointments = activeAppointments
-        .where((a) => a.status == 'Pending' || a.status == 'Confirmed')
+        .where(
+          (a) =>
+              a.status == 'Pending' ||
+              a.status == 'Confirmed' ||
+              a.status == 'pending_user_approval' ||
+              a.status == 'pending_payment' ||
+              a.status == 'pending_partner_approval',
+        )
         .toList();
 
     final isToday = isSameDay(selectedDate, DateTime.now());
@@ -424,7 +411,7 @@ class NumberQueueView extends ConsumerWidget {
                     style: FilledButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
                       backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: theme.colorScheme.onPrimary,
                       textStyle: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -492,7 +479,7 @@ class NumberQueueView extends ConsumerWidget {
                             content: Text(
                               'Failed to move patient: ${e.toString()}',
                             ),
-                            backgroundColor: Colors.red,
+                            backgroundColor: theme.colorScheme.error,
                           ),
                         );
                       }

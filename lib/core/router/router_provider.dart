@@ -12,6 +12,8 @@ import '../../search/search_results_page.dart';
 import '../../core/layouts/main_layout.dart';
 import '../../features/homecare_negotiation/presentation/negotiation_screen.dart';
 import '../../features/payments/presentation/payment_screen.dart';
+import '../../features/payouts/presentation/partner_earnings_dashboard.dart';
+import '../../ui/partner_onboarding/partner_onboarding_page.dart';
 
 part 'router_provider.g.dart';
 
@@ -38,6 +40,7 @@ GoRouter router(RouterRef ref) {
         '/privacyPolicy',
         '/termsOfService',
         '/verifyEmail', // Allow access to verify email page
+        '/completeProfile', // Allow access to complete profile page
       ];
 
       // 0. Redirect from initial route based on auth status
@@ -57,17 +60,69 @@ GoRouter router(RouterRef ref) {
         return '/verifyEmail';
       }
 
-      // 3. Redirect authenticated users with VERIFIED emails away from auth screens
+      // 3. Check if profile is complete (after email verification, before accessing app)
+      if (isLoggedIn &&
+          user.emailConfirmedAt != null &&
+          path != '/completeProfile') {
+        try {
+          // Check if user profile is complete
+          final profileResponse = await Supabase.instance.client
+              .from('users')
+              .select('first_name, last_name, date_of_birth, gender, wilaya')
+              .eq('id', user.id)
+              .maybeSingle();
+
+          // Profile is incomplete if any required field is missing or empty
+          if (profileResponse == null ||
+              profileResponse['first_name'] == null ||
+              profileResponse['first_name'].toString().trim().isEmpty ||
+              profileResponse['last_name'] == null ||
+              profileResponse['last_name'].toString().trim().isEmpty ||
+              profileResponse['date_of_birth'] == null ||
+              profileResponse['gender'] == null ||
+              profileResponse['wilaya'] == null) {
+            return '/completeProfile?isEditing=false';
+          }
+        } catch (e) {
+          // On error, allow navigation (avoid blocking users due to network issues)
+          // The CompleteProfileWidget will handle the check on its own
+        }
+      }
+
+      // 4. Redirect authenticated users with VERIFIED emails away from auth screens
       if (isLoggedIn &&
           user.emailConfirmedAt != null &&
           (path == '/login' || path == '/welcomeScreen' || path == '/create')) {
         return '/home';
       }
 
+      // 5. Mandatory Partner Onboarding
+      if (isLoggedIn && path != '/partnerOnboarding') {
+        try {
+          final partnerData = await Supabase.instance.client
+              .from('medical_partners')
+              .select('specialty')
+              .eq('id', user.id)
+              .maybeSingle();
+
+          // If user is a partner (row exists) and specialty is missing
+          if (partnerData != null && partnerData['specialty'] == null) {
+            return '/partnerOnboarding';
+          }
+        } catch (e) {
+          // Safe failure
+        }
+      }
+
       return null;
     },
     errorBuilder: (context, state) => const WelcomeScreenWidget(),
     routes: [
+      GoRoute(
+        name: PartnerOnboardingPage.routeName,
+        path: PartnerOnboardingPage.routePath,
+        builder: (context, state) => const PartnerOnboardingPage(),
+      ),
       GoRoute(
         name: '_initialize',
         path: '/',
@@ -201,6 +256,14 @@ GoRouter router(RouterRef ref) {
           );
         },
       ),
+      GoRoute(
+        name: 'PartnerEarningsDashboard',
+        path: '/partner-earnings',
+        builder: (context, state) {
+          final partnerId = state.uri.queryParameters['partnerId']!;
+          return PartnerEarningsDashboard(partnerId: partnerId);
+        },
+      ),
       // Deep Link: Chargily Payment Success
       GoRoute(
         name: 'PaymentSuccess',
@@ -214,9 +277,10 @@ GoRouter router(RouterRef ref) {
                 children: [
                   const Icon(Icons.check_circle, color: Colors.green, size: 80),
                   const SizedBox(height: 16),
-                  const Text('Payment Successful!',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+                  const Text(
+                    'Payment Successful!',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   Text('Transaction ID: ${transactionId ?? "N/A"}'),
                   const SizedBox(height: 24),
@@ -243,9 +307,10 @@ GoRouter router(RouterRef ref) {
                 children: [
                   const Icon(Icons.error, color: Colors.red, size: 80),
                   const SizedBox(height: 16),
-                  const Text('Payment Failed',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+                  const Text(
+                    'Payment Failed',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   Text('Error: ${error ?? "Unknown error"}'),
                   const SizedBox(height: 24),

@@ -43,6 +43,7 @@ mixin _$AppointmentModel {
   double? get negotiatedPrice => throw _privateConstructorUsedError;
   String get negotiationStatus =>
       throw _privateConstructorUsedError; // 'pending', 'accepted', 'rejected', 'none'
+  int? get negotiationRound => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -78,6 +79,7 @@ abstract class $AppointmentModelCopyWith<$Res> {
       String? homecareAddress,
       double? negotiatedPrice,
       String negotiationStatus,
+      int? negotiationRound,
       DateTime? createdAt});
 }
 
@@ -114,6 +116,7 @@ class _$AppointmentModelCopyWithImpl<$Res, $Val extends AppointmentModel>
     Object? homecareAddress = freezed,
     Object? negotiatedPrice = freezed,
     Object? negotiationStatus = null,
+    Object? negotiationRound = freezed,
     Object? createdAt = freezed,
   }) {
     return _then(_value.copyWith(
@@ -197,6 +200,10 @@ class _$AppointmentModelCopyWithImpl<$Res, $Val extends AppointmentModel>
           ? _value.negotiationStatus
           : negotiationStatus // ignore: cast_nullable_to_non_nullable
               as String,
+      negotiationRound: freezed == negotiationRound
+          ? _value.negotiationRound
+          : negotiationRound // ignore: cast_nullable_to_non_nullable
+              as int?,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -234,6 +241,7 @@ abstract class _$$AppointmentModelImplCopyWith<$Res>
       String? homecareAddress,
       double? negotiatedPrice,
       String negotiationStatus,
+      int? negotiationRound,
       DateTime? createdAt});
 }
 
@@ -268,6 +276,7 @@ class __$$AppointmentModelImplCopyWithImpl<$Res>
     Object? homecareAddress = freezed,
     Object? negotiatedPrice = freezed,
     Object? negotiationStatus = null,
+    Object? negotiationRound = freezed,
     Object? createdAt = freezed,
   }) {
     return _then(_$AppointmentModelImpl(
@@ -351,6 +360,10 @@ class __$$AppointmentModelImplCopyWithImpl<$Res>
           ? _value.negotiationStatus
           : negotiationStatus // ignore: cast_nullable_to_non_nullable
               as String,
+      negotiationRound: freezed == negotiationRound
+          ? _value.negotiationRound
+          : negotiationRound // ignore: cast_nullable_to_non_nullable
+              as int?,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -383,6 +396,7 @@ class _$AppointmentModelImpl implements _AppointmentModel {
       this.homecareAddress,
       this.negotiatedPrice,
       this.negotiationStatus = 'none',
+      this.negotiationRound,
       this.createdAt});
 
   factory _$AppointmentModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -436,11 +450,13 @@ class _$AppointmentModelImpl implements _AppointmentModel {
   final String negotiationStatus;
 // 'pending', 'accepted', 'rejected', 'none'
   @override
+  final int? negotiationRound;
+  @override
   final DateTime? createdAt;
 
   @override
   String toString() {
-    return 'AppointmentModel(id: $id, partnerId: $partnerId, bookingUserId: $bookingUserId, onBehalfOfPatientName: $onBehalfOfPatientName, appointmentTime: $appointmentTime, status: $status, onBehalfOfPatientPhone: $onBehalfOfPatientPhone, appointmentNumber: $appointmentNumber, isRescheduled: $isRescheduled, completedAt: $completedAt, hasReview: $hasReview, caseDescription: $caseDescription, patientLocation: $patientLocation, patientFirstName: $patientFirstName, patientLastName: $patientLastName, patientPhone: $patientPhone, bookingType: $bookingType, homecareAddress: $homecareAddress, negotiatedPrice: $negotiatedPrice, negotiationStatus: $negotiationStatus, createdAt: $createdAt)';
+    return 'AppointmentModel(id: $id, partnerId: $partnerId, bookingUserId: $bookingUserId, onBehalfOfPatientName: $onBehalfOfPatientName, appointmentTime: $appointmentTime, status: $status, onBehalfOfPatientPhone: $onBehalfOfPatientPhone, appointmentNumber: $appointmentNumber, isRescheduled: $isRescheduled, completedAt: $completedAt, hasReview: $hasReview, caseDescription: $caseDescription, patientLocation: $patientLocation, patientFirstName: $patientFirstName, patientLastName: $patientLastName, patientPhone: $patientPhone, bookingType: $bookingType, homecareAddress: $homecareAddress, negotiatedPrice: $negotiatedPrice, negotiationStatus: $negotiationStatus, negotiationRound: $negotiationRound, createdAt: $createdAt)';
   }
 
   @override
@@ -486,6 +502,8 @@ class _$AppointmentModelImpl implements _AppointmentModel {
                 other.negotiatedPrice == negotiatedPrice) &&
             (identical(other.negotiationStatus, negotiationStatus) ||
                 other.negotiationStatus == negotiationStatus) &&
+            (identical(other.negotiationRound, negotiationRound) ||
+                other.negotiationRound == negotiationRound) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
@@ -514,6 +532,7 @@ class _$AppointmentModelImpl implements _AppointmentModel {
         homecareAddress,
         negotiatedPrice,
         negotiationStatus,
+        negotiationRound,
         createdAt
       ]);
 
@@ -554,6 +573,7 @@ abstract class _AppointmentModel implements AppointmentModel {
       final String? homecareAddress,
       final double? negotiatedPrice,
       final String negotiationStatus,
+      final int? negotiationRound,
       final DateTime? createdAt}) = _$AppointmentModelImpl;
 
   factory _AppointmentModel.fromJson(Map<String, dynamic> json) =
@@ -600,6 +620,8 @@ abstract class _AppointmentModel implements AppointmentModel {
   @override
   String get negotiationStatus;
   @override // 'pending', 'accepted', 'rejected', 'none'
+  int? get negotiationRound;
+  @override
   DateTime? get createdAt;
   @override
   @JsonKey(ignore: true)

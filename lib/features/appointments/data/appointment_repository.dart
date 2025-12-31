@@ -1,6 +1,7 @@
 // lib/features/appointments/data/appointment_repository.dart
 
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/providers/supabase_provider.dart';
@@ -41,7 +42,6 @@ class AppointmentRepository {
         _cachedPartnerId == partnerId &&
         _cacheTimestamp != null &&
         now.difference(_cacheTimestamp!) < _cacheDuration) {
-      print('Debug: Returning cached appointments for partner $partnerId');
       return _cachedPartnerAppointments!;
     }
 
@@ -50,8 +50,6 @@ class AppointmentRepository {
         'get_partner_dashboard_appointments',
         params: {'partner_id_arg': partnerId},
       );
-
-      print('Debug: RPC response for partner $partnerId: $response');
 
       final appointments = (response as List)
           .map(
@@ -68,7 +66,7 @@ class AppointmentRepository {
 
       return appointments;
     } catch (e) {
-      print('Debug: Error fetching partner appointments: $e');
+      debugPrint('Debug: Error fetching partner appointments: $e');
       throw AppointmentException('Failed to fetch appointments: $e');
     }
   }
@@ -382,12 +380,12 @@ class AppointmentRepository {
       final response =
           await query.order('appointment_time', ascending: isUpcoming ?? false);
 
-      print(
+      debugPrint(
           'Debug: Patient appointments for $userId (Status: $statuses, Upcoming: $isUpcoming): ${response.length} found',);
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      print('Debug: Error fetching patient appointments: $e');
+      debugPrint('Debug: Error fetching patient appointments: $e');
       throw AppointmentException('Failed to fetch patient appointments: $e');
     }
   }
@@ -437,7 +435,7 @@ class AppointmentRepository {
                 controller.add(updatedData);
               }
             } catch (e) {
-              print('Error fetching updated patient appointments: $e');
+              debugPrint('Error fetching updated patient appointments: $e');
               // Don't add error to stream, just log it
             }
           },
@@ -491,7 +489,7 @@ class AppointmentRepository {
                 controller.add(updatedData);
               }
             } catch (e) {
-              print('Error fetching updated partner appointments: $e');
+              debugPrint('Error fetching updated partner appointments: $e');
               // Don't add error to stream, just log it
             }
           },

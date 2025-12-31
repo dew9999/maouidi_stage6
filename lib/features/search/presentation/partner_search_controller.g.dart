@@ -7,7 +7,7 @@ part of 'partner_search_controller.dart';
 // **************************************************************************
 
 String _$partnerSearchControllerHash() =>
-    r'069a8d472907659dda78000c7d43503535909ad2';
+    r'af1e080d5631fc3eaca6dbf108a5b920b74156b2';
 
 /// Controller for Partner Search.
 ///

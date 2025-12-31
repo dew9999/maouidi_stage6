@@ -12,6 +12,9 @@ class PartnerEarningsDashboard extends ConsumerStatefulWidget {
     required this.partnerId,
   });
 
+  static const String routeName = 'PartnerEarningsDashboard';
+  static const String routePath = '/partner-earnings';
+
   final String partnerId;
 
   @override
@@ -140,9 +143,11 @@ class _PartnerEarningsDashboardState
                   ),
                 ),
                 error: (e, _) => Card(
-                    child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text('Error: $e'),),),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text('Error: $e'),
+                  ),
+                ),
               ),
 
               const SizedBox(height: 16),
@@ -185,9 +190,11 @@ class _PartnerEarningsDashboardState
                           const SizedBox(height: 16),
                           Row(
                             children: [
-                              Icon(Icons.schedule,
-                                  size: 16,
-                                  color: colorScheme.onSurfaceVariant,),
+                              Icon(
+                                Icons.schedule,
+                                size: 16,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 'Next payout: ${DateFormat('MMM dd, yyyy').format(nextPayoutDate)}',

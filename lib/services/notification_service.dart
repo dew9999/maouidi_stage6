@@ -9,7 +9,7 @@ class NotificationService {
 
   Future<void> initialize() async {
     OneSignal.initialize(_oneSignalAppId);
-    OneSignal.Notifications.requestPermission(true);
+    await OneSignal.Notifications.requestPermission(true);
 
     OneSignal.User.pushSubscription.addObserver((state) {
       if (state.current.id != null) {
@@ -25,9 +25,12 @@ class NotificationService {
     if (Supabase.instance.client.auth.currentUser == null) return;
 
     try {
-      await Supabase.instance.client.rpc('update_player_id', params: {
-        'player_id_arg': playerId,
-      },);
+      await Supabase.instance.client.rpc(
+        'update_player_id',
+        params: {
+          'player_id_arg': playerId,
+        },
+      );
       debugPrint('OneSignal Player ID saved to Supabase: $playerId');
     } catch (e) {
       debugPrint('Error saving OneSignal Player ID: $e');

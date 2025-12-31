@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:maouidi/backend/supabase/supabase.dart';
 import 'package:maouidi/generated/l10n/app_localizations.dart';
+import '../core/utils/localization_mapper.dart';
 import '../core/constants.dart';
 
 class PartnerCardWidget extends StatelessWidget {
@@ -33,19 +34,22 @@ class PartnerCardWidget extends StatelessWidget {
             queryParameters: {'partnerId': partner.id},
           );
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                blurRadius: 3,
-                color: colorScheme.shadow,
-                offset: const Offset(0, 1),
+                blurRadius: 16,
+                color: Colors.black.withOpacity(0.04), // Pro Shadow
+                offset: const Offset(0, 4),
               ),
             ],
+            border: Border.all(
+              color: colorScheme.outlineVariant.withOpacity(0.4),
+            ),
           ),
           child: Column(
             children: [
@@ -89,7 +93,10 @@ class PartnerCardWidget extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          partner.specialty ?? l10n.nospecialty,
+                          partner.specialty != null
+                              ? LocalizationMapper.getSpecialty(
+                                  partner.specialty!, context,)
+                              : l10n.nospecialty,
                           style: textTheme.bodySmall
                               ?.copyWith(color: colorScheme.onSurfaceVariant),
                           maxLines: 1,

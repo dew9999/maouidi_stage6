@@ -102,4 +102,7 @@ class MedicalPartnersRow extends SupabaseDataRow {
   String? get onesignalPlayerId => getField<String>('onesignal_player_id');
   set onesignalPlayerId(String? value) =>
       setField<String>('onesignal_player_id', value);
+
+  double? get homecarePrice => getField<double>('homecare_price');
+  set homecarePrice(double? value) => setField<double>('homecare_price', value);
 }

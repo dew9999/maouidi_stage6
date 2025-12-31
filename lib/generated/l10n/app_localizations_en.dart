@@ -43,6 +43,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookapptbar => 'Book Appointment';
 
   @override
+  String get booknow => 'Book Now';
+
+  @override
   String get bookforpatient => 'Book for Patient';
 
   @override
@@ -59,6 +62,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get casedescex => 'Describe the patient\'s condition';
+
+  @override
+  String get categories => 'Categories';
+
+  @override
+  String get charities => 'Charities';
+
+  @override
+  String get clinics => 'Clinics';
 
   @override
   String get clncanalytics => 'Clinic Analytics';
@@ -82,10 +94,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cnclfail => 'Failed to cancel appointment';
 
   @override
-  String get commentshint => 'Share your experience';
+  String get commentsopt => 'Comments (Optional)';
 
   @override
-  String get commentsopt => 'Comments (Optional)';
+  String get commentshint => 'Share your experience';
 
   @override
   String get completed => 'Completed';
@@ -98,6 +110,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get delacct => 'Delete Account';
+
+  @override
+  String get doctors => 'Doctors';
+
+  @override
+  String get errloadingpartners => 'Error loading featured partners';
+
+  @override
+  String get featuredpartners => 'Featured Partners';
 
   @override
   String get fieldreq => 'This field is required';
@@ -125,6 +146,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hcdetails => 'Homecare Request Details';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get homecare => 'Homecare';
 
   @override
   String get language => 'Language';
@@ -163,10 +190,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noaptsmsg => 'You don\'t have any appointments yet';
 
   @override
+  String get nofeaturedpartners => 'No featured partners available';
+
+  @override
+  String get nopartners => 'No Partners Found';
+
+  @override
+  String get noresults => 'No Results';
+
+  @override
+  String get noresultsmsg => 'Try adjusting your search criteria';
+
+  @override
   String get noslots => 'No available time slots for this date';
 
   @override
   String get nospecialty => 'No Specialty';
+
+  @override
+  String get notavail => 'Not Available';
 
   @override
   String get notifications => 'Notifications';
@@ -187,6 +229,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ptphone => 'Patient Phone';
 
   @override
+  String get ptrerr => 'Error loading partner';
+
+  @override
+  String get ptridmissing => 'Partner ID is missing';
+
+  @override
+  String get ptrlist => 'Partner List';
+
+  @override
   String get ptrnotconfig => 'Partner booking system not configured';
 
   @override
@@ -202,10 +253,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rcvalerts => 'Receive Alerts';
 
   @override
-  String get requestvisit => 'Request Home Visit';
+  String get refinesrch => 'Refine your search';
 
   @override
   String get reqsent => 'Request sent successfully';
+
+  @override
+  String get requestvisit => 'Request Home Visit';
 
   @override
   String get revfail => 'Failed to submit review';
@@ -220,10 +274,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get schedule => 'Schedule';
 
   @override
+  String get searchhint => 'Search doctors, clinics...';
+
+  @override
   String get settings => 'Settings';
 
   @override
   String get slottaken => 'This time slot is no longer available';
+
+  @override
+  String get srchptr => 'Search Partners';
 
   @override
   String get status_cancelled_by_partner => 'Cancelled by Partner';
@@ -242,6 +302,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get status_pending => 'Pending';
+
+  @override
+  String get status_in_progress => 'In Progress';
 
   @override
   String get status_rescheduled => 'Rescheduled';
@@ -265,10 +328,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get thankrev => 'Thank you for your review!';
 
   @override
+  String get unnamedptr => 'Unnamed Partner';
+
+  @override
   String get upcoming => 'Upcoming';
 
   @override
   String get upnext => 'Up Next';
+
+  @override
+  String get welcomeback => 'Welcome back,';
 
   @override
   String get yourdash => 'Your Dashboard';
@@ -277,68 +346,317 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yournum => 'Your Number';
 
   @override
-  String get unnamedptr => 'Unnamed Partner';
+  String get specialty_anatomy => 'Pathological Anatomy and Cytology';
 
   @override
-  String get notavail => 'Not Available';
+  String get specialty_anesthesiology => 'Anesthesiology';
 
   @override
-  String get booknow => 'Book Now';
+  String get specialty_biochemistry => 'Biochemistry';
 
   @override
-  String get ptrlist => 'Partner List';
+  String get specialty_biophysics => 'Medical Biophysics';
 
   @override
-  String get nopartners => 'No Partners Found';
+  String get specialty_cardiology => 'Cardiology';
 
   @override
-  String get ptrerr => 'Error loading partner';
+  String get specialty_cardiovascular_surgery => 'Cardiovascular Surgery';
 
   @override
-  String get ptridmissing => 'Partner ID is missing';
+  String get specialty_child_psychiatry => 'Child Psychiatry';
 
   @override
-  String get srchptr => 'Search Partners';
+  String get specialty_cobstetrics_gynecology => 'Obstetrics and Gynecology';
 
   @override
-  String get refinesrch => 'Refine your search';
+  String get specialty_dentist => 'Dentist';
 
   @override
-  String get noresults => 'No Results';
+  String get specialty_dermatology => 'Dermatology';
 
   @override
-  String get noresultsmsg => 'Try adjusting your search criteria';
+  String get specialty_emergency_medicine => 'Emergency Medicine';
 
   @override
-  String get welcomeback => 'Welcome back,';
+  String get specialty_endocrinology => 'Endocrinology and Diabetology';
 
   @override
-  String get searchhint => 'Search doctors, clinics...';
+  String get specialty_ent => 'ENT (Otorhinolaryngology)';
 
   @override
-  String get categories => 'Categories';
+  String get specialty_epidemiology => 'Epidemiology and Preventive Medicine';
 
   @override
-  String get featuredpartners => 'Featured Partners';
+  String get specialty_forensic_medicine => 'Forensic Medicine';
 
   @override
-  String get doctors => 'Doctors';
+  String get specialty_gastroenterology => 'Gastroenterology and Hepatology';
 
   @override
-  String get clinics => 'Clinics';
+  String get specialty_general_practice => 'General Practice';
 
   @override
-  String get homecare => 'Homecare';
+  String get specialty_general_surgery => 'General Surgery';
 
   @override
-  String get charities => 'Charities';
+  String get specialty_gynecology => 'Gynecology';
 
   @override
-  String get nofeaturedpartners => 'No featured partners available';
+  String get specialty_hematology => 'Hematology (Clinical)';
 
   @override
-  String get errloadingpartners => 'Error loading featured partners';
+  String get specialty_hematology_bio => 'Hematology (Biological)';
 
   @override
-  String get home => 'Home';
+  String get specialty_histology => 'Histology, Embryology and Cytogenetics';
+
+  @override
+  String get specialty_immunology => 'Immunology';
+
+  @override
+  String get specialty_infectious_diseases => 'Infectious Diseases';
+
+  @override
+  String get specialty_internal_medicine => 'Internal Medicine';
+
+  @override
+  String get specialty_maxillofacial_surgery => 'Maxillofacial Surgery';
+
+  @override
+  String get specialty_microbiology => 'Microbiology';
+
+  @override
+  String get specialty_nephrology => 'Nephrology';
+
+  @override
+  String get specialty_neurology => 'Neurology';
+
+  @override
+  String get specialty_neurophysiology => 'Clinical Neurophysiology';
+
+  @override
+  String get specialty_neurosurgery => 'Neurosurgery';
+
+  @override
+  String get specialty_nuclear_medicine => 'Nuclear Medicine';
+
+  @override
+  String get specialty_occupational_medicine => 'Occupational Medicine';
+
+  @override
+  String get specialty_oncology => 'Medical Oncology';
+
+  @override
+  String get specialty_ophthalmology => 'Ophthalmology';
+
+  @override
+  String get specialty_orthopedics => 'Orthopedics';
+
+  @override
+  String get specialty_parasitology => 'Parasitology and Mycology';
+
+  @override
+  String get specialty_pediatric_surgery => 'Pediatric Surgery';
+
+  @override
+  String get specialty_pediatrics => 'Pediatrics';
+
+  @override
+  String get specialty_pharmacology => 'Pharmacology';
+
+  @override
+  String get specialty_physical_rehab => 'Physical Medicine and Rehabilitation';
+
+  @override
+  String get specialty_physiology => 'Physiology';
+
+  @override
+  String get specialty_plastic_surgery => 'Plastic and Reconstructive Surgery';
+
+  @override
+  String get specialty_pneumology => 'Pneumology';
+
+  @override
+  String get specialty_psychiatry => 'Psychiatry';
+
+  @override
+  String get specialty_public_health => 'Public Health';
+
+  @override
+  String get specialty_radiology => 'Radiology';
+
+  @override
+  String get specialty_radiotherapy => 'Radiotherapy';
+
+  @override
+  String get specialty_rheumatology => 'Rheumatology';
+
+  @override
+  String get specialty_sports_medicine => 'Sports Medicine';
+
+  @override
+  String get specialty_stomatology => 'Stomatology';
+
+  @override
+  String get specialty_thoracic_surgery => 'Thoracic Surgery';
+
+  @override
+  String get specialty_toxicology => 'Toxicology';
+
+  @override
+  String get specialty_transfusion_medicine => 'Transfusion Medicine';
+
+  @override
+  String get specialty_urology => 'Urology';
+
+  @override
+  String get specialty_vascular_surgery => 'Vascular Surgery';
+
+  @override
+  String get state_adrar => 'Adrar';
+
+  @override
+  String get state_ain_defla => 'Ain Defla';
+
+  @override
+  String get state_ain_temouchent => 'Ain Temouchent';
+
+  @override
+  String get state_alger => 'Algiers';
+
+  @override
+  String get state_algiers => 'Algiers';
+
+  @override
+  String get state_annaba => 'Annaba';
+
+  @override
+  String get state_batna => 'Batna';
+
+  @override
+  String get state_bechar => 'Bechar';
+
+  @override
+  String get state_bejaia => 'Bejaia';
+
+  @override
+  String get state_biskra => 'Biskra';
+
+  @override
+  String get state_blida => 'Blida';
+
+  @override
+  String get state_bordj_bou_arreridj => 'Bordj Bou Arreridj';
+
+  @override
+  String get state_bouira => 'Bouira';
+
+  @override
+  String get state_boumerdes => 'Boumerdes';
+
+  @override
+  String get state_chlef => 'Chlef';
+
+  @override
+  String get state_constantine => 'Constantine';
+
+  @override
+  String get state_djelfa => 'Djelfa';
+
+  @override
+  String get state_el_bayadh => 'El Bayadh';
+
+  @override
+  String get state_el_tarf => 'El Tarf';
+
+  @override
+  String get state_ghardaia => 'Ghardaia';
+
+  @override
+  String get state_guelma => 'Guelma';
+
+  @override
+  String get state_illizi => 'Illizi';
+
+  @override
+  String get state_jijel => 'Jijel';
+
+  @override
+  String get state_khenchela => 'Khenchela';
+
+  @override
+  String get state_laghouat => 'Laghouat';
+
+  @override
+  String get state_mascara => 'Mascara';
+
+  @override
+  String get state_medea => 'Medea';
+
+  @override
+  String get state_mila => 'Mila';
+
+  @override
+  String get state_mostaganem => 'Mostaganem';
+
+  @override
+  String get state_msila => 'M\'Sila';
+
+  @override
+  String get state_naama => 'Naama';
+
+  @override
+  String get state_oran => 'Oran';
+
+  @override
+  String get state_ouargla => 'Ouargla';
+
+  @override
+  String get state_oued_souf => 'El Oued';
+
+  @override
+  String get state_oum_el_bouaghi => 'Oum El Bouaghi';
+
+  @override
+  String get state_relizane => 'Relizane';
+
+  @override
+  String get state_saida => 'Saida';
+
+  @override
+  String get state_setif => 'Setif';
+
+  @override
+  String get state_sidi_bel_abbes => 'Sidi Bel Abbes';
+
+  @override
+  String get state_skikda => 'Skikda';
+
+  @override
+  String get state_souk_ahras => 'Souk Ahras';
+
+  @override
+  String get state_tamanrasset => 'Tamanrasset';
+
+  @override
+  String get state_tebessa => 'Tebessa';
+
+  @override
+  String get state_tiaret => 'Tiaret';
+
+  @override
+  String get state_tindouf => 'Tindouf';
+
+  @override
+  String get state_tipaza => 'Tipaza';
+
+  @override
+  String get state_tissemsilt => 'Tissemsilt';
+
+  @override
+  String get state_tizi_ouzou => 'Tizi Ouzou';
+
+  @override
+  String get state_tlemcen => 'Tlemcen';
 }

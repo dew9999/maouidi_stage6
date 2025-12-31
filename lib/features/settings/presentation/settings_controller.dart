@@ -105,6 +105,7 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         confirmationMode:
             data['confirmation_mode'] as String? ?? 'manual', // NEW
         dailyBookingLimit: data['daily_booking_limit'] as int? ?? 0,
+        homecarePrice: (data['homecare_price'] as num?)?.toDouble(),
         workingHours: _parseWorkingHours(data['working_hours']),
         closedDays: _parseClosedDays(data['closed_days']),
         isLoading: false,
@@ -188,6 +189,11 @@ class PartnerSettingsController extends _$PartnerSettingsController {
   Future<void> updateConfirmationMode(String value) async {
     if (!state.hasValue) return;
     state = AsyncValue.data(state.value!.copyWith(confirmationMode: value));
+  }
+
+  Future<void> updateHomecarePrice(double? value) async {
+    if (!state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(homecarePrice: value));
   }
 
   // --- Granular Working Hours Actions ---
@@ -318,12 +324,13 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         },
       );
 
-      // Also update working_hours and closed_days separately
+      // Also update working_hours, closed_days, and homecare_price separately
       // (Add these to the RPC if needed, or keep separate)
       await Supabase.instance.client.from('medical_partners').update({
         'working_hours': currentState.workingHours,
         'closed_days':
             currentState.closedDays.map((e) => e.toIso8601String()).toList(),
+        'homecare_price': currentState.homecarePrice,
       }).eq('id', user.id);
 
       state = AsyncValue.data(currentState.copyWith(isSaving: false));

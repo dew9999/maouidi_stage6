@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../auth/supabase_auth/auth_util.dart';
-import '../../core/constants.dart';
 import '../../core/extensions/extensions.dart';
 import '../../core/utils/app_helpers.dart';
 
@@ -208,6 +207,24 @@ class _PartnerSettingsView extends ConsumerWidget {
               ),
               _AvailabilitySection(settings: settings),
               SettingsGroup(
+                title: 'Professional',
+                children: [
+                  SettingsItem(
+                    icon: Icons.account_balance_wallet,
+                    title: 'Earnings & Payouts',
+                    subtitle: 'View your earnings and payout schedule',
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () {
+                      // Navigate to partner earnings dashboard
+                      // Use context.push with full path and query parameters
+                      context.push(
+                        '/partner-earnings?partnerId=$currentUserId',
+                      );
+                    },
+                  ),
+                ],
+              ),
+              SettingsGroup(
                 title: 'Actions',
                 children: [_EmergencyCard()],
               ),
@@ -337,35 +354,27 @@ class _ProfessionalDetailsSectionState
     return SettingsGroup(
       title: 'Professional Details',
       children: [
+        // Specialty is now immutable and handled during onboarding
+        // It is removed from here as requested.
+        /* 
         SettingsItem(
           icon: Icons.medical_services_outlined,
           title: 'Specialty',
           trailing: SizedBox(
             width: 180,
             child: DropdownButton<String>(
-              value: widget.settings.specialty,
-              items: medicalSpecialties.map((String specialty) {
-                return DropdownMenuItem<String>(
-                  value: specialty,
-                  child: Text(
-                    specialty,
-                    style: widget.theme.textTheme.bodyMedium?.copyWith(
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                );
-              }).toList(),
-              onChanged: (String? val) {
-                if (val != null) {
-                  ref
-                      .read(partnerSettingsControllerProvider.notifier)
-                      .updateSpecialty(val);
-                }
-              },
-              hint: const Text('Select...'),
-              isExpanded: true,
-              underline: const SizedBox.shrink(),
+              ...
             ),
+          ),
+        ),
+        */
+        // If we want to show it as read-only:
+        SettingsItem(
+          icon: Icons.medical_services_outlined,
+          title: 'Specialty',
+          trailing: Text(
+            widget.settings.specialty ?? 'Not Set',
+            style: widget.theme.textTheme.bodyMedium,
           ),
         ),
       ],
@@ -390,6 +399,7 @@ class _BookingConfigurationSection extends ConsumerStatefulWidget {
 class _BookingConfigurationSectionState
     extends ConsumerState<_BookingConfigurationSection> {
   late TextEditingController _limitController;
+  late TextEditingController _priceController;
 
   @override
   void initState() {
@@ -397,11 +407,15 @@ class _BookingConfigurationSectionState
     _limitController = TextEditingController(
       text: widget.settings.dailyBookingLimit.toString(),
     );
+    _priceController = TextEditingController(
+      text: widget.settings.homecarePrice?.toStringAsFixed(0) ?? '2000',
+    );
   }
 
   @override
   void dispose() {
     _limitController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 
@@ -518,6 +532,47 @@ class _BookingConfigurationSectionState
               ),
             ),
           ),
+        if (widget.settings.category == 'Homecare')
+          SettingsItem(
+            icon: Icons.attach_money_outlined,
+            title: 'Homecare Service Price (DZD)',
+            subtitle: 'Set your base homecare service price',
+            trailing: SizedBox(
+              width: 100,
+              child: TextFormField(
+                controller: _priceController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return 'Required';
+                  }
+                  if ((double.tryParse(val) ?? 0) <= 0) {
+                    return '> 0';
+                  }
+                  return null;
+                },
+                onChanged: (val) {
+                  final price = double.tryParse(val);
+                  if (price != null && price > 0) {
+                    ref
+                        .read(partnerSettingsControllerProvider.notifier)
+                        .updateHomecarePrice(price);
+                  }
+                },
+                textAlign: TextAlign.end,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: '2000',
+                  suffix: Text(
+                    'DA',
+                    style: widget.theme.textTheme.bodySmall,
+                  ),
+                  hintStyle: widget.theme.textTheme.labelMedium,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -551,8 +606,11 @@ class _GeneralAndLegalSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Cache theme references to prevent crashes during theme transitions
     final theme = Theme.of(context);
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final isDarkMode = theme.brightness == Brightness.dark;
 
     return Column(
       children: [
@@ -577,10 +635,10 @@ class _GeneralAndLegalSettings extends StatelessWidget {
                 underline: const SizedBox.shrink(),
                 icon: Icon(
                   Icons.arrow_drop_down,
-                  color: theme.colorScheme.onSurfaceVariant,
+                  color: colorScheme.onSurfaceVariant,
                 ),
-                dropdownColor: theme.colorScheme.surface,
-                style: theme.textTheme.bodyMedium,
+                dropdownColor: colorScheme.surface,
+                style: textTheme.bodyMedium,
               ),
             ),
             SettingsItem(
@@ -588,7 +646,7 @@ class _GeneralAndLegalSettings extends StatelessWidget {
               title: AppLocalizations.of(context)!.darkmode,
               trailing: Switch.adaptive(
                 value: isDarkMode,
-                thumbColor: WidgetStateProperty.all(theme.colorScheme.primary),
+                thumbColor: WidgetStateProperty.all(colorScheme.primary),
                 onChanged: (isDarkMode) {
                   final newMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
                   setDarkModeSetting(context, newMode);
@@ -689,7 +747,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
 
       final newSlot = '$formattedStart-$formattedEnd';
 
-      ref
+      await ref
           .read(partnerSettingsControllerProvider.notifier)
           .updateWorkingHourSlot(dayKey, slotIndex, newSlot);
     }
@@ -763,7 +821,7 @@ class _WorkingHoursEditor extends ConsumerWidget {
       }
       newMap[dayKey]!.add('$formattedStart-$formattedEnd');
 
-      ref
+      await ref
           .read(partnerSettingsControllerProvider.notifier)
           .updateWorkingHours(newMap);
     }
@@ -880,6 +938,8 @@ class _WorkingHoursEditor extends ConsumerWidget {
                             child: OutlinedButton.icon(
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: colorScheme.primary,
+                                textStyle: textTheme.labelLarge
+                                    ?.copyWith(inherit: true),
                               ),
                               icon: const Icon(Icons.add),
                               label: const Text('Add Time Slot'),
@@ -945,20 +1005,17 @@ class _ClosedDaysEditor extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Cache theme references to prevent crashes during theme transitions
     final theme = Theme.of(context);
-    // Assuming controller handles loading state which is reflected in settingsAsync in parent
-    // However, for adding day action, we might want local loading indicator?
-    // User requested removal of setState. We can trust the async operation speed or use
-    // value state if we really want to show spinner on the button.
-    // Since I'm converting to ConsumerWidget, I'll rely on the global loading or just
-    // blocking interaction via await.
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Specific Closed Days', style: theme.textTheme.titleMedium),
+          Text('Specific Closed Days', style: textTheme.titleMedium),
           const SizedBox(height: 16),
           closedDays.isEmpty
               ? const Center(
@@ -975,9 +1032,9 @@ class _ClosedDaysEditor extends ConsumerWidget {
                         (day) => Chip(
                           label: Text(DateFormat.yMMMd().format(day)),
                           onDeleted: () => _removeDay(ref, day),
-                          deleteIconColor: theme.colorScheme.error,
-                          backgroundColor: theme.colorScheme.surface,
-                          labelStyle: theme.textTheme.bodyMedium,
+                          deleteIconColor: colorScheme.error,
+                          backgroundColor: colorScheme.surface,
+                          labelStyle: textTheme.bodyMedium,
                         ),
                       )
                       .toList(),
@@ -987,7 +1044,8 @@ class _ClosedDaysEditor extends ConsumerWidget {
             width: double.infinity,
             child: OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
-                foregroundColor: theme.colorScheme.primary,
+                foregroundColor: colorScheme.primary,
+                textStyle: textTheme.labelLarge?.copyWith(inherit: true),
               ),
               icon: const Icon(Icons.add),
               label: const Text('Add a Closed Day'),

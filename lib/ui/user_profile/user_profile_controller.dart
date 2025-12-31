@@ -76,14 +76,22 @@ class UserProfileController extends AsyncNotifier<UserProfileState> {
           ? DateTime.parse(profile['date_of_birth'])
           : null,
       gender: _validateGender(profile['gender']?.toString()),
-      wilaya: profile['wilaya']
-          ?.toString(), // Validation happens in UI if needed, or helper
+      // Map database 'state' field and extract just the wilaya name
+      wilaya: _extractWilayaName(profile['state']?.toString()),
     );
   }
 
   String? _validateGender(String? gender) {
     const validGenders = ['Male', 'Female', 'Other'];
     return validGenders.contains(gender) ? gender : null;
+  }
+
+  /// Extract wilaya name from database format "10 - Bouira" to match UI dropdown
+  String? _extractWilayaName(String? state) {
+    if (state == null) return null;
+    // Database stores format like "10 - Bouira", extract just "Bouira"
+    final parts = state.split(' - ');
+    return parts.length > 1 ? parts[1].trim() : state.trim();
   }
 
   void toggleEditing(bool value) {
@@ -93,17 +101,20 @@ class UserProfileController extends AsyncNotifier<UserProfileState> {
       // Reset form to original data on cancel
       final original = state.value!.profileData;
       if (original != null) {
-        state = AsyncValue.data(state.value!.copyWith(
-          isEditing: false,
-          firstName: original['first_name']?.toString() ?? '',
-          lastName: original['last_name']?.toString() ?? '',
-          phone: original['phone']?.toString() ?? '',
-          dateOfBirth: original['date_of_birth'] != null
-              ? DateTime.parse(original['date_of_birth'])
-              : null,
-          gender: _validateGender(original['gender']?.toString()),
-          wilaya: original['wilaya']?.toString(),
-        ),);
+        state = AsyncValue.data(
+          state.value!.copyWith(
+            isEditing: false,
+            firstName: original['first_name']?.toString() ?? '',
+            lastName: original['last_name']?.toString() ?? '',
+            phone: original['phone']?.toString() ?? '',
+            dateOfBirth: original['date_of_birth'] != null
+                ? DateTime.parse(original['date_of_birth'])
+                : null,
+            gender: _validateGender(original['gender']?.toString()),
+            // Map database 'state' field and extract just the wilaya name
+            wilaya: _extractWilayaName(original['state']?.toString()),
+          ),
+        );
       } else {
         state = AsyncValue.data(state.value!.copyWith(isEditing: false));
       }
@@ -121,14 +132,16 @@ class UserProfileController extends AsyncNotifier<UserProfileState> {
     String? wilaya,
   }) {
     if (state.value == null) return;
-    state = AsyncValue.data(state.value!.copyWith(
-      firstName: firstName,
-      lastName: lastName,
-      phone: phone,
-      dateOfBirth: dateOfBirth,
-      gender: gender,
-      wilaya: wilaya,
-    ),);
+    state = AsyncValue.data(
+      state.value!.copyWith(
+        firstName: firstName,
+        lastName: lastName,
+        phone: phone,
+        dateOfBirth: dateOfBirth,
+        gender: gender,
+        wilaya: wilaya,
+      ),
+    );
   }
 
   Future<bool> saveProfile() async {
@@ -149,7 +162,8 @@ class UserProfileController extends AsyncNotifier<UserProfileState> {
         'phone': currentState.phone,
         'date_of_birth': currentState.dateOfBirth?.toIso8601String(),
         'gender': currentState.gender,
-        'wilaya': currentState.wilaya,
+        // Map app 'wilaya' property to database 'state' field
+        'state': currentState.wilaya,
       });
 
       // Reload to confirm and reset editing state

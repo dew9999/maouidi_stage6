@@ -25,6 +25,8 @@ class PartnerBookingData {
   final String? category;
   final List<DateTime> closedDays;
   final Map<String, dynamic> workingHours;
+  final double?
+      homecarePrice; // Custom homecare price (null = use default 2000 DZD)
 
   PartnerBookingData({
     required this.bookingSystemType,
@@ -32,6 +34,7 @@ class PartnerBookingData {
     this.category,
     required this.closedDays,
     required this.workingHours,
+    this.homecarePrice,
   });
 
   factory PartnerBookingData.fromJson(Map<String, dynamic> json) {
@@ -45,6 +48,7 @@ class PartnerBookingData {
       category: json['category'] as String?,
       closedDays: closedDays,
       workingHours: json['working_hours'] as Map<String, dynamic>? ?? {},
+      homecarePrice: (json['homecare_price'] as num?)?.toDouble(),
     );
   }
 }
@@ -100,7 +104,7 @@ class BookingRepository {
       final response = await _supabase
           .from('medical_partners')
           .select(
-            'booking_system_type, full_name, closed_days, category, working_hours',
+            'booking_system_type, full_name, closed_days, category, working_hours, homecare_price',
           )
           .eq('id', partnerId)
           .maybeSingle();

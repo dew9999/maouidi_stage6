@@ -33,6 +33,7 @@ class AppointmentModel with _$AppointmentModel {
     double? negotiatedPrice,
     @Default('none')
     String negotiationStatus, // 'pending', 'accepted', 'rejected', 'none'
+    int? negotiationRound,
     DateTime? createdAt,
   }) = _AppointmentModel;
 
@@ -69,6 +70,7 @@ class AppointmentModel with _$AppointmentModel {
               : data['negotiated_price'] as double)
           : null,
       negotiationStatus: data['negotiation_status'] as String? ?? 'none',
+      negotiationRound: data['negotiation_round'] as int?,
       createdAt: data['created_at'] != null
           ? DateTime.parse(data['created_at'] as String)
           : null,

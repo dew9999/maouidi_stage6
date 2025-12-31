@@ -33,6 +33,24 @@ class ReceiptService {
   Future<File> generateReceipt({
     required String appointmentId,
   }) async {
+    // Fetch platform fee from app_config (with fallback to 500.0)
+    double platformFeeFromConfig = 500.0;
+    try {
+      final configResult = await _supabase
+          .from('app_config')
+          .select('value')
+          .eq('key', 'platform_fee_dzd')
+          .maybeSingle();
+
+      if (configResult != null && configResult['value'] != null) {
+        platformFeeFromConfig =
+            double.tryParse(configResult['value'].toString()) ?? 500.0;
+      }
+    } catch (e) {
+      // If query fails, use default 500.0
+      platformFeeFromConfig = 500.0;
+    }
+
     // Fetch all required data - STRICTLY filter by homecare booking type
     final appointment = await _supabase.from('appointments').select('''
           *,
@@ -41,8 +59,10 @@ class ReceiptService {
         ''').eq('id', appointmentId).eq('booking_type', 'homecare').single();
 
     final negotiatedPrice = (appointment['negotiated_price'] as num).toDouble();
-    final platformFee =
-        (appointment['platform_fee'] as num?)?.toDouble() ?? 500.0;
+
+    // Use platform fee from config, with appointment override if present
+    final platformFee = (appointment['platform_fee'] as num?)?.toDouble() ??
+        platformFeeFromConfig;
     final totalAmount = negotiatedPrice + platformFee;
     final paidAt = DateTime.parse(appointment['paid_at'] as String);
     final patientLocation = appointment['patient_address'] as String? ??

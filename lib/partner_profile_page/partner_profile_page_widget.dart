@@ -10,6 +10,7 @@ import '../features/settings/presentation/settings_controller.dart';
 import '../features/partners/data/partner_repository.dart';
 import '../../backend/supabase/database/tables/medical_partners.dart';
 import 'components/reviews_widget.dart';
+import '../core/utils/localization_mapper.dart';
 
 class PartnerProfilePageWidget extends ConsumerStatefulWidget {
   const PartnerProfilePageWidget({
@@ -163,12 +164,16 @@ class _PartnerProfilePageWidgetState
     final String? address = isOwner ? data.location : data.address;
     // Map wilaya using LocalizationMapper
     final String? rawWilaya = isOwner ? data.state : data.wilaya;
-    final String? wilaya = rawWilaya != null ? rawWilaya : null;
+    final String? wilaya = rawWilaya != null
+        ? LocalizationMapper.getState(rawWilaya, context)
+        : null;
 
     final String? category = isOwner ? data.category : data.category;
     // Map specialty using LocalizationMapper
     final String? rawSpecialty = isOwner ? data.specialty : data.specialty;
-    final String? specialty = rawSpecialty != null ? rawSpecialty : null;
+    final String? specialty = rawSpecialty != null
+        ? LocalizationMapper.getSpecialty(rawSpecialty, context)
+        : null;
     // Handle differences in working hours structure if necessary,
     // but assuming toString() or basic display is enough for now.
     // PartnerSettingsState has 'workingHours' (Map), MedicalPartner has 'workingHours' (Map or String).
@@ -194,7 +199,7 @@ class _PartnerProfilePageWidgetState
           expandedHeight: 200,
           pinned: true,
           backgroundColor: colorScheme.primary,
-          iconTheme: IconThemeData(color: colorScheme.onPrimary),
+          iconTheme: const IconThemeData(color: Colors.white),
           actions: isOwner
               ? [
                   if (_isEditing)
@@ -214,8 +219,7 @@ class _PartnerProfilePageWidgetState
           flexibleSpace: FlexibleSpaceBar(
             title: Text(
               fullName,
-              style:
-                  textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary),
+              style: textTheme.titleLarge?.copyWith(color: Colors.white),
             ),
             background: Container(
               decoration: BoxDecoration(
@@ -224,7 +228,7 @@ class _PartnerProfilePageWidgetState
                   end: Alignment.bottomRight,
                   colors: [
                     colorScheme.primary,
-                    colorScheme.primaryContainer,
+                    colorScheme.tertiary, // Use Home Page style gradient
                   ],
                 ),
               ),
@@ -237,7 +241,7 @@ class _PartnerProfilePageWidgetState
           ),
         ),
         SliverPadding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20), // Standardized padding to 20
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               // Rating / Verification Row (Public only mostly)
@@ -255,23 +259,25 @@ class _PartnerProfilePageWidgetState
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.1),
+                              color: const Color(0xFF10B981)
+                                  .withOpacity(0.1), // Green-500 equivalent
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.green),
+                              border:
+                                  Border.all(color: const Color(0xFF10B981)),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(
                                   Icons.verified,
-                                  color: Colors.green,
+                                  color: Color(0xFF10B981),
                                   size: 16,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
                                   'Verified',
                                   style: textTheme.bodySmall?.copyWith(
-                                    color: Colors.green,
+                                    color: const Color(0xFF10B981),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -281,11 +287,14 @@ class _PartnerProfilePageWidgetState
                           const SizedBox(width: 12),
                         ],
                         if (!isOwner) ...[
-                          const Icon(Icons.star, color: Colors.amber, size: 20),
+                          const Icon(Icons.star_rounded,
+                              color: Colors.amber, size: 24,),
                           const SizedBox(width: 4),
-                          Text(rating, style: textTheme.titleMedium),
+                          Text(rating,
+                              style: textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),),
                           Text(
-                            ' ($reviewCount)',
+                            ' ($reviewCount reviews)',
                             style: textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -358,7 +367,8 @@ class _PartnerProfilePageWidgetState
                         ),
                       )
                     else
-                      Text(bio!, style: textTheme.bodyMedium),
+                      Text(bio!,
+                          style: textTheme.bodyMedium?.copyWith(height: 1.5),),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -374,7 +384,7 @@ class _PartnerProfilePageWidgetState
                     _buildInfoRow(
                       Icons.category,
                       'Category',
-                      category,
+                      LocalizationMapper.getCategory(category, context),
                       colorScheme,
                       textTheme,
                     ),
@@ -420,7 +430,8 @@ class _PartnerProfilePageWidgetState
                       children: [
                         _buildSectionTitle(textTheme, 'Our Doctors'),
                         SizedBox(
-                          height: 140,
+                          height:
+                              160, // Increased height for better card layout
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: doctors.length,
@@ -428,7 +439,26 @@ class _PartnerProfilePageWidgetState
                                 const SizedBox(width: 12),
                             itemBuilder: (context, index) {
                               final doctor = doctors[index];
-                              return Card(
+                              return Container(
+                                width: 130, // Slightly wider
+                                margin: const EdgeInsets.only(
+                                    bottom: 8,), // For shadow
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(
+                                      16,), // Match Home Page
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                  border: Border.all(
+                                    color: colorScheme.outlineVariant
+                                        .withOpacity(0.4),
+                                  ),
+                                ),
                                 clipBehavior: Clip.antiAlias,
                                 child: InkWell(
                                   onTap: () {
@@ -437,41 +467,47 @@ class _PartnerProfilePageWidgetState
                                       queryParameters: {'partnerId': doctor.id},
                                     );
                                   },
-                                  child: Container(
-                                    width: 120,
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 30,
-                                          backgroundImage: doctor.photoUrl !=
-                                                  null
-                                              ? NetworkImage(doctor.photoUrl!)
-                                              : null,
-                                          child: doctor.photoUrl == null
-                                              ? const Icon(Icons.person)
-                                              : null,
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 32,
+                                        backgroundImage: doctor.photoUrl != null
+                                            ? NetworkImage(doctor.photoUrl!)
+                                            : null,
+                                        child: doctor.photoUrl == null
+                                            ? const Icon(Icons.person)
+                                            : null,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4,),
+                                        child: Text(
                                           doctor.fullName ?? 'Doctor',
                                           style: textTheme.bodyMedium?.copyWith(
-                                              fontWeight: FontWeight.bold),
+                                              fontWeight: FontWeight.bold,),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           textAlign: TextAlign.center,
                                         ),
-                                        Text(
-                                          doctor.specialty ?? '',
-                                          style: textTheme.bodySmall,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4,),
+                                        child: Text(
+                                          doctor.specialty != null
+                                              ? LocalizationMapper.getSpecialty(
+                                                  doctor.specialty!, context,)
+                                              : '',
+                                          style: textTheme.bodySmall?.copyWith(
+                                              color: colorScheme.primary,),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           textAlign: TextAlign.center,
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               );
@@ -502,12 +538,18 @@ class _PartnerProfilePageWidgetState
                       },
                     );
                   },
-                  icon: const Icon(Icons.calendar_today),
+                  icon: const Icon(Icons.calendar_month_rounded),
                   label: const Text('Book Appointment'),
                   style: FilledButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
+                    minimumSize:
+                        const Size(double.infinity, 56), // Taller button
                     backgroundColor: colorScheme.primary,
                     foregroundColor: colorScheme.onPrimary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 4,
+                    shadowColor: colorScheme.primary.withOpacity(0.4),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -521,10 +563,13 @@ class _PartnerProfilePageWidgetState
 
   Widget _buildSectionTitle(TextTheme textTheme, String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8, top: 8),
+      padding: const EdgeInsets.only(bottom: 12, top: 8),
       child: Text(
         title,
-        style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        style: textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
       ),
     );
   }
@@ -534,15 +579,26 @@ class _PartnerProfilePageWidgetState
     TextTheme textTheme, {
     required List<Widget> children,
   }) {
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16), // Match Home Page Radius
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: colorScheme.outlineVariant.withOpacity(0.4),
         ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
       ),
     );
   }

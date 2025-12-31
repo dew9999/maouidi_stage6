@@ -32,7 +32,7 @@ void main() async {
   // Initialize notifications (non-web only)
   if (!kIsWeb) {
     await NotificationService().initialize();
-    OneSignal.Notifications.requestPermission(true);
+    await OneSignal.Notifications.requestPermission(true);
   }
 
   runApp(const ProviderScope(child: MyApp()));

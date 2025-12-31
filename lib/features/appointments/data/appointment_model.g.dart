@@ -31,6 +31,7 @@ _$AppointmentModelImpl _$$AppointmentModelImplFromJson(
       homecareAddress: json['homecareAddress'] as String?,
       negotiatedPrice: (json['negotiatedPrice'] as num?)?.toDouble(),
       negotiationStatus: json['negotiationStatus'] as String? ?? 'none',
+      negotiationRound: (json['negotiationRound'] as num?)?.toInt(),
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
@@ -59,5 +60,6 @@ Map<String, dynamic> _$$AppointmentModelImplToJson(
       'homecareAddress': instance.homecareAddress,
       'negotiatedPrice': instance.negotiatedPrice,
       'negotiationStatus': instance.negotiationStatus,
+      'negotiationRound': instance.negotiationRound,
       'createdAt': instance.createdAt?.toIso8601String(),
     };

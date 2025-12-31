@@ -314,7 +314,7 @@ class _StandardPartnerDashboardView extends ConsumerWidget {
                   style: SegmentedButton.styleFrom(
                     backgroundColor: theme.colorScheme.surfaceContainerHigh,
                     foregroundColor: theme.colorScheme.onSurface,
-                    selectedForegroundColor: Colors.white,
+                    selectedForegroundColor: theme.colorScheme.onPrimary,
                     selectedBackgroundColor: theme.colorScheme.primary,
                   ),
                 ),

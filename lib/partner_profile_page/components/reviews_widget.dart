@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../backend/supabase/supabase.dart';
+import '../../components/empty_state_widget.dart';
 
 class ReviewsWidget extends ConsumerWidget {
   const ReviewsWidget({
@@ -74,35 +75,12 @@ class ReviewsWidget extends ConsumerWidget {
         final reviews = snapshot.data ?? [];
 
         if (reviews.isEmpty) {
-          return Card(
-            elevation: 0,
-            color: colorScheme.surfaceContainerHighest,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.rate_review_outlined,
-                    size: 48,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'No reviews yet',
-                    style: textTheme.titleMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'This partner has not received any reviews.',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24.0),
+            child: EmptyStateWidget(
+              icon: Icons.rate_review_outlined,
+              title: 'No reviews yet',
+              message: 'This partner has not received any reviews.',
             ),
           );
         }

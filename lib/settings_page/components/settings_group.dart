@@ -27,7 +27,17 @@ class SettingsGroup extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+            border: Border.all(
+              color: colorScheme.outlineVariant.withOpacity(0.4),
+            ),
           ),
           child: Column(
             children: List.generate(children.length, (index) {
@@ -36,7 +46,11 @@ class SettingsGroup extends StatelessWidget {
                 children: [
                   children[index],
                   if (index != children.length - 1)
-                    Divider(height: 1, color: colorScheme.outline, indent: 56),
+                    Divider(
+                      height: 1,
+                      color: colorScheme.outlineVariant.withOpacity(0.4),
+                      indent: 56,
+                    ),
                 ],
               );
             }),

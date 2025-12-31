@@ -35,7 +35,15 @@ class PatientDashboardController extends _$PatientDashboardController {
       final results = await Future.wait([
         repository.fetchPatientAppointments(
           userId,
-          ['Pending', 'Confirmed', 'Rescheduled'],
+          [
+            'Pending',
+            'Confirmed',
+            'confirmed',
+            'Rescheduled',
+            'pending_user_approval',
+            'pending_partner_approval',
+            'pending_payment',
+          ],
           isUpcoming: true,
         ),
         repository.fetchPatientAppointments(userId, ['Completed']),
@@ -86,11 +94,14 @@ class PatientDashboardController extends _$PatientDashboardController {
   ) async {
     try {
       final supabase = ref.read(supabaseClientProvider);
-      await supabase.rpc('submit_review', params: {
-        'appointment_id_arg': appointmentId,
-        'rating_arg': rating,
-        'review_text_arg': reviewText,
-      },);
+      await supabase.rpc(
+        'submit_review',
+        params: {
+          'appointment_id_arg': appointmentId,
+          'rating_arg': rating,
+          'review_text_arg': reviewText,
+        },
+      );
 
       // Reload data after successful review submission
       await loadData();
@@ -115,7 +126,15 @@ Stream<List<Map<String, dynamic>>> upcomingAppointmentsStream(
   final repository = ref.watch(appointmentRepositoryProvider);
   return repository.watchPatientAppointments(
     userId,
-    ['Pending', 'Confirmed', 'Rescheduled'],
+    [
+      'Pending',
+      'Confirmed',
+      'confirmed',
+      'Rescheduled',
+      'pending_user_approval',
+      'pending_partner_approval',
+      'pending_payment',
+    ],
     isUpcoming: true,
   );
 }

@@ -19,6 +19,11 @@ class SearchRepository {
     String? query,
     String? category,
     String? location,
+    String? specialty,
+    double? minPrice,
+    double? maxPrice,
+    double? minRating,
+    String? availabilityFilter,
   }) async {
     try {
       // Start building the query
@@ -29,6 +34,15 @@ class SearchRepository {
 
       if (category != null && category.isNotEmpty) {
         dbQuery = dbQuery.eq('category', category);
+      }
+
+      if (specialty != null && specialty.isNotEmpty) {
+        dbQuery = dbQuery.eq('specialty', specialty);
+      }
+
+      // Filter by minimum rating
+      if (minRating != null) {
+        dbQuery = dbQuery.gte('average_rating', minRating);
       }
 
       // Execute query
@@ -51,15 +65,55 @@ class SearchRepository {
       if (location != null && location.isNotEmpty) {
         final loc = location.toLowerCase();
         partners = partners.where((p) {
-          // FIX: Safely access data map for missing getters
-          // Or check against 'address' if that exists
-          final address = p.data['address']?.toString().toLowerCase() ?? '';
-          final city = p.data['city']?.toString().toLowerCase() ?? '';
-          final state = p.data['state']?.toString().toLowerCase() ?? '';
+          // Check against wilaya field
+          final wilaya = p.wilaya?.toLowerCase() ?? '';
+          final address = p.address?.toLowerCase() ?? '';
 
-          return address.contains(loc) ||
-              city.contains(loc) ||
-              state.contains(loc);
+          return wilaya.contains(loc) || address.contains(loc);
+        }).toList();
+      }
+
+      // Filter by price range (homecare_price field)
+      if (minPrice != null) {
+        partners = partners.where((p) {
+          final price = p.homecarePrice;
+          return price != null && price >= minPrice;
+        }).toList();
+      }
+
+      if (maxPrice != null) {
+        partners = partners.where((p) {
+          final price = p.homecarePrice;
+          return price != null && price <= maxPrice;
+        }).toList();
+      }
+
+      // Filter by availability (active partners only for now)
+      // In the future, can check closed_days and working_hours
+      if (availabilityFilter != null && availabilityFilter != 'any') {
+        partners = partners.where((p) {
+          final isActive = p.isActive ?? false;
+          if (!isActive) return false;
+
+          // For 'today' or 'this_week', check if today is not in closed_days
+          if (availabilityFilter == 'today' ||
+              availabilityFilter == 'this_week') {
+            final closedDays = p.closedDays;
+            final today = DateTime.now();
+
+            if (closedDays.isNotEmpty) {
+              // Check if today matches any closed day (date only, ignore time)
+              final todayDate = DateTime(today.year, today.month, today.day);
+              final isClosed = closedDays.any((closedDay) {
+                final closedDate =
+                    DateTime(closedDay.year, closedDay.month, closedDay.day);
+                return closedDate.isAtSameMomentAs(todayDate);
+              });
+              if (isClosed) return false;
+            }
+          }
+
+          return true;
         }).toList();
       }
 
