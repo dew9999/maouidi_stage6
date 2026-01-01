@@ -308,6 +308,8 @@ class NumberQueueView extends ConsumerWidget {
           (a) =>
               a.status == 'Pending' ||
               a.status == 'Confirmed' ||
+              a.status == 'confirmed' || // Fix for lowercase status
+              a.status == 'pending' || // Fix for lowercase status
               a.status == 'pending_user_approval' ||
               a.status == 'pending_payment' ||
               a.status == 'pending_partner_approval',

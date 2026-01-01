@@ -357,7 +357,7 @@ class AppointmentRepository {
     bool? isUpcoming,
   }) async {
     try {
-      var query = _supabase
+      final query = _supabase
           .from('appointments')
           .select(
             '*, appointment_number, has_review, completed_at, medical_partners(full_name, specialty, category)',
@@ -371,9 +371,17 @@ class AppointmentRepository {
         final filterTime = startOfToday.toUtc().toIso8601String();
 
         if (isUpcoming) {
-          query = query.gte('appointment_time', filterTime);
+          // For "Upcoming" (Active) appointments, we want to see everything
+          // that is Pending/Confirmed, even if it's in the past (e.g. from yesterday).
+          // So we DO NOT filter by time >= now. We only rely on the status filter.
+
+          // query = query.gte('appointment_time', filterTime); // REMOVED to show past active items
         } else {
-          query = query.lt('appointment_time', now.toUtc().toIso8601String());
+          // For "History" (Completed/Cancelled), we might want to filter or just show all.
+          // The current logic filtered for < now, which is generally fine for completed items,
+          // but strictly speaking, 'Completed' status is enough.
+
+          // query = query.lt('appointment_time', now.toUtc().toIso8601String()); // Optional
         }
       }
 
@@ -381,7 +389,8 @@ class AppointmentRepository {
           await query.order('appointment_time', ascending: isUpcoming ?? false);
 
       debugPrint(
-          'Debug: Patient appointments for $userId (Status: $statuses, Upcoming: $isUpcoming): ${response.length} found',);
+        'Debug: Patient appointments for $userId (Status: $statuses, Upcoming: $isUpcoming): ${response.length} found',
+      );
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {

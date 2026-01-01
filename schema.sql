@@ -26,7 +26,7 @@ CREATE EXTENSION IF NOT EXISTS "pg_net" WITH SCHEMA "extensions";
 
 
 
-COMMENT ON SCHEMA "public" IS 'standard public schema';
+COMMENT ON SCHEMA "public" IS 'standard public schema - Dispute system deferred to future release';
 
 
 
@@ -181,7 +181,11 @@ CREATE TYPE "public"."specialty_enum" AS ENUM (
     'Forensic Medicine and Medical Deontology',
     'Occupational Medicine',
     'Stomatology',
-    'Transfusion Medicine (Hemobiology)'
+    'Transfusion Medicine (Hemobiology)',
+    'Multi-Specialty',
+    'General Medicine',
+    'Nursing',
+    'Relaxing Massage'
 );
 
 
@@ -195,6 +199,22 @@ CREATE TYPE "public"."user_role_enum" AS ENUM (
 
 
 ALTER TYPE "public"."user_role_enum" OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."accept_homecare_price"("appointment_id_arg" integer) RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+    UPDATE public.appointments
+    SET 
+        negotiation_status = 'accepted',
+        status = 'pending_payment' -- Moves to payment stage
+    WHERE id = appointment_id_arg;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."accept_homecare_price"("appointment_id_arg" integer) OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."apply_new_partner_hold"() RETURNS "trigger"
@@ -472,6 +492,30 @@ $$;
 
 
 ALTER FUNCTION "public"."close_day_and_cancel_appointments"("closed_day_arg" "date") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."counter_offer_homecare_price"("appointment_id_arg" integer, "price_arg" numeric) RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+DECLARE
+    current_round INT;
+BEGIN
+    SELECT negotiation_round INTO current_round FROM public.appointments WHERE id = appointment_id_arg;
+    IF current_round >= 5 THEN
+        RAISE EXCEPTION 'Maximum negotiation rounds (5) reached. You must accept or reject.';
+    END IF;
+    UPDATE public.appointments
+    SET 
+        negotiated_price = price_arg,
+        negotiation_status = 'pending_partner_approval',
+        status = 'pending_partner_approval', -- Waiting for partner
+        negotiation_round = COALESCE(negotiation_round, 0) + 1
+    WHERE id = appointment_id_arg;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."counter_offer_homecare_price"("appointment_id_arg" integer, "price_arg" numeric) OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."create_chargily_checkout"("amount_arg" numeric, "currency_arg" "text", "user_id_arg" "text", "partner_id_arg" "text", "appointment_time_arg" "text") RETURNS "jsonb"
@@ -794,7 +838,11 @@ CREATE TABLE IF NOT EXISTS "public"."medical_partners" (
     "verified_at" timestamp with time zone,
     "completed_services_count" integer DEFAULT 0,
     "total_ratings" integer DEFAULT 0,
-    "is_new_partner" boolean DEFAULT true
+    "is_new_partner" boolean DEFAULT true,
+    "homecare_price" numeric(10,2) DEFAULT 2000.0,
+    "account_holder_name" "text",
+    "last_schedule_change" timestamp with time zone,
+    "rip_number" "text"
 );
 
 
@@ -806,6 +854,10 @@ COMMENT ON TABLE "public"."medical_partners" IS 'Stores profiles for all medical
 
 
 COMMENT ON COLUMN "public"."medical_partners"."payout_schedule" IS 'weekly or monthly';
+
+
+
+COMMENT ON COLUMN "public"."medical_partners"."homecare_price" IS 'Homecare service price in DZD. Defaults to 2000 DZD if not set.';
 
 
 
@@ -886,7 +938,7 @@ $$;
 ALTER FUNCTION "public"."get_partner_analytics"("partner_id_arg" "uuid") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."get_partner_dashboard_appointments"("partner_id_arg" "uuid") RETURNS TABLE("id" bigint, "partner_id" "uuid", "booking_user_id" "uuid", "on_behalf_of_patient_name" "text", "appointment_time" timestamp with time zone, "status" "text", "on_behalf_of_patient_phone" "text", "appointment_number" integer, "is_rescheduled" boolean, "completed_at" timestamp with time zone, "has_review" boolean, "case_description" "text", "patient_location" "text", "patient_first_name" "text", "patient_last_name" "text", "patient_phone" "text")
+CREATE OR REPLACE FUNCTION "public"."get_partner_dashboard_appointments"("partner_id_arg" "uuid") RETURNS TABLE("id" bigint, "partner_id" "uuid", "booking_user_id" "uuid", "on_behalf_of_patient_name" "text", "appointment_time" timestamp with time zone, "status" "text", "on_behalf_of_patient_phone" "text", "appointment_number" integer, "is_rescheduled" boolean, "completed_at" timestamp with time zone, "has_review" boolean, "case_description" "text", "patient_location" "text", "patient_first_name" "text", "patient_last_name" "text", "patient_phone" "text", "booking_type" "text", "homecare_address" "text", "negotiated_price" double precision, "negotiation_status" "text", "negotiation_round" integer)
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
@@ -906,10 +958,16 @@ BEGIN
     a.has_review,
     a.case_description,
     a.patient_location,
-    -- Patient details from users table
+    -- Patient details
     u.first_name as patient_first_name,
     u.last_name as patient_last_name,
-    u.phone as patient_phone
+    u.phone as patient_phone,
+    -- New columns for Homecare/Negotiation
+    a.booking_type::text,
+    a.homecare_address,
+    a.negotiated_price::double precision,
+    a.negotiation_status,
+    a.negotiation_round
   FROM public.appointments a
   LEFT JOIN public.users u ON a.booking_user_id = u.id
   WHERE a.partner_id = partner_id_arg
@@ -921,18 +979,25 @@ $$;
 ALTER FUNCTION "public"."get_partner_dashboard_appointments"("partner_id_arg" "uuid") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."get_partner_lifetime_earnings"("partner_id_arg" "uuid") RETURNS numeric
+CREATE OR REPLACE FUNCTION "public"."get_partner_lifetime_earnings"("partner_id_arg" "uuid") RETURNS double precision
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
 DECLARE
-    total_earnings numeric;
+  total_earnings double precision;
 BEGIN
-    SELECT COALESCE(SUM(amount_paid), 0)
-    INTO total_earnings
-    FROM appointments
-    WHERE partner_id = partner_id_arg
-    AND status = 'Completed'; -- Using PascalCase 'Completed' based on common usage in app, but DB might be different. Let's assume standard 'Completed' from previous edits.
-    RETURN total_earnings;
+  SELECT
+    COALESCE(SUM(
+      GREATEST(
+        (COALESCE(a.negotiated_price, mp.homecare_price, 0) - 100.0), -- Subtract 100 DZD platform fee
+        0.0 -- Ensure no negative earnings per appointment
+      )
+    ), 0.0)
+  INTO total_earnings
+  FROM public.appointments a
+  JOIN public.medical_partners mp ON a.partner_id = mp.id
+  WHERE a.partner_id = partner_id_arg
+    AND a.status = 'Completed'; -- Only count completed appointments. Filter by type removed to match app logic.
+  RETURN total_earnings;
 END;
 $$;
 
@@ -1158,6 +1223,24 @@ $$;
 ALTER FUNCTION "public"."increment_completed_services"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."increment_completed_services_count"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  -- Check if status changed to 'Completed'
+  IF NEW.status = 'Completed' AND (OLD.status IS DISTINCT FROM 'Completed') THEN
+    UPDATE public.medical_partners
+    SET completed_services_count = COALESCE(completed_services_count, 0) + 1
+    WHERE id = NEW.partner_id;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."increment_completed_services_count"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."process_chargily_webhook"("signature_header" "text", "payload" "jsonb") RETURNS json
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -1276,6 +1359,47 @@ ALTER FUNCTION "public"."process_chargily_webhook"("signature_header" "text", "p
 
 COMMENT ON FUNCTION "public"."process_chargily_webhook"("signature_header" "text", "payload" "jsonb") IS 'Processes Chargily payment webhooks with signature verification, idempotency, and automatic race condition resolution via time adjustment.';
 
+
+
+CREATE OR REPLACE FUNCTION "public"."propose_homecare_price"("appointment_id_arg" integer, "price_arg" numeric) RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+DECLARE
+    current_round INT;
+BEGIN
+    SELECT negotiation_round INTO current_round FROM public.appointments WHERE id = appointment_id_arg;
+    
+    IF current_round >= 5 THEN
+        RAISE EXCEPTION 'Maximum negotiation rounds (5) reached.';
+    END IF;
+    UPDATE public.appointments
+    SET 
+        negotiated_price = price_arg,
+        negotiation_status = 'pending_user_approval',
+        status = 'pending_user_approval', -- Waiting for patient
+        negotiation_round = COALESCE(negotiation_round, 0) + 1
+    WHERE id = appointment_id_arg;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."propose_homecare_price"("appointment_id_arg" integer, "price_arg" numeric) OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."reject_homecare_price"("appointment_id_arg" integer) RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+    UPDATE public.appointments
+    SET 
+        negotiation_status = 'rejected',
+        status = 'negotiation_failed'
+    WHERE id = appointment_id_arg;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."reject_homecare_price"("appointment_id_arg" integer) OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."reschedule_appointment_to_end_of_queue"("appointment_id_arg" bigint, "partner_id_arg" "uuid") RETURNS "void"
@@ -1707,6 +1831,57 @@ $$;
 ALTER FUNCTION "public"."update_player_id"("player_id_arg" "text") OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."appointments" (
+    "id" bigint NOT NULL,
+    "partner_id" "uuid" NOT NULL,
+    "booking_user_id" "uuid" NOT NULL,
+    "on_behalf_of_patient_name" "text",
+    "appointment_time" timestamp with time zone NOT NULL,
+    "status" "text" DEFAULT 'Pending'::"text" NOT NULL,
+    "on_behalf_of_patient_phone" "text",
+    "appointment_number" integer,
+    "is_rescheduled" boolean DEFAULT false,
+    "completed_at" timestamp with time zone,
+    "has_review" boolean DEFAULT false,
+    "case_description" "text",
+    "patient_location" "text",
+    "booking_type" "public"."booking_type" DEFAULT 'clinic'::"public"."booking_type",
+    "homecare_address" "text",
+    "negotiated_price" numeric(10,2),
+    "negotiation_status" "text" DEFAULT 'none'::"text",
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "negotiation_history" "jsonb" DEFAULT '[]'::"jsonb",
+    "payment_status" "public"."payment_status_enum" DEFAULT 'unpaid'::"public"."payment_status_enum",
+    "payment_transaction_id" "text",
+    "amount_paid" numeric(10,2) DEFAULT 0,
+    "negotiation_round" integer DEFAULT 0,
+    CONSTRAINT "appointments_negotiation_status_check" CHECK (("negotiation_status" = ANY (ARRAY['none'::"text", 'pending'::"text", 'pending_user_approval'::"text", 'pending_partner_approval'::"text", 'accepted'::"text", 'rejected'::"text"])))
+);
+
+
+ALTER TABLE "public"."appointments" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."appointments" IS 'Manages all appointment bookings and their status.';
+
+
+
+CREATE OR REPLACE VIEW "public"."admin_monthly_payouts" WITH ("security_invoker"='false') AS
+ SELECT "mp"."id" AS "partner_id",
+    "mp"."full_name",
+    "mp"."rip_number",
+    "mp"."account_holder_name",
+    "count"("a"."id") AS "jobs_completed_this_month",
+    "sum"(GREATEST((COALESCE("a"."negotiated_price", "mp"."homecare_price", (0)::numeric) - 100.0), 0.0)) AS "total_earnings_this_month"
+   FROM ("public"."medical_partners" "mp"
+     JOIN "public"."appointments" "a" ON (("mp"."id" = "a"."partner_id")))
+  WHERE (("a"."status" = 'Completed'::"text") AND ("date_trunc"('month'::"text", "a"."completed_at") = "date_trunc"('month'::"text", CURRENT_TIMESTAMP)))
+  GROUP BY "mp"."id", "mp"."full_name", "mp"."rip_number", "mp"."account_holder_name";
+
+
+ALTER VIEW "public"."admin_monthly_payouts" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."app_config" (
     "id" integer NOT NULL,
     "key" "text" NOT NULL,
@@ -1741,40 +1916,6 @@ ALTER SEQUENCE "public"."app_config_id_seq" OWNED BY "public"."app_config"."id";
 
 
 
-CREATE TABLE IF NOT EXISTS "public"."appointments" (
-    "id" bigint NOT NULL,
-    "partner_id" "uuid" NOT NULL,
-    "booking_user_id" "uuid" NOT NULL,
-    "on_behalf_of_patient_name" "text",
-    "appointment_time" timestamp with time zone NOT NULL,
-    "status" "text" DEFAULT 'Pending'::"text" NOT NULL,
-    "on_behalf_of_patient_phone" "text",
-    "appointment_number" integer,
-    "is_rescheduled" boolean DEFAULT false,
-    "completed_at" timestamp with time zone,
-    "has_review" boolean DEFAULT false,
-    "case_description" "text",
-    "patient_location" "text",
-    "booking_type" "public"."booking_type" DEFAULT 'clinic'::"public"."booking_type",
-    "homecare_address" "text",
-    "negotiated_price" numeric(10,2),
-    "negotiation_status" "text" DEFAULT 'none'::"text",
-    "created_at" timestamp with time zone DEFAULT "now"(),
-    "negotiation_history" "jsonb" DEFAULT '[]'::"jsonb",
-    "payment_status" "public"."payment_status_enum" DEFAULT 'unpaid'::"public"."payment_status_enum",
-    "payment_transaction_id" "text",
-    "amount_paid" numeric(10,2) DEFAULT 0,
-    CONSTRAINT "appointments_negotiation_status_check" CHECK (("negotiation_status" = ANY (ARRAY['pending'::"text", 'accepted'::"text", 'rejected'::"text", 'none'::"text"])))
-);
-
-
-ALTER TABLE "public"."appointments" OWNER TO "postgres";
-
-
-COMMENT ON TABLE "public"."appointments" IS 'Manages all appointment bookings and their status.';
-
-
-
 ALTER TABLE "public"."appointments" ALTER COLUMN "id" ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME "public"."appointments_id_seq"
     START WITH 1
@@ -1784,25 +1925,6 @@ ALTER TABLE "public"."appointments" ALTER COLUMN "id" ADD GENERATED ALWAYS AS ID
     CACHE 1
 );
 
-
-
-CREATE TABLE IF NOT EXISTS "public"."disputes" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "homecare_request_id" "uuid" NOT NULL,
-    "raised_by" "uuid" NOT NULL,
-    "dispute_reason" "text" NOT NULL,
-    "dispute_description" "text" NOT NULL,
-    "evidence_urls" "text"[],
-    "status" "text" DEFAULT 'open'::"text" NOT NULL,
-    "resolution_notes" "text",
-    "resolved_by" "uuid",
-    "resolved_at" timestamp with time zone,
-    "created_at" timestamp with time zone DEFAULT "now"(),
-    "updated_at" timestamp with time zone DEFAULT "now"()
-);
-
-
-ALTER TABLE "public"."disputes" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."manual_resolution_queue" (
@@ -2076,11 +2198,6 @@ ALTER TABLE ONLY "public"."appointments"
 
 
 
-ALTER TABLE ONLY "public"."disputes"
-    ADD CONSTRAINT "disputes_pkey" PRIMARY KEY ("id");
-
-
-
 ALTER TABLE ONLY "public"."manual_resolution_queue"
     ADD CONSTRAINT "manual_resolution_queue_pkey" PRIMARY KEY ("id");
 
@@ -2186,18 +2303,6 @@ CREATE INDEX "idx_appointments_time" ON "public"."appointments" USING "btree" ("
 
 
 
-CREATE INDEX "idx_disputes_raised_by" ON "public"."disputes" USING "btree" ("raised_by");
-
-
-
-CREATE INDEX "idx_disputes_request" ON "public"."disputes" USING "btree" ("homecare_request_id");
-
-
-
-CREATE INDEX "idx_disputes_status" ON "public"."disputes" USING "btree" ("status");
-
-
-
 CREATE INDEX "idx_manual_resolution_payment_transaction_id" ON "public"."manual_resolution_queue" USING "btree" ("payment_transaction_id");
 
 
@@ -2266,6 +2371,10 @@ CREATE OR REPLACE TRIGGER "on_appointment_change" AFTER INSERT OR UPDATE ON "pub
 
 
 
+CREATE OR REPLACE TRIGGER "on_appointment_completed" AFTER UPDATE OF "status" ON "public"."appointments" FOR EACH ROW WHEN (("new"."status" = 'Completed'::"text")) EXECUTE FUNCTION "public"."increment_completed_services_count"();
+
+
+
 CREATE OR REPLACE TRIGGER "on_partner_insert_update" BEFORE INSERT OR UPDATE ON "public"."medical_partners" FOR EACH ROW EXECUTE FUNCTION "public"."update_partner_fts"();
 
 
@@ -2285,16 +2394,6 @@ ALTER TABLE ONLY "public"."appointments"
 
 ALTER TABLE ONLY "public"."appointments"
     ADD CONSTRAINT "appointments_partner_id_fkey" FOREIGN KEY ("partner_id") REFERENCES "public"."medical_partners"("id");
-
-
-
-ALTER TABLE ONLY "public"."disputes"
-    ADD CONSTRAINT "disputes_raised_by_fkey" FOREIGN KEY ("raised_by") REFERENCES "public"."users"("id");
-
-
-
-ALTER TABLE ONLY "public"."disputes"
-    ADD CONSTRAINT "disputes_resolved_by_fkey" FOREIGN KEY ("resolved_by") REFERENCES "public"."users"("id");
 
 
 
@@ -2426,6 +2525,10 @@ CREATE POLICY "Anyone can view ratings" ON "public"."partner_ratings" FOR SELECT
 
 
 
+CREATE POLICY "Partners can update own financial info" ON "public"."medical_partners" FOR UPDATE USING (("auth"."uid"() = "id")) WITH CHECK (("auth"."uid"() = "id"));
+
+
+
 CREATE POLICY "Partners can view own payouts" ON "public"."partner_payouts" FOR SELECT USING (("auth"."uid"() = "partner_id"));
 
 
@@ -2458,19 +2561,11 @@ CREATE POLICY "Service role manages receipts" ON "public"."payment_receipts" TO 
 
 
 
-CREATE POLICY "Users can create disputes" ON "public"."disputes" FOR INSERT TO "authenticated" WITH CHECK (("auth"."uid"() = "raised_by"));
-
-
-
 CREATE POLICY "Users can create reviews for their own appointments" ON "public"."reviews" FOR INSERT WITH CHECK (("auth"."uid"() = "user_id"));
 
 
 
 CREATE POLICY "Users can insert their own payment transactions" ON "public"."payment_transactions" FOR INSERT WITH CHECK (("auth"."uid"() = "user_id"));
-
-
-
-CREATE POLICY "Users can view own disputes" ON "public"."disputes" FOR SELECT TO "authenticated" USING (("auth"."uid"() = "raised_by"));
 
 
 
@@ -2486,9 +2581,6 @@ ALTER TABLE "public"."app_config" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."appointments" ENABLE ROW LEVEL SECURITY;
-
-
-ALTER TABLE "public"."disputes" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."medical_partners" ENABLE ROW LEVEL SECURITY;
@@ -2780,6 +2872,12 @@ GRANT USAGE ON SCHEMA "public" TO "service_role";
 
 
 
+GRANT ALL ON FUNCTION "public"."accept_homecare_price"("appointment_id_arg" integer) TO "anon";
+GRANT ALL ON FUNCTION "public"."accept_homecare_price"("appointment_id_arg" integer) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."accept_homecare_price"("appointment_id_arg" integer) TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."apply_new_partner_hold"() TO "anon";
 GRANT ALL ON FUNCTION "public"."apply_new_partner_hold"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."apply_new_partner_hold"() TO "service_role";
@@ -2807,6 +2905,12 @@ GRANT ALL ON FUNCTION "public"."cancel_and_reorder_queue"("appointment_id_arg" b
 GRANT ALL ON FUNCTION "public"."close_day_and_cancel_appointments"("closed_day_arg" "date") TO "anon";
 GRANT ALL ON FUNCTION "public"."close_day_and_cancel_appointments"("closed_day_arg" "date") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."close_day_and_cancel_appointments"("closed_day_arg" "date") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."counter_offer_homecare_price"("appointment_id_arg" integer, "price_arg" numeric) TO "anon";
+GRANT ALL ON FUNCTION "public"."counter_offer_homecare_price"("appointment_id_arg" integer, "price_arg" numeric) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."counter_offer_homecare_price"("appointment_id_arg" integer, "price_arg" numeric) TO "service_role";
 
 
 
@@ -2930,9 +3034,27 @@ GRANT ALL ON FUNCTION "public"."increment_completed_services"() TO "service_role
 
 
 
+GRANT ALL ON FUNCTION "public"."increment_completed_services_count"() TO "anon";
+GRANT ALL ON FUNCTION "public"."increment_completed_services_count"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."increment_completed_services_count"() TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."process_chargily_webhook"("signature_header" "text", "payload" "jsonb") TO "anon";
 GRANT ALL ON FUNCTION "public"."process_chargily_webhook"("signature_header" "text", "payload" "jsonb") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."process_chargily_webhook"("signature_header" "text", "payload" "jsonb") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."propose_homecare_price"("appointment_id_arg" integer, "price_arg" numeric) TO "anon";
+GRANT ALL ON FUNCTION "public"."propose_homecare_price"("appointment_id_arg" integer, "price_arg" numeric) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."propose_homecare_price"("appointment_id_arg" integer, "price_arg" numeric) TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."reject_homecare_price"("appointment_id_arg" integer) TO "anon";
+GRANT ALL ON FUNCTION "public"."reject_homecare_price"("appointment_id_arg" integer) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."reject_homecare_price"("appointment_id_arg" integer) TO "service_role";
 
 
 
@@ -3041,6 +3163,18 @@ GRANT ALL ON FUNCTION "public"."update_player_id"("player_id_arg" "text") TO "se
 
 
 
+GRANT ALL ON TABLE "public"."appointments" TO "anon";
+GRANT ALL ON TABLE "public"."appointments" TO "authenticated";
+GRANT ALL ON TABLE "public"."appointments" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."admin_monthly_payouts" TO "anon";
+GRANT ALL ON TABLE "public"."admin_monthly_payouts" TO "authenticated";
+GRANT ALL ON TABLE "public"."admin_monthly_payouts" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."app_config" TO "anon";
 GRANT ALL ON TABLE "public"."app_config" TO "authenticated";
 GRANT ALL ON TABLE "public"."app_config" TO "service_role";
@@ -3053,21 +3187,9 @@ GRANT ALL ON SEQUENCE "public"."app_config_id_seq" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."appointments" TO "anon";
-GRANT ALL ON TABLE "public"."appointments" TO "authenticated";
-GRANT ALL ON TABLE "public"."appointments" TO "service_role";
-
-
-
 GRANT ALL ON SEQUENCE "public"."appointments_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."appointments_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."appointments_id_seq" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."disputes" TO "anon";
-GRANT ALL ON TABLE "public"."disputes" TO "authenticated";
-GRANT ALL ON TABLE "public"."disputes" TO "service_role";
 
 
 

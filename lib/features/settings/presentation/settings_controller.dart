@@ -108,6 +108,9 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         homecarePrice: (data['homecare_price'] as num?)?.toDouble(),
         workingHours: _parseWorkingHours(data['working_hours']),
         closedDays: _parseClosedDays(data['closed_days']),
+        // Financial Data - Fetched separately or from RPC if available
+        ripNumber: data['rip_number'] as String?,
+        accountHolderName: data['account_holder_name'] as String?,
         isLoading: false,
       );
     } catch (e) {
@@ -194,6 +197,16 @@ class PartnerSettingsController extends _$PartnerSettingsController {
   Future<void> updateHomecarePrice(double? value) async {
     if (!state.hasValue) return;
     state = AsyncValue.data(state.value!.copyWith(homecarePrice: value));
+  }
+
+  Future<void> updateRipNumber(String value) async {
+    if (!state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(ripNumber: value));
+  }
+
+  Future<void> updateAccountHolderName(String value) async {
+    if (!state.hasValue) return;
+    state = AsyncValue.data(state.value!.copyWith(accountHolderName: value));
   }
 
   // --- Granular Working Hours Actions ---
@@ -331,6 +344,9 @@ class PartnerSettingsController extends _$PartnerSettingsController {
         'closed_days':
             currentState.closedDays.map((e) => e.toIso8601String()).toList(),
         'homecare_price': currentState.homecarePrice,
+        'homecare_price': currentState.homecarePrice,
+        'rip_number': currentState.ripNumber,
+        'account_holder_name': currentState.accountHolderName,
       }).eq('id', user.id);
 
       state = AsyncValue.data(currentState.copyWith(isSaving: false));

@@ -7,7 +7,7 @@ part of 'patient_dashboard_controller.dart';
 // **************************************************************************
 
 String _$upcomingAppointmentsStreamHash() =>
-    r'b79c4c7f26af586a156c4a42e5ebf19ca3231837';
+    r'b2d6a9847d4e13e9f94d84dd0d34ee9540a6f247';
 
 /// Stream provider for real-time upcoming appointments.
 ///
@@ -27,7 +27,7 @@ final upcomingAppointmentsStreamProvider =
 typedef UpcomingAppointmentsStreamRef
     = AutoDisposeStreamProviderRef<List<Map<String, dynamic>>>;
 String _$patientDashboardControllerHash() =>
-    r'612f44cf32cdcec952a0de28289e55a64f8362fb';
+    r'45991eb1a2607e67d512cad6996b414fca282753';
 
 /// Controller for the Patient Dashboard.
 ///

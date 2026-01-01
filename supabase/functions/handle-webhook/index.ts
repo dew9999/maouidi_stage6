@@ -118,14 +118,17 @@ serve(async (req) => {
       throw new Error("Appointment not found");
     }
 
-    // 9. Update payment status
-    // Transition to 'confirmed' after successful payment
+    // 9. Calculate totals (moved up for use in update)
+    const platformFee = 500;
+    const servicePrice = appointment.negotiated_price || appointment.price || 0;
+    const totalPaid = servicePrice + platformFee;
+
+    // 10. Update payment status & amount_paid
     const { error: updateError } = await supabase
       .from("appointments")
       .update({
         status: "Confirmed",
-        // payment_status: "paid", // Optional: Add column if needed
-        // chargily_transaction_id: webhookData.data.id, // Optional
+        amount_paid: totalPaid, // Store the actual amount paid
       })
       .eq("id", requestId);
 

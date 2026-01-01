@@ -136,7 +136,7 @@ class AppointmentInfoCard extends ConsumerWidget {
     final controller =
         ref.read(partnerDashboardControllerProvider(partnerId).notifier);
 
-    if (status == 'Pending') {
+    if (status == 'Pending' || status == 'pending') {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -175,7 +175,9 @@ class AppointmentInfoCard extends ConsumerWidget {
       );
     }
 
-    if (status == 'Confirmed' || status == 'In Progress') {
+    if (status == 'Confirmed' ||
+        status == 'confirmed' ||
+        status == 'In Progress') {
       return Row(
         children: [
           Expanded(

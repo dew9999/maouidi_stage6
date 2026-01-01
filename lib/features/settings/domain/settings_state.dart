@@ -37,6 +37,8 @@ class PartnerSettingsState with _$PartnerSettingsState {
     double? homecarePrice, // Partner-specific homecare service price
     @Default({}) Map<String, List<String>> workingHours,
     @Default([]) List<DateTime> closedDays,
+    String? ripNumber, // NEW: RIP Number (Manual Payouts)
+    String? accountHolderName, // Account Holder Name
     @Default(false) bool isSaving,
     @Default(false) bool isLoading,
     String? errorMessage,

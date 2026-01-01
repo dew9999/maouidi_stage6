@@ -56,22 +56,45 @@ serve(async (req) => {
       .eq("key", "platform_fee_dzd")
       .single();
 
-    const platformFee = feeConfig?.value ? Number(feeConfig.value) : 500;
-
-    // 4. Fetch appointment details (Consolidated Table)
-    const { data: appointment, error: requestError } = await supabase
+    // 3. Fetch appointment details
+    const { data: appointment, error: appointmentError } = await supabase
       .from("appointments")
-      .select("id, booking_user_id, partner_id, negotiated_price")
+      .select(
+        "*, medical_partners(full_name, homecare_price), negotiated_price",
+      )
       .eq("id", requestId)
       .single();
 
-    if (requestError || !appointment) {
-      console.error("Appointment fetch error:", requestError);
-      throw new Error("Appointment not found");
+    if (appointmentError || !appointment) {
+      console.error("Appointment check failed:", appointmentError);
+      return new Response(
+        JSON.stringify({ error: "Appointment not found" }),
+        {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
-    const negotiatedPrice = Number(appointment.negotiated_price) || 0;
-    const totalAmount = negotiatedPrice + platformFee;
+    // 4. Calculate Total Amount (Base/Negotiated + 500 DZD Fee)
+    // The patient pays the fee.
+    const basePrice = appointment.negotiated_price ?? appointment.price ?? 0;
+    const platformFee = 500;
+    const totalAmount = basePrice + platformFee;
+
+    console.log(
+      `Creating payment for ${requestId}: Base=${basePrice}, Fee=${platformFee}, Total=${totalAmount}`,
+    );
+
+    if (totalAmount <= 0) {
+      return new Response(
+        JSON.stringify({ error: "Invalid payment amount" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
 
     // 5. Fetch patient details for Chargily
     const { data: patient, error: patientError } = await supabase
@@ -115,8 +138,7 @@ serve(async (req) => {
             patient_id: appointment.booking_user_id,
             partner_id: appointment.partner_id,
           },
-          description:
-            `Homecare Service Payment - ${negotiatedPrice} DZD + Fees`,
+          description: `Homecare Service Payment - ${basePrice} DZD + Fees`,
         }),
       },
     );

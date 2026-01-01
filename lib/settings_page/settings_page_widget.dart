@@ -205,6 +205,10 @@ class _PartnerSettingsView extends ConsumerWidget {
                 settings: settings,
                 theme: theme,
               ),
+              _FinancialSettingsSection(
+                settings: settings,
+                theme: theme,
+              ),
               _AvailabilitySection(settings: settings),
               SettingsGroup(
                 title: 'Professional',
@@ -591,6 +595,96 @@ class _AvailabilitySection extends ConsumerWidget {
         const _WorkingHoursEditor(), // No props needed, uses provider
         _ClosedDaysEditor(
           closedDays: settings.closedDays,
+        ),
+      ],
+    );
+  }
+}
+
+class _FinancialSettingsSection extends ConsumerStatefulWidget {
+  final dynamic settings;
+  final ThemeData theme;
+
+  const _FinancialSettingsSection({
+    required this.settings,
+    required this.theme,
+  });
+
+  @override
+  ConsumerState<_FinancialSettingsSection> createState() =>
+      _FinancialSettingsSectionState();
+}
+
+class _FinancialSettingsSectionState
+    extends ConsumerState<_FinancialSettingsSection> {
+  late TextEditingController _ripController;
+  late TextEditingController _nameController;
+
+  @override
+  void initState() {
+    super.initState();
+    _ripController = TextEditingController(text: widget.settings.ripNumber);
+    _nameController =
+        TextEditingController(text: widget.settings.accountHolderName);
+  }
+
+  @override
+  void dispose() {
+    _ripController.dispose();
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsGroup(
+      title: 'Payout Information (Manual)',
+      children: [
+        SettingsItem(
+          icon: Icons.account_balance_outlined,
+          title: 'RIP Number',
+          subtitle: 'Bank/Post Office Identity Statement',
+          trailing: SizedBox(
+            width: 200,
+            child: TextFormField(
+              controller: _ripController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              textAlign: TextAlign.end,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: '00000000000000000000',
+                hintStyle: widget.theme.textTheme.labelMedium,
+              ),
+              onChanged: (val) {
+                ref
+                    .read(partnerSettingsControllerProvider.notifier)
+                    .updateRipNumber(val);
+              },
+            ),
+          ),
+        ),
+        SettingsItem(
+          icon: Icons.person_outline,
+          title: 'Account Holder',
+          subtitle: 'Full Name on Account',
+          trailing: SizedBox(
+            width: 150,
+            child: TextFormField(
+              controller: _nameController,
+              textAlign: TextAlign.end,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Full Name',
+                hintStyle: widget.theme.textTheme.labelMedium,
+              ),
+              onChanged: (val) {
+                ref
+                    .read(partnerSettingsControllerProvider.notifier)
+                    .updateAccountHolderName(val);
+              },
+            ),
+          ),
         ),
       ],
     );

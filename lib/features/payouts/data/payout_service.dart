@@ -16,23 +16,36 @@ class PayoutService {
   }) async {
     // Get all completed homecare appointments in the period
     // STRICTLY filter by booking_type = 'homecare'
+    // Get all completed homecare appointments in the period
+    // STRICTLY filter by booking_type = 'homecare'
     final appointments = await _supabase
         .from('appointments')
-        .select('amount_paid, completed_at, status')
+        .select(
+          'negotiated_price, amount_paid, completed_at, status, medical_partners(homecare_price)',
+        )
         .eq('partner_id', partnerId)
-        .eq('booking_type', 'homecare')
-        // We filter for both 'Completed' and 'completed' to be safe, or just use 'Completed'
-        // based on the grep results. Since 'appointments' table usually has constraints,
-        // let's rely on the value we saw in the repo ('Completed').
+        // Removed strict 'homecare' filter to catch capitalized or unspecified types
         .eq('status', 'Completed')
         .gte('completed_at', startDate.toIso8601String())
         .lte('completed_at', endDate.toIso8601String());
 
     double totalEarnings = 0;
+    const double platformFee = 100.0; // Fixed fee per user request
+
     for (final appointment in appointments) {
-      final price = appointment['amount_paid'];
+      // Use negotiated_price if available, otherwise base homecare_price from partner settings
+      final partnerData =
+          appointment['medical_partners'] as Map<String, dynamic>?;
+      final basePrice = partnerData?['homecare_price'];
+
+      final price = appointment['negotiated_price'] ?? basePrice;
+
       if (price != null) {
-        totalEarnings += (price as num).toDouble();
+        final grossAmount = (price as num).toDouble();
+        // Net earning = Gross - Fee
+        final netAmount =
+            (grossAmount - platformFee).clamp(0.0, double.infinity);
+        totalEarnings += netAmount;
       }
     }
 
@@ -44,24 +57,48 @@ class PayoutService {
     };
   }
 
-  /// Get partner's payout schedule preference
-  Future<String> getPayoutSchedule(String partnerId) async {
+  /// Get partner's payout schedule preference and last change date
+  Future<Map<String, dynamic>> getPayoutSettings(String partnerId) async {
     final partner = await _supabase
         .from('medical_partners')
-        .select('payout_schedule')
+        .select('payout_schedule, last_schedule_change')
         .eq('id', partnerId)
         .single();
 
-    return partner['payout_schedule'] as String? ?? 'weekly';
+    return {
+      'schedule': partner['payout_schedule'] as String? ?? 'weekly',
+      'last_change': partner['last_schedule_change'] != null
+          ? DateTime.parse(partner['last_schedule_change'])
+          : null,
+    };
   }
 
-  /// Update partner's payout schedule
+  /// Get partner's payout schedule preference (Legacy wrapper)
+  Future<String> getPayoutSchedule(String partnerId) async {
+    final settings = await getPayoutSettings(partnerId);
+    return settings['schedule'] as String;
+  }
+
+  /// Update partner's payout schedule with 30-day restriction
   Future<void> updatePayoutSchedule({
     required String partnerId,
     required String schedule, // 'weekly' or 'monthly'
   }) async {
+    // 1. Check eligibility
+    final settings = await getPayoutSettings(partnerId);
+    final lastChange = settings['last_change'] as DateTime?;
+
+    if (lastChange != null) {
+      final daysSinceChange = DateTime.now().difference(lastChange).inDays;
+      if (daysSinceChange < 30) {
+        throw 'You can only change your payout schedule once every 30 days. Next change allowed in ${30 - daysSinceChange} days.';
+      }
+    }
+
+    // 2. Update if eligible
     await _supabase.from('medical_partners').update({
       'payout_schedule': schedule,
+      'last_schedule_change': DateTime.now().toIso8601String(),
     }).eq('id', partnerId);
   }
 
